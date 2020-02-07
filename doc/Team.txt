@@ -1,5 +1,3 @@
-ccid        username
-
-yuqian5     yuqian5
-lyuyang     lyuyang
-zou5        zoujunqi
+yuqian5 yuqian5
+lyuyang lyuyang
+zou5 zoujunqi
