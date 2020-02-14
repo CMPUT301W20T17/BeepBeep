@@ -1,5 +1,5 @@
 |GitHub Username | CCID|
-| --- | --- |
+| :---------: | :------: |
 [yuqian5](https://github.com/yuqian5)|yuqian5
 [lyuyang](https://github.com/lyuyang0130)|lyuyang
 [zou5](https://github.com/lospub)|zoujunqi
