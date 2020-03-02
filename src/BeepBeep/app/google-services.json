@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "328711946163",
+    "firebase_url": "https://beepbeep-bb686.firebaseio.com",
+    "project_id": "beepbeep-bb686",
+    "storage_bucket": "beepbeep-bb686.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:328711946163:android:0b4ae72cecbde5c881d5c6",
+        "android_client_info": {
+          "package_name": "com.example.beepbeep"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "328711946163-p9sqabu9hc9kqhg3t6d0rpk6t1g5dshp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6aih-LyI_6JMO7slHLnAMveR5KipiWsI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "328711946163-p9sqabu9hc9kqhg3t6d0rpk6t1g5dshp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
