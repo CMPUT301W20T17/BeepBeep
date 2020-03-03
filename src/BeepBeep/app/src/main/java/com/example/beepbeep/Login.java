@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -34,7 +35,10 @@ public class Login extends AppCompatActivity {
     TextView signUpPrompt;
     EditText usernameInput;
     EditText passwordInput;
+
     Button loginButton;
+
+    ProgressBar progressBar;
 
     FirebaseFirestore db;
 
@@ -49,63 +53,69 @@ public class Login extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
 
         // map view elements
-        signUpPrompt.findViewById(R.id.Login_signupPrompt);
-        usernameInput.findViewById(R.id.Login_inputUsername);
-        passwordInput.findViewById(R.id.Login_inputPassword);
-        loginButton.findViewById(R.id.Login_loginButton);
+        signUpPrompt = findViewById(R.id.Login_signupPrompt);
+        usernameInput = findViewById(R.id.Login_inputUsername);
+        passwordInput = findViewById(R.id.Login_inputPassword);
+        loginButton = findViewById(R.id.Login_loginButton);
+        progressBar = findViewById(R.id.Login_progressBar);
+
+        // hide progress bar
+        progressBar.setVisibility(View.INVISIBLE);
 
         // user clicked login, verify user credential
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // show progress bar
+                progressBar.setVisibility(View.VISIBLE);
                 // check that username and password field aren't empty
                 if(usernameInput.getText().toString().isEmpty()){
                     // prompt for error
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
-                    builder.setMessage("You need to type in your username").setTitle("Error");
-                    AlertDialog dialog = builder.create();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(Login.this);
+                    builder.setMessage("You need to type in your username").setTitle("Error").show();
                 }else if(passwordInput.getText().toString().isEmpty()){
                     // prompt for error
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
-                    builder.setMessage("You need to type in your password").setTitle("Error");
-                    AlertDialog dialog = builder.create();
-                }
-
-                // check if username exist in database
-                DocumentReference docIdRef =  db.collection("Accounts").document(usernameInput.getText().toString());
-                docIdRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-                            if (document.exists()) { // username exist, check password
-                                Log.d(TAG, "Account exists!");
-                                // check if password hash match the one on record
-                                String salt = Objects.requireNonNull(document.get("salt")).toString();
-                                String hash = Objects.requireNonNull(document.get("password")).toString();
-                                try {
-                                    if(SecurePasswordHashGenerator.rehashPassword(passwordInput.getText().toString(), salt).equals(hash)){ // password is a match
-                                        // TODO change app state as logged in, change the shared preference, need to create the shared preference
-                                    }else{ // password does not match
-                                        // prompt for error
-                                        AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
-                                        builder.setMessage("Invalid Username or Password").setTitle("Error");
-                                        AlertDialog dialog = builder.create();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(Login.this);
+                    builder.setMessage("You need to type in your password").setTitle("Error").show();
+                }else{
+                    // check if username exist in database
+                    DocumentReference docIdRef = db.collection("Accounts").document(usernameInput.getText().toString());
+                    docIdRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot document = task.getResult();
+                                if (document.exists()) { // username exist, check password
+                                    Log.d(TAG, "Account exists!");
+                                    // check if password hash match the one on record
+                                    String salt = Objects.requireNonNull(document.get("salt")).toString();
+                                    String hash = Objects.requireNonNull(document.get("password")).toString();
+                                    try {
+                                        String inputHash = SecurePasswordHashGenerator.rehashPassword(passwordInput.getText().toString(), salt);
+                                        if(inputHash.substring(33,inputHash.length()).equals(hash)){ // password is a match
+                                            // TODO change app state as logged in, change the shared preference, need to create the shared preference
+                                            finish();
+                                        }else{ // password does not match
+                                            // prompt for error
+                                            AlertDialog.Builder builder = new AlertDialog.Builder(Login.this);
+                                            builder.setMessage("Invalid Username or Password").setTitle("Error").show();
+                                        }
+                                    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+                                        e.printStackTrace();
                                     }
-                                } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-                                    e.printStackTrace();
+                                } else {
+                                    // prompt for error
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(Login.this);
+                                    builder.setMessage("Invalid Username or Password").setTitle("Error").show();
                                 }
                             } else {
-                                // prompt for error
-                                AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
-                                builder.setMessage("Invalid Username or Password").setTitle("Error");
-                                AlertDialog dialog = builder.create();
+                                Log.d(TAG, "Failed with: ", task.getException());
                             }
-                        } else {
-                            Log.d(TAG, "Failed with: ", task.getException());
                         }
-                    }
-                });
+                    });
+                }
+                // hide progress bar
+                progressBar.setVisibility(View.INVISIBLE);
             }
         });
 
