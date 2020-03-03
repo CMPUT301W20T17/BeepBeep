@@ -142,7 +142,7 @@ public class Login extends AppCompatActivity {
                         String salt = Objects.requireNonNull(document.get("salt")).toString();
                         String hash = Objects.requireNonNull(document.get("password")).toString();
                         try {
-                            String inputHash = SecurePasswordHashGenerator.rehashPassword(passwordInput.getText().toString(), salt);
+                            String inputHash = SecurePasswordHashGenerator.rehashPassword(password, salt);
                             if(inputHash.substring(33).equals(hash)){ // password is a match
                                 saveIdentity(username, password, salt, document);
                                 finish();
