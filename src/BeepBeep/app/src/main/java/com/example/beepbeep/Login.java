@@ -4,7 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -31,6 +33,9 @@ import java.util.Objects;
  Availability: https://stackoverflow.com/questions/53332471/checking-if-a-document-exists-in-a-firestore-collection/53335711
 */
 
+/**
+ * Login screen
+ */
 public class Login extends AppCompatActivity {
     TextView signUpPrompt;
     EditText usernameInput;
@@ -42,7 +47,7 @@ public class Login extends AppCompatActivity {
 
     FirebaseFirestore db;
 
-    final String TAG = "Sample";
+    final String TAG = "Account";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,51 +73,19 @@ public class Login extends AppCompatActivity {
             public void onClick(View view) {
                 // show progress bar
                 progressBar.setVisibility(View.VISIBLE);
+                // get value from input field
+                String username = usernameInput.getText().toString();
+                String password = passwordInput.getText().toString();
                 // check that username and password field aren't empty
-                if(usernameInput.getText().toString().isEmpty()){
+                if(username.isEmpty()){
                     // prompt for error
-                    AlertDialog.Builder builder = new AlertDialog.Builder(Login.this);
-                    builder.setMessage("You need to type in your username").setTitle("Error").show();
-                }else if(passwordInput.getText().toString().isEmpty()){
+                    showDialog("Username cannot be empty");
+                }else if(password.isEmpty()){
                     // prompt for error
-                    AlertDialog.Builder builder = new AlertDialog.Builder(Login.this);
-                    builder.setMessage("You need to type in your password").setTitle("Error").show();
-                }else{
-                    // check if username exist in database
-                    DocumentReference docIdRef = db.collection("Accounts").document(usernameInput.getText().toString());
-                    docIdRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if (task.isSuccessful()) {
-                                DocumentSnapshot document = task.getResult();
-                                if (document.exists()) { // username exist, check password
-                                    Log.d(TAG, "Account exists!");
-                                    // check if password hash match the one on record
-                                    String salt = Objects.requireNonNull(document.get("salt")).toString();
-                                    String hash = Objects.requireNonNull(document.get("password")).toString();
-                                    try {
-                                        String inputHash = SecurePasswordHashGenerator.rehashPassword(passwordInput.getText().toString(), salt);
-                                        if(inputHash.substring(33,inputHash.length()).equals(hash)){ // password is a match
-                                            // TODO change app state as logged in, change the shared preference, need to create the shared preference
-                                            finish();
-                                        }else{ // password does not match
-                                            // prompt for error
-                                            AlertDialog.Builder builder = new AlertDialog.Builder(Login.this);
-                                            builder.setMessage("Invalid Username or Password").setTitle("Error").show();
-                                        }
-                                    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-                                        e.printStackTrace();
-                                    }
-                                } else {
-                                    // prompt for error
-                                    AlertDialog.Builder builder = new AlertDialog.Builder(Login.this);
-                                    builder.setMessage("Invalid Username or Password").setTitle("Error").show();
-                                }
-                            } else {
-                                Log.d(TAG, "Failed with: ", task.getException());
-                            }
-                        }
-                    });
+                    showDialog("Password cannot be empty");
+                }else {
+                    // verify user credential
+                    login(username, password);
                 }
                 // hide progress bar
                 progressBar.setVisibility(View.INVISIBLE);
@@ -125,6 +98,68 @@ public class Login extends AppCompatActivity {
             public void onClick(View view) {
                 Intent launchSignUpActivity = new Intent(getApplicationContext(), Signup.class);
                 startActivity(launchSignUpActivity);
+            }
+        });
+    }
+
+    /**
+     * Display a message as a alert dialogue
+     * @param message String
+     */
+    private void showDialog(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(Login.this);
+        builder.setMessage(message).show();
+    }
+
+    private void saveIdentity(final String username, final String password, final String salt, DocumentSnapshot document){
+        Context context = Login.this;
+        SharedPreferences sharedPref = context.getSharedPreferences("identity", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("username", username);
+        editor.putString("password", password);
+        editor.putString("salt", salt);
+        editor.putString("email", Objects.requireNonNull(document.get("email")).toString());
+        editor.putString("status", Objects.requireNonNull(document.get("status")).toString());
+        editor.apply();
+    }
+
+    /**
+     * Connect to database to verify the inputted credentials
+     * @param username String
+     * @param password String
+     */
+    private void login(final String username, final String password){
+        // check if username exist in database
+        DocumentReference docIdRef = db.collection("Accounts").document(usernameInput.getText().toString());
+        docIdRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) { // username exist, check password
+                        Log.d(TAG, "Account exists!");
+                        // check if password hash match the one on record
+                        String salt = Objects.requireNonNull(document.get("salt")).toString();
+                        String hash = Objects.requireNonNull(document.get("password")).toString();
+                        try {
+                            String inputHash = SecurePasswordHashGenerator.rehashPassword(passwordInput.getText().toString(), salt);
+                            if(inputHash.substring(33).equals(hash)){ // password is a match
+                                saveIdentity(username, password, salt, document);
+                                finish();
+                            }else{ // password does not match
+                                // prompt for error
+                                showDialog("Invalid Username or Password");
+                            }
+                        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        // prompt for error
+                        showDialog("Invalid Username or Password");
+                    }
+                } else {
+                    Log.d(TAG, "Failed with: ", task.getException());
+                }
             }
         });
     }
