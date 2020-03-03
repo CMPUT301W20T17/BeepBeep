@@ -29,5 +29,7 @@ public class MainActivity extends AppCompatActivity {
             // if match, updated all values
             // if not match, logout and delete identity sp
         }
+
+        // start main activity
     }
 }
