@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">BeepBeep</string>
     <string name="title_activity_maps">Map</string>
+    <string name="signupPrompt">Don\'t have an account?</string>
+    <string name="usernameInputHint">Username</string>
+    <string name="passwordInputHint">Password</string>
+    <string name="loginButton">Login</string>
 </resources>
