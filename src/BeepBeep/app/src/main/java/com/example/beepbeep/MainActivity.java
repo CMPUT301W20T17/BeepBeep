@@ -12,12 +12,21 @@ import android.view.ActionMode;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.File;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // TODO testcode
+        File sharedPreferenceFile = new File("/data/data/"+ getPackageName()+ "/shared_prefs/");
+        File[] listFiles = sharedPreferenceFile.listFiles();
+        for (File file : listFiles) {
+            file.delete();
+        }
 
         // check if user is logged in, if not logged in, go to login screen
         SharedPreferences sharedPref = MainActivity.this.getSharedPreferences("identity", MODE_PRIVATE);

@@ -5,4 +5,9 @@
     <string name="usernameInputHint">Username</string>
     <string name="passwordInputHint">Password</string>
     <string name="loginButton">Login</string>
+    <string name="email">Email</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="rider">"Rider "</string>
+    <string name="driver">Driver</string>
+    <string name="signup">Signup</string>
 </resources>
