@@ -5,4 +5,5 @@
     <string name="usernameInputHint">Username</string>
     <string name="passwordInputHint">Password</string>
     <string name="loginButton">Login</string>
+<!--    <string name="Google_map_API_key">AIzaSyAsIo-ER-3DxCsGwFkQYv0EaRJlPgEuBGg</string>-->
 </resources>
