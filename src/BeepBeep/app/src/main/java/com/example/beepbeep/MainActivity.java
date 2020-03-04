@@ -2,12 +2,18 @@ package com.example.beepbeep;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.ActionMode;
+import android.widget.Toast;
+
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -43,8 +49,18 @@ public class MainActivity extends AppCompatActivity {
 
         // start main activity
 
-        Intent intent = new Intent(this, MapsActivity.class);
-        startActivity(intent);
+        ActivityCompat.requestPermissions(MainActivity.this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                1);
+        if (ContextCompat.checkSelfPermission(MainActivity.this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+        }
+        else {
+            Intent intent = new Intent(this, MapsActivity.class);
+            startActivity(intent);
+        }
 
     }
 }
