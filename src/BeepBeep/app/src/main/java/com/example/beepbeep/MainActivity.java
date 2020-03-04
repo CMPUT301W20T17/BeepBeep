@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.ActionMode;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -30,6 +31,9 @@ public class MainActivity extends AppCompatActivity {
             // if not match, logout and delete identity sp
         }
 
+
         // start main activity
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
     }
 }
