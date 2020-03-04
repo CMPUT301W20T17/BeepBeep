@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,6 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -103,12 +106,23 @@ public class Login extends AppCompatActivity {
     }
 
     /**
-     * Display a message as a alert dialogue
+     * Display a message as a toast to prompt user
      * @param message String
      */
     private void showDialog(String message) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(Login.this);
-        builder.setMessage(message).show();
+        Toast.makeText(Login.this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * check if device have network access
+     * @return true if device have network access
+     */
+    private boolean hasNetworkAccess(){
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(this.CONNECTIVITY_SERVICE);
+        assert connectivityManager != null;
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     private void saveIdentity(final String username, final String password, final String salt, DocumentSnapshot document){
@@ -129,38 +143,42 @@ public class Login extends AppCompatActivity {
      * @param password String
      */
     private void login(final String username, final String password){
-        // check if username exist in database
-        DocumentReference docIdRef = db.collection("Accounts").document(usernameInput.getText().toString());
-        docIdRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) { // username exist, check password
-                        Log.d(TAG, "Account exists!");
-                        // check if password hash match the one on record
-                        String salt = Objects.requireNonNull(document.get("salt")).toString();
-                        String hash = Objects.requireNonNull(document.get("password")).toString();
-                        try {
-                            String inputHash = SecurePasswordHashGenerator.rehashPassword(passwordInput.getText().toString(), salt);
-                            if(inputHash.substring(33).equals(hash)){ // password is a match
-                                saveIdentity(username, password, salt, document);
-                                finish();
-                            }else{ // password does not match
-                                // prompt for error
-                                showDialog("Invalid Username or Password");
+        if(hasNetworkAccess()){
+            // check if username exist in database
+            DocumentReference docIdRef = db.collection("Accounts").document(usernameInput.getText().toString());
+            docIdRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) { // username exist, check password
+                            Log.d(TAG, "Account exists!");
+                            // check if password hash match the one on record
+                            String salt = Objects.requireNonNull(document.get("salt")).toString();
+                            String hash = Objects.requireNonNull(document.get("password")).toString();
+                            try {
+                                String inputHash = SecurePasswordHashGenerator.rehashPassword(password, salt);
+                                if(inputHash.substring(33).equals(hash)){ // password is a match
+                                    saveIdentity(username, password, salt, document);
+                                    finish();
+                                }else{ // password does not match
+                                    // prompt for error
+                                    showDialog("Invalid Username or Password");
+                                }
+                            } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+                                e.printStackTrace();
                             }
-                        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-                            e.printStackTrace();
+                        } else {
+                            // prompt for error
+                            showDialog("Invalid Username or Password");
                         }
                     } else {
-                        // prompt for error
-                        showDialog("Invalid Username or Password");
+                        Log.d(TAG, "Failed with: ", task.getException());
                     }
-                } else {
-                    Log.d(TAG, "Failed with: ", task.getException());
                 }
-            }
-        });
+            });
+        }else{// no internet
+            showDialog("No Internet Connection");
+        }
     }
 }

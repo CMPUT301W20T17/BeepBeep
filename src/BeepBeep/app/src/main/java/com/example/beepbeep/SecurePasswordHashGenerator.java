@@ -47,7 +47,7 @@ class SecurePasswordHashGenerator {
     }
 
     /**
-     *
+     * Will take in plain text password and salt to generate a hash
      * @param plaintextPassword password as a string
      * @param saltString hex string of the salt
      * @return salt and hash separated by :
