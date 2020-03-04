@@ -9,22 +9,5 @@
     tools:context=".MapsActivity"
     android:name="com.google.android.gms.maps.SupportMapFragment">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:weightSum="10"
-            android:padding="16dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-
-
-        </LinearLayout>
-
-    </RelativeLayout>
 
 </fragment>
