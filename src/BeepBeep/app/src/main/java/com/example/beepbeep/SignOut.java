@@ -4,12 +4,17 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.util.Log;
 
 import java.io.File;
 
-import static android.content.Context.MODE_PRIVATE;
+/*
+ Title: Clear the app data programmatically in android
+ Author: Yuqian Cao, Vignaraj from Madurai, TN India
+ Date: 2020/03/05
+ Code version: N/A
+ Availability: http://www.indappz.com/2014/12/clear-app-data-programmatically-in.html
+*/
 
 class SignOut {
     static void now(Context c){
