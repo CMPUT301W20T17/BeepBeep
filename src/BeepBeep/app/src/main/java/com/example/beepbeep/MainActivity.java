@@ -33,11 +33,10 @@ public class MainActivity extends AppCompatActivity {
         if(!sharedPref.contains("initialized")){
             Intent i = new Intent(this, Login.class);
             startActivity(i);
-            sharedPref.edit().putBoolean("initialized", true).apply();
         }else{
             if(hasNetworkAccess()){
                 // get a connection to firebase
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
                 // Get all current activity
                 final String password = sharedPref.getString("password", "");
@@ -63,7 +62,9 @@ public class MainActivity extends AppCompatActivity {
 
                                 // update identity
                                 sharedPref.edit().clear().apply();
+                                sharedPref.edit().putBoolean("initialized", true).apply();
                                 sharedPref.edit().putString("password", password).apply();
+                                sharedPref.edit().putString("username", username).apply();
                                 sharedPref.edit().putString("salt", salt).apply();
                                 sharedPref.edit().putString("role", role).apply();
                                 sharedPref.edit().putString("email", Objects.requireNonNull(document.get("email")).toString()).apply();
@@ -83,6 +84,8 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
+            }else{
+                showDialog("You are currently offline!");
             }
         }
 

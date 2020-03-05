@@ -128,6 +128,7 @@ public class Login extends AppCompatActivity {
         Context context = Login.this;
         SharedPreferences sharedPref = context.getSharedPreferences("identity", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putBoolean("initialized", true);
         editor.putString("username", username);
         editor.putString("password", passwordHash);
         editor.putString("salt", salt);
