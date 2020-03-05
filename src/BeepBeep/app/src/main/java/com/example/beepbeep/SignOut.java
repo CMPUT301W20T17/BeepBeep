@@ -9,6 +9,10 @@ import android.util.Log;
 import java.io.File;
 
 class SignOut {
+    /**
+     * Will delete all shared pref data and restart app, effectively sign out user
+     * @param c context
+     */
     static void now(Context c){
         // delete all shared preferences saved on the machine
         File sharedPreferenceFile = new File(c.getFilesDir().getParentFile().getAbsolutePath() + File.separator + "shared_prefs");
