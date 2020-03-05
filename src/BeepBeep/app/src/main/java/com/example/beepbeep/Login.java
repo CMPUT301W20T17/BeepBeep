@@ -1,7 +1,6 @@
 package com.example.beepbeep;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
@@ -125,15 +124,20 @@ public class Login extends AppCompatActivity {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    private void saveIdentity(final String username, final String password, final String salt, DocumentSnapshot document){
+    private void saveIdentity(final String username, final String passwordHash, final String salt, DocumentSnapshot document){
         Context context = Login.this;
         SharedPreferences sharedPref = context.getSharedPreferences("identity", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString("username", username);
-        editor.putString("password", password);
+        editor.putString("password", passwordHash);
         editor.putString("salt", salt);
         editor.putString("email", Objects.requireNonNull(document.get("email")).toString());
-        editor.putString("status", Objects.requireNonNull(document.get("status")).toString());
+        editor.putString("role", Objects.requireNonNull(document.get("role")).toString());
+        editor.putString("phone", Objects.requireNonNull(document.get("phone")).toString());
+        if(Objects.requireNonNull(document.get("role")).toString().equals("Driver")){
+            editor.putString("positive", Objects.requireNonNull(document.get("positive")).toString());
+            editor.putString("negative", Objects.requireNonNull(document.get("negative")).toString());
+        }
         editor.apply();
     }
 
@@ -159,7 +163,7 @@ public class Login extends AppCompatActivity {
                             try {
                                 String inputHash = SecurePasswordHashGenerator.rehashPassword(password, salt);
                                 if(inputHash.substring(33).equals(hash)){ // password is a match
-                                    saveIdentity(username, password, salt, document);
+                                    saveIdentity(username, hash, salt, document);
                                     finish();
                                 }else{ // password does not match
                                     // prompt for error
