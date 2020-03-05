@@ -3,11 +3,9 @@ package com.example.beepbeep;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.annotation.SuppressLint;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -36,8 +34,9 @@ public class Signup extends AppCompatActivity {
     EditText passwordInput;
     EditText confirmPasswordInput;
     EditText emailInput;
+    EditText phoneInput;
 
-    Switch statusSwitch;
+    Switch roleSwitch;
 
     FirebaseFirestore db;
 
@@ -56,8 +55,9 @@ public class Signup extends AppCompatActivity {
         passwordInput = findViewById(R.id.Signup_PasswordInput);
         confirmPasswordInput = findViewById(R.id.Signup_ConfirmPasswordInput);
         emailInput = findViewById(R.id.Signup_emailInput);
-        statusSwitch = findViewById(R.id.Signup_statusSwitch);
+        roleSwitch = findViewById(R.id.Signup_roleSwitch);
         signUpButton = findViewById(R.id.Signup_signupButton);
+        phoneInput = findViewById(R.id.Signup_phoneInput);
 
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,22 +92,17 @@ public class Signup extends AppCompatActivity {
                                 account.put("email", emailInput.getText().toString());
                                 account.put("password", password);
                                 account.put("salt", salt);
-                                account.put("status", statusSwitch.isChecked() ? "Driver" : "Rider");
-                                if(statusSwitch.isChecked()){ // if register as a driver, will get a rating field in profile
-                                    account.put("rating", "0");
+                                account.put("role", roleSwitch.isChecked() ? "Driver" : "Rider");
+                                account.put("phone", phoneInput.getText().toString());
+                                if(roleSwitch.isChecked()){ // if register as a driver, will get a rating field in profile
+                                    account.put("positive", "0");
+                                    account.put("negative", "0");
                                 }
                                 db.collection("Accounts").document(usernameInput.getText().toString()).set(account);
                             }catch (NoSuchAlgorithmException | InvalidKeySpecException e){
                                 Log.d("KeyGenError", e.toString());
                             }
                             showDialog("You are all signed up!");
-                            Handler handler = new Handler();
-                            handler.postDelayed(new Runnable(){
-                                @Override
-                                public void run(){
-                                    // do something
-                                }
-                            }, 3000);
                             finish();
                         }
                     } else {
@@ -140,26 +135,50 @@ public class Signup extends AppCompatActivity {
         Toast.makeText(Signup.this, message, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * check if every input is valid and not empty
+     * @return true is every input is valid and not empty
+     */
     private boolean validInput(){
         String username = usernameInput.getText().toString();
         String password = passwordInput.getText().toString();
         String confirmPassword = confirmPasswordInput.getText().toString();
         String email = emailInput.getText().toString();
+        String phone = phoneInput.getText().toString();
         if(username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() || email.isEmpty()){ // check if any input in empty
             return false;
         }else if(!passwordInput.getText().toString().equals(confirmPasswordInput.getText().toString())){ // check if the 2 password match
             return false;
         }else if(!validEmail(email)){ // validate email with regex
             return false;
-        }else{
-            return true;
+        } else if (!validPhone(phone)) {
+            return false;
         }
+        return true;
     }
 
+    /**
+     * Check if a given string of email address are valid
+     * @param email String
+     * @return true if email is the right format
+     */
     private boolean validEmail(String email){
         String pattern = "[a-zA-Z0-9\\-!#$%&'*+/=?^_`{|}~.]+@\\w+\\.\\w+";
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(email);
         return m.find();
     }
+
+    /**
+     * Check if a given string of phone number are valid
+     * @param phone String
+     * @return true if phone is the right format
+     */
+    private boolean validPhone(String phone){
+        String pattern = "\\d*";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(phone);
+        return m.find();
+    }
+
 }
