@@ -32,9 +32,11 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    private GeoDataClient mGeoDataClient;
     private FusedLocationProviderClient fusedLocationClient;
     private static final String TAG = "MapsActivity";
     private static final int ERROR = 9901;
@@ -51,19 +53,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //                .findFragmentById(R.id.map);
 //        mapFragment.getMapAsync(this);
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        // Got last known location. In some rare situations this can be null.
-                        if (location != null) {
-                            // Logic to handle location object
-                        }
-                    }
-                });
+        // Construct a GeoDataClient.
+        mGeoDataClient = Places.getGeoDataClient(this, null);
+
+        // Construct a PlaceDetectionClient.
+        mPlaceDetectionClient = Places.getPlaceDetectionClient(this, null);
+
+        // Construct a FusedLocationProviderClient.
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
 
     }
+
+
 
 
     /**
