@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
                 final String salt = sharedPref.getString("salt", "");
                 final String role = sharedPref.getString("role", "");
                 final String username = sharedPref.getString("username", "");
-                // get cloud user profile
+                //get cloud user profile
                 DocumentReference docIdRef = db.collection("Accounts").document(username);
                 docIdRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
