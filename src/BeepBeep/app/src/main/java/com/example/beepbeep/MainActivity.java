@@ -33,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
         if(!sharedPref.contains("initialized")){
             Intent i = new Intent(this, Login.class);
             startActivity(i);
-            sharedPref.edit().putBoolean("initialized", true).apply();
         }else{
             if(hasNetworkAccess()){
                 // get a connection to firebase
