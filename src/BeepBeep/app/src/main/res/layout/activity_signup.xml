@@ -22,7 +22,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.411" />
 
     <EditText
         android:id="@+id/Signup_emailInput"
@@ -107,7 +108,10 @@
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/custom_button"
         android:text="@string/signup"
+        android:textColorLink="#FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
@@ -129,13 +133,14 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
+        android:layout_width="0dp"
+        android:layout_height="147dp"
         android:layout_marginBottom="5dp"
-        android:adjustViewBounds="true"
-        android:scaleType="fitCenter"
+        android:adjustViewBounds="false"
+        android:scaleType="centerInside"
         app:layout_constraintBottom_toTopOf="@+id/Signup_Usernameinput"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.473"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0"
