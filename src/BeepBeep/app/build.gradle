@@ -13,6 +13,9 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        resValue "string", "google_maps_key",
+                (project.findProperty("GOOGLE_MAPS_API_KEY") ?: "")
+
     }
 
     buildTypes {
@@ -32,7 +35,9 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics:17.2.2'
     //Google Play services
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
+    //adding the location and place library
     implementation 'com.google.android.gms:play-services-location:17.0.0'
+    implementation 'com.google.android.libraries.places:places:2.2.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
