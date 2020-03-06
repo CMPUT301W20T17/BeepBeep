@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.beepbeep">
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
@@ -19,8 +20,12 @@
         android:theme="@style/AppTheme">
         <activity android:name=".EditProfile"></activity>
         <activity android:name=".ViewProfile" />
-        <activity android:name=".Signup" />
-        <activity android:name=".Login" />
+        <activity android:name=".Signup"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity"/>
+        <activity android:name=".Login"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity"/>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
