@@ -2,10 +2,14 @@ package com.example.beepbeep;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -165,7 +169,19 @@ public class Login extends AppCompatActivity {
                                 String inputHash = SecurePasswordHashGenerator.rehashPassword(password, salt);
                                 if(inputHash.substring(33).equals(hash)){ // password is a match
                                     saveIdentity(username, hash, salt, document);
-                                    finish();
+                                    //finish();
+                                    //ask the permission for using geo location and display
+                                    ActivityCompat.requestPermissions(Login.this,
+                                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                            1);
+                                    if (ContextCompat.checkSelfPermission(Login.this,
+                                            Manifest.permission.ACCESS_FINE_LOCATION)
+                                            != PackageManager.PERMISSION_GRANTED) {
+                                    }
+                                    else {
+                                        Intent intent = new Intent(Login.this, MapsActivity.class);
+                                        startActivity(intent);
+                                    }
                                 }else{ // password does not match
                                     // prompt for error
                                     showDialog("Invalid Username or Password");
