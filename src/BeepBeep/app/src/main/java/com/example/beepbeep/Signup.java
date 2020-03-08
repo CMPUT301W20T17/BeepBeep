@@ -162,7 +162,8 @@ public class Signup extends AppCompatActivity {
      * @param email String
      * @return true if email is the right format
      */
-    private boolean validEmail(String email){
+    //changed from private to static public because editprofileactivity needs this and can't use it unless its static public
+    static public boolean validEmail(String email){
         String pattern = "[a-zA-Z0-9\\-!#$%&'*+/=?^_`{|}~.]+@\\w+\\.\\w+";
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(email);
@@ -174,7 +175,8 @@ public class Signup extends AppCompatActivity {
      * @param phone String
      * @return true if phone is the right format
      */
-    private boolean validPhone(String phone){
+    //changed from private to static public because editprofileactivity needs this and can't use it unless its static public
+    static public boolean validPhone(String phone){
         String pattern = "\\d*";
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(phone);
