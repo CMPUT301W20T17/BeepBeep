@@ -56,7 +56,7 @@
         android:layout_height="match_parent"
         android:layout_marginTop="2dp"
         android:id="@+id/map"
-        tools:context=".MapsActivity"
+        tools:context=".RiderMapActivity"
         android:name="com.google.android.gms.maps.SupportMapFragment"/>
 
 </RelativeLayout>

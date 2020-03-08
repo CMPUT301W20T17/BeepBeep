@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                 != PackageManager.PERMISSION_GRANTED) {
         }
         else {
-            Intent intent = new Intent(this, MapsActivity.class);
+            Intent intent = new Intent(this, RiderMapActivity.class);
             startActivity(intent);
         }
     }
