@@ -46,7 +46,7 @@
         android:layout_marginTop="5dp"
         android:layout_marginEnd="6dp"
         android:text="Search"
-        android:textSize="10dp"
+        android:textSize="12sp"
         android:layout_toEndOf="@+id/destination"
         android:layout_alignParentEnd="true" />
 
@@ -54,6 +54,7 @@
         android:layout_below="@+id/destination"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="2dp"
         android:id="@+id/map"
         tools:context=".MapsActivity"
         android:name="com.google.android.gms.maps.SupportMapFragment"/>
