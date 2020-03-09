@@ -5,6 +5,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -26,25 +27,18 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.api.Places;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 
 import java.util.List;
 
 
 public class RiderMapActivity extends FragmentActivity implements OnMapReadyCallback {
-
-    /*
-    final String TAG = "Account";
-    FirebaseDatabase database;
-    DatabaseReference ref;
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_rider_map);
-        ref = FirebaseDatabase.getInstance().getReference().child(TAG);
-
-    }
-     */
+    final String TAG1 = "Account";
+    FirebaseFirestore db;
+    DocumentReference ref;
 
     private GoogleMap mMap;
     private static final String TAG = RiderMapActivity.class.getSimpleName();
@@ -88,6 +82,14 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //TODO
+        //get the account infor to update the geolocation for rider
+        Intent intent = getIntent();
+        final String profileName = intent.getStringExtra("profile_name");
+        ref = db.collection(TAG1).document(profileName);
+
+
 
         // Retrieve location and camera position from saved instance state.
         if (savedInstanceState != null) {

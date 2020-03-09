@@ -51,12 +51,22 @@
         android:layout_alignParentEnd="true" />
 
     <fragment
-        android:layout_below="@+id/destination"
+        android:layout_below="@+id/confirm"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="2dp"
         android:id="@+id/map"
         tools:context=".RiderMapActivity"
         android:name="com.google.android.gms.maps.SupportMapFragment"/>
+
+    <Button
+        android:id="@+id/confirm"
+        android:layout_below="@+id/destination"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="6dp"
+        android:text="CONFIRM" />
 
 </RelativeLayout>
