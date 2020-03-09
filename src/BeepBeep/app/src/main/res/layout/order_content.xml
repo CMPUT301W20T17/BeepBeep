@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent">
+
+    <TextView
+        android:id="@+id/name_rider_driver"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:text="   Name"
+        android:textSize="14sp"
+        android:padding="2dp"/>
+
+    <TextView
+        android:id="@+id/rider_driver_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/name_rider_driver"
+        android:padding="2dp"
+        android:text="text of rider-driver"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/name_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/name_rider_driver"
+        android:text="   Date:"
+        android:textSize="14sp"
+        android:padding="2dp"/>
+
+    <TextView
+        android:id="@+id/date_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rider_driver_text"
+        android:layout_marginTop="0dp"
+        android:layout_toRightOf="@id/name_date"
+        android:padding="2dp"
+        android:text="date text"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/name_start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/name_date"
+        android:text="   Start Location:"
+        android:textSize="14sp"
+        android:padding="2dp"/>
+
+    <TextView
+        android:id="@+id/start_loca_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/date_text"
+        android:layout_marginTop="0dp"
+        android:layout_toRightOf="@id/name_start"
+        android:padding="2dp"
+        android:text="start location text"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/name_destination"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/name_start"
+        android:text="   Destination:"
+        android:textSize="14sp"
+        android:padding="2dp"/>
+
+    <TextView
+        android:id="@+id/destination_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/start_loca_text"
+        android:layout_marginTop="0dp"
+        android:layout_toRightOf="@id/name_destination"
+        android:padding="2dp"
+        android:text="destination text"
+        android:textSize="14sp" />
+
+    <Button
+        android:id="@+id/view_contact_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:text="VIEW"
+        android:focusable="false"
+        android:onClick="viewOtherProfile"/>
+
+</RelativeLayout>
