@@ -98,8 +98,6 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-
         // Retrieve location and camera position from saved instance state.
         if (savedInstanceState != null) {
             mLastKnownLocation = savedInstanceState.getParcelable(KEY_LOCATION);
@@ -115,7 +113,9 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
         mapFragment.getMapAsync(this);
 
         // Construct a PlacesClient
-        Places.initialize(getApplicationContext(), getString(R.string.google_maps_key));
+        if (!Places.isInitialized()) {
+            Places.initialize(getApplicationContext(), getString(R.string.google_maps_key));
+        }
         mPlacesClient = Places.createClient(this);
 
 
