@@ -17,4 +17,6 @@
     <string name="confirm_amount">Confirm Amount</string>
     <string name="please_enter_amount">Please Enter Amount</string>
     <string name="qrbuck">QRBUCK</string>
+    <string name="confirm">Confirm</string>
+    <string name="placeholder">PLACEHOLDER</string>
 </resources>
