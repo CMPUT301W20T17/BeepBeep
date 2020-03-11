@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/show_pickup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Start:"
+        android:padding="10dp"
+        android:textSize="15sp"/>
+
+    <TextView
+        android:id="@+id/show_destination"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="End:"
+        android:padding="10dp"
+        android:textSize="15sp"/>
+
+    <TextView
+        android:id="@+id/show_price"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Price:"
+        android:padding="10dp"
+        android:textSize="15sp"/>
+
+
+
+</LinearLayout>
