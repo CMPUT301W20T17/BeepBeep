@@ -11,6 +11,10 @@
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera"/>
+    <uses-feature android:name="android.hardware.camera.autofocus"/>
+
 
     <application
         android:allowBackup="true"
@@ -19,7 +23,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MakePayment"></activity>
+        <activity android:name=".ReceivePayment"></activity>
+        <activity android:name=".MakePayment" />
         <activity android:name=".ViewProfile" />
         <activity
             android:name=".Signup"
@@ -54,6 +59,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+
+            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+
+            android:screenOrientation="fullSensor"
+
+            tools:replace="screenOrientation" />
     </application>
 
 </manifest>
