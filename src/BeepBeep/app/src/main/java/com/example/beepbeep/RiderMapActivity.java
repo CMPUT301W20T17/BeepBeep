@@ -1,11 +1,14 @@
 package com.example.beepbeep;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -14,6 +17,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -23,15 +27,22 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -75,6 +86,9 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
     private static final String KEY_CAMERA_POSITION = "camera_position";
     private static final String KEY_LOCATION = "location";
 
+    private static final int AUTOCOMPLETE_REQUEST_CODE = 1;
+
+
 
 
 
@@ -85,10 +99,13 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
 
         //TODO
         //get the account infor to update the geolocation for rider
-        Intent intent = getIntent();
-        final String profileName = intent.getStringExtra("profile_name");
-        ref = db.collection(TAG1).document(profileName);
+//        Intent intent = getIntent();
+//        final String profileName = intent.getStringExtra("profile_name");
+//        ref = db.collection(TAG1).document(profileName);
 
+        //get sharedpreference and get user
+        final SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
+        final String username = sharedPref.getString("username", "");
 
 
         // Retrieve location and camera position from saved instance state.
@@ -113,6 +130,31 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
         // Construct a FusedLocationProviderClient.
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
+
+        //search the location by autocomplete
+        AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
+                getSupportFragmentManager().findFragmentById(R.id.destination);
+//        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
+//                getFragmentManager().findFragmentById(R.id.destination);
+
+        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
+//
+////                mMap.clear();
+////                mMap.addMarker(new MarkerOptions().position(place.getLatLng()).title(place.getName().toString()));
+////                mMap.moveCamera(CameraUpdateFactory.newLatLng(place.getLatLng()));
+////                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 12.0f));
+            }
+
+            @Override
+            public void onError(Status status) {
+                Log.i(TAG, "An error occurred: " + status);
+
+            }
+        });
 
     }
 
@@ -181,6 +223,8 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
         mMap = googleMap;
         // Use a custom info window adapter to handle multiple lines of text in the
         // info window contents.
+//        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Maker"));
+
         mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
 
             @Override
@@ -213,6 +257,22 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
 
         // Get the current location of the device and set the position of the map.
         getDeviceLocation();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == AutocompleteActivity.RESULT_OK) {
+                Place place = Autocomplete.getPlaceFromIntent(intent);
+                Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
+            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                Status status = Autocomplete.getStatusFromIntent(intent);
+                Log.i(TAG, status.getStatusMessage());
+            } else if (resultCode == AutocompleteActivity.RESULT_CANCELED) {
+                // The user canceled the operation.
+            }
+        }
     }
 
     private void updateLocationUI() {
@@ -248,6 +308,7 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
                         if (task.isSuccessful()) {
                             // Set the map's camera position to the current location of the device.
                             mLastKnownLocation = (Location) task.getResult();
+                            assert mLastKnownLocation != null;
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(mLastKnownLocation.getLatitude(),
                                             mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
@@ -265,114 +326,6 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
         }
     }
 
-//    private void showCurrentPlace() {
-//        if (mMap == null) {
-//            return;
-//        }
-//
-//        if (mLocationPermissionGranted) {
-//            // Use fields to define the data types to return.
-//            List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME, Place.Field.ADDRESS,
-//                    Place.Field.LAT_LNG);
-//
-//            // Use the builder to create a FindCurrentPlaceRequest.
-//            FindCurrentPlaceRequest request =
-//                    FindCurrentPlaceRequest.newInstance(placeFields);
-//
-//            // Get the likely places - that is, the businesses and other points of interest that
-//            // are the best match for the device's current location.
-//            @SuppressWarnings("MissingPermission") final
-//            Task<FindCurrentPlaceResponse> placeResult =
-//                        mPlacesClient.findCurrentPlace(request);
-//            placeResult.addOnCompleteListener (new OnCompleteListener<FindCurrentPlaceResponse>() {
-//                @Override
-//                public void onComplete(@NonNull Task<FindCurrentPlaceResponse> task) {
-//                    if (task.isSuccessful() && task.getResult() != null) {
-//                        FindCurrentPlaceResponse likelyPlaces = task.getResult();
-//
-//                        // Set the count, handling cases where less than 5 entries are returned.
-//                        int count;
-//                        if (likelyPlaces.getPlaceLikelihoods().size() < M_MAX_ENTRIES) {
-//                            count = likelyPlaces.getPlaceLikelihoods().size();
-//                        } else {
-//                            count = M_MAX_ENTRIES;
-//                        }
-//
-//                        int i = 0;
-//                        mLikelyPlaceNames = new String[count];
-//                        mLikelyPlaceAddresses = new String[count];
-//                        mLikelyPlaceAttributions = new List[count];
-//                        mLikelyPlaceLatLngs = new LatLng[count];
-//
-//                        for (PlaceLikelihood placeLikelihood : likelyPlaces.getPlaceLikelihoods()) {
-//                            // Build a list of likely places to show the user.
-//                            mLikelyPlaceNames[i] = placeLikelihood.getPlace().getName();
-//                            mLikelyPlaceAddresses[i] = placeLikelihood.getPlace().getAddress();
-//                            mLikelyPlaceAttributions[i] = placeLikelihood.getPlace()
-//                                    .getAttributions();
-//                            mLikelyPlaceLatLngs[i] = placeLikelihood.getPlace().getLatLng();
-//
-//                            i++;
-//                            if (i > (count - 1)) {
-//                                break;
-//                            }
-//                        }
-//
-//                        // Show a dialog offering the user the list of likely places, and add a
-//                        // marker at the selected place.
-//                        RiderMapActivity.this.openPlacesDialog();
-//                    }
-//                    else {
-//                        Log.e(TAG, "Exception: %s", task.getException());
-//                    }
-//                }
-//            });
-//        } else {
-//            // The user has not granted permission.
-//            Log.i(TAG, "The user did not grant location permission.");
-//
-//            // Add a default marker, because the user hasn't selected a place.
-//            mMap.addMarker(new MarkerOptions()
-//                    .title(getString(R.string.default_info_title))
-//                    .position(mDefaultLocation)
-//                    .snippet(getString(R.string.default_info_snippet)));
-//
-//            // Prompt the user for permission.
-//            getLocationPermission();
-//        }
-//    }
-
-//    private void openPlacesDialog() {
-//        // Ask the user to choose the place where they are now.
-//        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                // The "which" argument contains the position of the selected item.
-//                LatLng markerLatLng = mLikelyPlaceLatLngs[which];
-//                String markerSnippet = mLikelyPlaceAddresses[which];
-//                if (mLikelyPlaceAttributions[which] != null) {
-//                    markerSnippet = markerSnippet + "\n" + mLikelyPlaceAttributions[which];
-//                }
-//
-//                // Add a marker for the selected place, with an info window
-//                // showing information about that place.
-//                mMap.addMarker(new MarkerOptions()
-//                        .title(mLikelyPlaceNames[which])
-//                        .position(markerLatLng)
-//                        .snippet(markerSnippet));
-//
-//                // Position the map's camera at the location of the marker.
-//                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng,
-//                        DEFAULT_ZOOM));
-//            }
-//        };
-//
-//        // Display the dialog.
-//        AlertDialog dialog = new AlertDialog.Builder(this)
-//                .setTitle(R.string.pick_place)
-//                .setItems(mLikelyPlaceNames, listener)
-//                .show();
-//    }
 
 
 
