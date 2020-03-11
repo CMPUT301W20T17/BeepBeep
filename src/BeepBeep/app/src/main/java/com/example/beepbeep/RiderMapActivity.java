@@ -132,7 +132,7 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
         Button btn_test;
-        btn_test = findViewById(R.id.btn_test);
+        btn_test = findViewById(R.id.confirm);
         btn_test.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
