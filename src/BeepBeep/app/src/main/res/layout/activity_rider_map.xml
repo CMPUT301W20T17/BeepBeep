@@ -13,7 +13,7 @@
         android:layout_below="@+id/pickup_location"
         android:layout_width="match_parent"
         android:layout_height="32dp"
-        android:text="Enter the destination" />
+        android:hint="Enter the destination" />
         <!--
         android:layout_marginStart="8dp"
         android:layout_marginTop="5dp"-->
@@ -24,7 +24,8 @@
         android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
         android:layout_width="match_parent"
         android:layout_height="32dp"
-        android:text="Enter the pickup location" />
+        android:hint="Enter the pickup location"
+        android:layout_below="@+id/pickupView"/>
 
 
 
@@ -42,9 +43,21 @@
         android:layout_below="@+id/destination"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginStart="5dp"
-        android:layout_marginEnd="6dp"
         android:text="CONFIRM" />
+
+    <TextView
+        android:id="@+id/pickupView"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:text="Pickup Location"
+        android:textSize="8sp" />
+
+    <TextView
+        android:id="@+id/destinationView"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:text="Destination"
+        android:textSize="8sp"
+        android:layout_below="@+id/pickup_location"/>
 
 </RelativeLayout>
