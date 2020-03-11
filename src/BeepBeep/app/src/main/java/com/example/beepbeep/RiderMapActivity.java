@@ -131,19 +131,66 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
         // Construct a FusedLocationProviderClient.
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
+        //active the autocomplete place selection for destination
+        getAutocompleteDestination();
 
-        Button btn_test;
-        btn_test = findViewById(R.id.confirm);
-        btn_test.setOnClickListener(new View.OnClickListener() {
+        //active the autocomplete place selection for pickup location
+        getAutocompletePickup();
+
+
+        Button confirm_button;
+        confirm_button = findViewById(R.id.confirm);
+        confirm_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 new request_fragment().show(getSupportFragmentManager(),"SHOW_REQUEST");
             }
         });
 
+
+    }
+
+    /**
+     * Saves the state of the map when the activity is paused.
+     */
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if (mMap != null) {
+            outState.putParcelable(KEY_CAMERA_POSITION, mMap.getCameraPosition());
+            outState.putParcelable(KEY_LOCATION, mLastKnownLocation);
+            super.onSaveInstanceState(outState);
+        }
+    }
+
+    private void getAutocompleteDestination() {
         //search the location by autocomplete
         AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
                 getSupportFragmentManager().findFragmentById(R.id.destination);
+
+        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
+//
+                mMap.clear();
+                mMap.addMarker(new MarkerOptions().position(place.getLatLng()).title(place.getName().toString()));
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(place.getLatLng()));
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 12.0f));
+            }
+
+            @Override
+            public void onError(Status status) {
+                Log.i(TAG, "An error occurred: " + status);
+
+            }
+        });
+    }
+
+    private void getAutocompletePickup() {
+        //search the location by autocomplete
+        AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
+                getSupportFragmentManager().findFragmentById(R.id.pickup_location);
 //        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
 //                getFragmentManager().findFragmentById(R.id.destination);
 
@@ -165,19 +212,6 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
 
             }
         });
-
-    }
-
-    /**
-     * Saves the state of the map when the activity is paused.
-     */
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        if (mMap != null) {
-            outState.putParcelable(KEY_CAMERA_POSITION, mMap.getCameraPosition());
-            outState.putParcelable(KEY_LOCATION, mLastKnownLocation);
-            super.onSaveInstanceState(outState);
-        }
     }
 
     private void getLocationPermission() {
