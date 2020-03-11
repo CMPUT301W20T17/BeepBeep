@@ -131,6 +131,7 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
         // Construct a FusedLocationProviderClient.
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
+
         Button btn_test;
         btn_test = findViewById(R.id.confirm);
         btn_test.setOnClickListener(new View.OnClickListener() {
@@ -139,7 +140,6 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
                 new request_fragment().show(getSupportFragmentManager(),"SHOW_REQUEST");
             }
         });
-
 
         //search the location by autocomplete
         AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
