@@ -94,6 +94,7 @@ public class Signup extends AppCompatActivity {
                                 account.put("salt", salt);
                                 account.put("role", roleSwitch.isChecked() ? "Driver" : "Rider");
                                 account.put("phone", phoneInput.getText().toString());
+                                account.put("balance", "0");
                                 if(roleSwitch.isChecked()){ // if register as a driver, will get a rating field in profile
                                     account.put("positive", "0");
                                     account.put("negative", "0");

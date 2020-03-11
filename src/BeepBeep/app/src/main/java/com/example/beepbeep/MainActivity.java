@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
                                 sharedPref.edit().putString("role", role).apply();
                                 sharedPref.edit().putString("email", Objects.requireNonNull(document.get("email")).toString()).apply();
                                 sharedPref.edit().putString("phone", Objects.requireNonNull(document.get("phone")).toString()).apply();
+                                sharedPref.edit().putString("balance", Objects.requireNonNull(document.get("balance")).toString()).apply();
                                 if(role.equals("Driver")){
                                     sharedPref.edit().putString("positive", Objects.requireNonNull(document.get("positive")).toString()).apply();
                                     sharedPref.edit().putString("negative", Objects.requireNonNull(document.get("negative")).toString()).apply();
