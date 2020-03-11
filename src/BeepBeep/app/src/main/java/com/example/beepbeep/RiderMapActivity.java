@@ -98,15 +98,6 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //TODO
-        //get the account infor to update the geolocation for rider
-//        Intent intent = getIntent();
-//        final String profileName = intent.getStringExtra("profile_name");
-//        ref = db.collection(TAG1).document(profileName);
-
-        //get sharedpreference and get user
-        final SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
-        final String username = sharedPref.getString("username", "");
 
 
         // Retrieve location and camera position from saved instance state.
@@ -149,6 +140,8 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
 
 
     }
+
+
 
     /**
      * Saves the state of the map when the activity is paused.
