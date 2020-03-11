@@ -143,10 +143,10 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
             public void onPlaceSelected(Place place) {
                 Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
 //
-////                mMap.clear();
-////                mMap.addMarker(new MarkerOptions().position(place.getLatLng()).title(place.getName().toString()));
-////                mMap.moveCamera(CameraUpdateFactory.newLatLng(place.getLatLng()));
-////                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 12.0f));
+                mMap.clear();
+                mMap.addMarker(new MarkerOptions().position(place.getLatLng()).title(place.getName().toString()));
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(place.getLatLng()));
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 12.0f));
             }
 
             @Override
