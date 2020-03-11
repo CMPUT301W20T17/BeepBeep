@@ -52,6 +52,7 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
     FirebaseFirestore db;
     DocumentReference ref;
 
+
     private GoogleMap mMap;
     private static final String TAG = RiderMapActivity.class.getSimpleName();
 
@@ -88,6 +89,10 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
     private static final String KEY_LOCATION = "location";
 
     private static final int AUTOCOMPLETE_REQUEST_CODE = 1;
+
+    //set two geo point
+    private LatLng pickup;
+    private LatLng destination;
 
 
 
@@ -129,6 +134,9 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
         getAutocompletePickup();
 
 
+
+
+
         Button confirm_button;
         confirm_button = findViewById(R.id.confirm);
         confirm_button.setOnClickListener(new View.OnClickListener() {
@@ -165,11 +173,13 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
             @Override
             public void onPlaceSelected(Place place) {
                 Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
+                destination = place.getLatLng();
+
 //
-                mMap.clear();
-                mMap.addMarker(new MarkerOptions().position(place.getLatLng()).title(place.getName().toString()));
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(place.getLatLng()));
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 12.0f));
+//                mMap.clear();
+//                mMap.addMarker(new MarkerOptions().position(place.getLatLng()).title(place.getName().toString()));
+//                mMap.moveCamera(CameraUpdateFactory.newLatLng(place.getLatLng()));
+//                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 12.0f));
             }
 
             @Override
@@ -192,11 +202,12 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
             @Override
             public void onPlaceSelected(Place place) {
                 Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
+                pickup = place.getLatLng();
 //
-                mMap.clear();
-                mMap.addMarker(new MarkerOptions().position(place.getLatLng()).title(place.getName().toString()));
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(place.getLatLng()));
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 12.0f));
+//                mMap.clear();
+//                mMap.addMarker(new MarkerOptions().position(place.getLatLng()).title(place.getName().toString()));
+//                mMap.moveCamera(CameraUpdateFactory.newLatLng(place.getLatLng()));
+//                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 12.0f));
             }
 
             @Override
