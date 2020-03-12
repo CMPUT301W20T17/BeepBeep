@@ -25,6 +25,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -172,7 +173,7 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
-                Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
+                Log.i("Destination", "Place: " + place.getName() + ", " + place.getId());
                 destination = place.getLatLng();
 
 //
@@ -184,7 +185,7 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
 
             @Override
             public void onError(Status status) {
-                Log.i(TAG, "An error occurred: " + status);
+                Log.i("Destination", "An error occurred: " + status);
 
             }
         });
@@ -201,8 +202,16 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
-                Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
+                Log.i("PickUp", "Place: " + place.getName() + ", " + place.getId());
+                String name = place.getName();
                 pickup = place.getLatLng();
+                MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.position(pickup);
+                markerOptions.title(name);
+                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                mMap.addMarker(markerOptions);
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pickup, 11));
+
 //
 //                mMap.clear();
 //                mMap.addMarker(new MarkerOptions().position(place.getLatLng()).title(place.getName().toString()));
@@ -212,7 +221,7 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
 
             @Override
             public void onError(Status status) {
-                Log.i(TAG, "An error occurred: " + status);
+                Log.i("PickUp", "An error occurred: " + status);
 
             }
         });
