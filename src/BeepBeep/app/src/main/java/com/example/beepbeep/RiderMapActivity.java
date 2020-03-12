@@ -30,6 +30,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.PlacesClient;
@@ -38,13 +40,22 @@ import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+import com.google.firebase.Timestamp;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.QuerySnapshot;
 
 
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 
 public class RiderMapActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -94,11 +105,6 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
     private LatLng pickup;
     private LatLng destination;
 
-
-
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -133,16 +139,63 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
         //active the autocomplete place selection for pickup location
         getAutocompletePickup();
 
-
-
-
-
+        //set the Buttom confirm, and send the request information to firestore
         Button confirm_button;
         confirm_button = findViewById(R.id.confirm);
         confirm_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new request_fragment().show(getSupportFragmentManager(),"SHOW_REQUEST");
+                //get shared preference and user now
+                final SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
+                final String username = sharedPref.getString("username", "");
+                //connect to firestore and get unique ID
+                db = FirebaseFirestore.getInstance();
+                String uniqueID = UUID.randomUUID().toString();
+                Map<String, Object> docData = new HashMap<>();
+
+                //prepare the data in specific type
+                Date startTime = Calendar.getInstance().getTime(); //start time
+                Timestamp startStamp = new Timestamp(startTime);
+                //TODO: zuobian xuyao gai, bu neng yong
+                double pickupLat = 53.52322; //pickup geolocation
+                double pickupLng = -113.526321;
+                GeoPoint pickupGeo = new GeoPoint(pickupLat,pickupLng);
+                double destinLat = 29.40628; //destination geolocation
+                double destinLng = -82.28923;
+                GeoPoint destinaitonGeo = new GeoPoint(destinLat,destinLng);
+
+                //set the storing data
+                docData.put("Type", "inactive");
+                docData.put("RiderID", username);
+                docData.put("DriverID", "");
+                docData.put("StartTime",startStamp);
+                docData.put("FinishTime",null);
+                docData.put("Price",0);
+                docData.put("PickUpPoint",pickupGeo);
+                docData.put("Destination",destinaitonGeo);
+
+                //connect to firestore and store the data
+                db.collection("Requests").document(uniqueID)
+                        .set(docData)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "DocumentSnapshot successfully written!");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error writing document", e);
+                            }
+                        });
+
+                //pass the unique ID into the fragment
+                Bundle bundle = new Bundle();
+                bundle.putString("IDkey",uniqueID);
+                request_fragment request_frag = new request_fragment();
+                request_frag.setArguments(bundle);
+                request_frag.show(getSupportFragmentManager(),"SHOW_REQUEST");
             }
         });
 
@@ -373,13 +426,5 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
             Log.e("Exception: %s", e.getMessage());
         }
     }
-
-
-
-
-
-
-
-
 
 }

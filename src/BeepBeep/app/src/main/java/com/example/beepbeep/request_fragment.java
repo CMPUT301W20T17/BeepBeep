@@ -2,6 +2,7 @@ package com.example.beepbeep;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Geocoder;
@@ -16,15 +17,20 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.SetOptions;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -43,6 +49,9 @@ public class request_fragment extends DialogFragment {
         show_start = view.findViewById(R.id.show_pickup);
         show_end = view.findViewById(R.id.show_destination);
         show_price = view.findViewById(R.id.show_price);
+        //get the uniqueID from Bundle
+        Bundle args = this.getArguments();
+        final String uniqueID = args.getString("IDkey","id123456");
         //get shared preference and user now
         final SharedPreferences sharedPref = this.getActivity().getSharedPreferences("identity", MODE_PRIVATE);
         final String username = sharedPref.getString("username", "");
@@ -50,7 +59,7 @@ public class request_fragment extends DialogFragment {
         //TODO: get the id from the mapsActivity to start showing the inf
         //final DocumentReference docIdRef = db.collection("Requests").document(username);
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
-        final DocumentReference RequestIdInf = db.collection("Requests").document("id123456");
+        final DocumentReference RequestIdInf = db.collection("Requests").document(uniqueID);
         RequestIdInf.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -63,11 +72,13 @@ public class request_fragment extends DialogFragment {
                         final double desti_lat = destination.getLatitude();
                         final double desti_long = destination.getLongitude();
                         String destination_address = getAddress(desti_lat,desti_long);
+
                         //get address of pickup location
                         final GeoPoint pickup = document.getGeoPoint("PickUpPoint");
                         final double pick_lat = pickup.getLatitude();
                         final double pick_long = pickup.getLongitude();
                         String pickup_address = getAddress(pick_lat,pick_long);
+
                         //get price
                         final String price = document.get("Price").toString();
                         show_start.setText("Start: "+pickup_address);
@@ -90,8 +101,35 @@ public class request_fragment extends DialogFragment {
         return builder
                 .setView(view)
                 .setTitle("Request information confirm")
-                .setPositiveButton("Confirm",null)
-                .setNegativeButton("Cancel",null)
+                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //update the type
+                        Map<String,Object> update_type= new HashMap<>();
+                        update_type.put("Type","active");
+                        RequestIdInf.set(update_type, SetOptions.merge());
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    //detele the request
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        db.collection("Requests").document(uniqueID)
+                                .delete()
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.w(TAG, "Error deleting document", e);
+                                    }
+                                });
+                    }
+                })
                 .create();
     }
 
