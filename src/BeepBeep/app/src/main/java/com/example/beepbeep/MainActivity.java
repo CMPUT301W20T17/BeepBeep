@@ -103,7 +103,13 @@ public class MainActivity extends AppCompatActivity {
                 != PackageManager.PERMISSION_GRANTED) {
         }
         else {
+            /*
             Intent intent = new Intent(this, MapsActivity.class);
+            startActivity(intent); */
+            Intent intent = new Intent(this, ViewProfile.class);
+            String a = sharedPref.getString("username", "");
+            final String username = a;
+            intent.putExtra("profile_name", "123");
             startActivity(intent);
         }
     }

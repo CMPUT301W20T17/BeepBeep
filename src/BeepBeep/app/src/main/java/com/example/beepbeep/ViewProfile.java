@@ -2,7 +2,10 @@ package com.example.beepbeep;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -27,20 +30,33 @@ import com.google.firebase.firestore.FirebaseFirestore;
  */
 
 public class ViewProfile extends AppCompatActivity {
-    /**
-     * @param savedInstanceState
-     */
 
     FirebaseFirestore db;
 
+    /**
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_profile);
 
+        // get the name of profile's owner from intent
         Intent intent = getIntent();
         final String profileName = intent.getStringExtra("profile_name");
 
+        //Use SharedPreferences to get the name of user that currently logging in
+        final SharedPreferences sharedPref = ViewProfile.this.getSharedPreferences("identity", Context.MODE_PRIVATE);
+        String loginName = sharedPref.getString("username","");
+
+        final Button editButton = findViewById(R.id.edit_profile_button);
+
+        // If the user is viewing his/her own profile, set the edit button to be visible
+        if(loginName.equals(profileName)){
+            editButton.setVisibility(View.VISIBLE);
+        }
+
+        //Read data from FireStore and fill the TextView
         db = FirebaseFirestore.getInstance();
         DocumentReference userRef = db.collection("Accounts").document(profileName);
         userRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -60,7 +76,7 @@ public class ViewProfile extends AppCompatActivity {
                     String phone = (doc.get("phone")).toString();
                     String role = (doc.get("role")).toString();
 
-                    //if the current role is diver, then get the rating
+                    //if the current role is diver, then display the rating
                     if (role.equals("Driver")){
                         String positive = (doc.get("positive")).toString();
                         String negative = (doc.get("negative")).toString();
@@ -87,10 +103,7 @@ public class ViewProfile extends AppCompatActivity {
             }
         });
 
-        //****************************************************
-        //Use shared preference to determine whether set edit button to be visible or not
         //when user click edit button, go to edit profile activity
-        final Button editButton = findViewById(R.id.edit_profile_button);
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -102,14 +115,26 @@ public class ViewProfile extends AppCompatActivity {
 
     }
 
-    //change the edited valid email and phone to show correctly
+    //change the edited valid email and phone to show correctly after returning to the view profile activity
     @Override
     protected void onResume() {
         super.onResume();
-        // get contact information from firestore and update the textView on ViewProfile
-        //**************************************************************************************************
-        // the document path should be changed later to use shared preference
-        DocumentReference userRef = db.collection("Accounts").document("123");
+        // get the name of profile's owner from intent
+        Intent intent = getIntent();
+        final String profileName = intent.getStringExtra("profile_name");
+
+        //Use SharedPreferences to get the name of user that currently logging in
+        final SharedPreferences sharedPref = ViewProfile.this.getSharedPreferences("identity", Context.MODE_PRIVATE);
+        String loginName = sharedPref.getString("username","");
+
+        // Set the edit button to be visible if user is viewing his/her own profile
+        final Button editButton = findViewById(R.id.edit_profile_button);
+        if(loginName.equals(profileName)){
+            editButton.setVisibility(View.VISIBLE);
+        }
+
+        //Reload the email and phone from FireStore because they might be changed
+        DocumentReference userRef = db.collection("Accounts").document(profileName);
         userRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {

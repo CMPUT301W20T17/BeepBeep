@@ -2,7 +2,10 @@ package com.example.beepbeep;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -84,6 +87,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
                                 }
                             }
                         });
+
+                        final SharedPreferences sharedPref = EditProfileActivity.this.getSharedPreferences("identity", Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.putString("email",emailEdit);
+                        editor.putString("phone",phoneEdit);
+                        editor.apply();
                     }
                     else{
                         //input invalid, shows error message
