@@ -21,6 +21,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -64,8 +66,6 @@ public class Signup extends AppCompatActivity {
             public void onClick(View view) {
                 if(validInput()){
                     registerUser();
-                }else {
-                    showDialog("Oops, looks like your inputs are invalid, please try again!");
                 }
             }
         });
@@ -88,13 +88,15 @@ public class Signup extends AppCompatActivity {
                                 String saltAndHash = SecurePasswordHashGenerator.generateNewStrongPasswordHash(passwordInput.getText().toString());
                                 String password = saltAndHash.substring(33);
                                 String salt = saltAndHash.substring(0,32);
-                                Map<String, String> account = new HashMap<>();
+
+                                Map<String, Object> account = new HashMap<>();
                                 account.put("email", emailInput.getText().toString());
                                 account.put("password", password);
                                 account.put("salt", salt);
                                 account.put("role", roleSwitch.isChecked() ? "Driver" : "Rider");
                                 account.put("phone", phoneInput.getText().toString());
                                 account.put("balance", "0");
+                                account.put("order", Collections.emptyList());
                                 if(roleSwitch.isChecked()){ // if register as a driver, will get a rating field in profile
                                     account.put("positive", "0");
                                     account.put("negative", "0");
@@ -129,14 +131,6 @@ public class Signup extends AppCompatActivity {
     }
 
     /**
-     * Display a message as a toast to prompt user
-     * @param message String
-     */
-    private void showDialog(String message) {
-        Toast.makeText(Signup.this, message, Toast.LENGTH_SHORT).show();
-    }
-
-    /**
      * check if every input is valid and not empty
      * @return true is every input is valid and not empty
      */
@@ -147,12 +141,22 @@ public class Signup extends AppCompatActivity {
         String email = emailInput.getText().toString();
         String phone = phoneInput.getText().toString();
         if(username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() || email.isEmpty()){ // check if any input in empty
+            showDialog("You must fill in all the fields");
             return false;
-        }else if(!passwordInput.getText().toString().equals(confirmPasswordInput.getText().toString())){ // check if the 2 password match
+        }else if(!validUsername(username)){
+            showDialog("Your username must be 5 to 15 characters long and contains only Alphabets and Numbers");
+            return false;
+        }else if(!password.equals(confirmPassword)){ // check if the 2 password match
+            showDialog("Your 2 password entry does not match");
+            return false;
+        }else if(password.length() < 8){
+            showDialog("You password must be 8 characters or longer");
             return false;
         }else if(!validEmail(email)){ // validate email with regex
+            showDialog("Invalid Email Address");
             return false;
         } else if (!validPhone(phone)) {
+            showDialog("Invalid Phone Number");
             return false;
         }
         return true;
@@ -163,9 +167,8 @@ public class Signup extends AppCompatActivity {
      * @param email String
      * @return true if email is the right format
      */
-    //changed from private to static public because editprofileactivity needs this and can't use it unless its static public
     static public boolean validEmail(String email){
-        String pattern = "[a-zA-Z0-9\\-!#$%&'*+/=?^_`{|}~.]+@\\w+\\.\\w+";
+        String pattern = "^[a-zA-Z0-9\\-!#$%&'*+/=?^_`{|}~.]+@\\w+\\.\\w+$";
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(email);
         return m.find();
@@ -176,12 +179,31 @@ public class Signup extends AppCompatActivity {
      * @param phone String
      * @return true if phone is the right format
      */
-    //changed from private to static public because editprofileactivity needs this and can't use it unless its static public
     static public boolean validPhone(String phone){
-        String pattern = "\\d*";
+        String pattern = "^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]?\\d{3}[\\s.-]?\\d{4}$";
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(phone);
         return m.find();
+    }
+
+    /**
+     * Check if a given string of username are valid
+     * @param username String
+     * @return true if username is the right format
+     */
+    static public boolean validUsername(String username){
+        String pattern = "^[A-Za-z0-9_-]${5,15}";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(username);
+        return m.find();
+    }
+
+    /**
+     * Display a message as a toast to prompt user
+     * @param message String
+     */
+    private void showDialog(String message) {
+        Toast.makeText(Signup.this, message, Toast.LENGTH_SHORT).show();
     }
 
 }
