@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
         if(!sharedPref.contains("initialized")){
             Intent i = new Intent(this, Login.class);
             startActivity(i);
+            finishAffinity();
         }else{
             if(hasNetworkAccess()){
                 // get a connection to firebase
@@ -78,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
                                     sharedPref.edit().putString("positive", Objects.requireNonNull(document.get("positive")).toString()).apply();
                                     sharedPref.edit().putString("negative", Objects.requireNonNull(document.get("negative")).toString()).apply();
                                 }
+                                launchMain();
                             } else {
                                 // prompt for error
                                 showDialog("You need to login again!");
@@ -86,26 +88,21 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             Log.d(TAG, "Failed with:", task.getException());
                             showDialog("something is wrong");
+                            launchMain();
                         }
                     }
                 });
             }else{
                 showDialog("You are currently offline!");
+                launchMain();
             }
         }
+    }
 
-        // start main activity
-        ActivityCompat.requestPermissions(MainActivity.this,
-                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                1);
-        if (ContextCompat.checkSelfPermission(MainActivity.this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-        }
-        else {
-            Intent intent = new Intent(this, MapsActivity.class);
-            startActivity(intent);
-        }
+    // launch main page
+    private void launchMain(){
+        Intent intent = new Intent(this, MapsActivity.class);
+        startActivity(intent);
     }
 
     /**
