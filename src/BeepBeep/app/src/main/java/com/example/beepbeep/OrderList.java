@@ -50,7 +50,7 @@ public class OrderList extends ArrayAdapter<Order> {
 
         TextView otherIdentity = view.findViewById(R.id.name_rider_driver);
         TextView otherName = view.findViewById(R.id.rider_driver_text);
-        TextView date = view.findViewById(R.id.date_text);
+        TextView date = view.findViewById(R.id.start_time_text);
         TextView startLoca = view.findViewById(R.id.start_loca_text);
         TextView destination = view.findViewById(R.id.destination_text);
 
