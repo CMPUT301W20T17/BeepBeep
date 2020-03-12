@@ -192,7 +192,7 @@ public class Signup extends AppCompatActivity {
      * @return true if username is the right format
      */
     static public boolean validUsername(String username){
-        String pattern = "^[A-Za-z0-9_-]${5,15}";
+        String pattern = "^[A-Za-z0-9_-]{5,15}$";
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(username);
         return m.find();
