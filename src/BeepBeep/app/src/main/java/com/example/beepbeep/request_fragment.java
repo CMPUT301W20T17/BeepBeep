@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -38,6 +39,8 @@ public class request_fragment extends DialogFragment {
     private TextView show_start;
     private TextView show_end;
     private TextView show_price;
+    private RelativeLayout thesecondshow;
+    private RelativeLayout thefirstshow;
     //set filestore related variables
     private FirebaseFirestore db;
     final String TAG = "Requests";
@@ -108,6 +111,12 @@ public class request_fragment extends DialogFragment {
                         Map<String,Object> update_type= new HashMap<>();
                         update_type.put("Type","active");
                         RequestIdInf.set(update_type, SetOptions.merge());
+                        //TODO: not working
+                        thesecondshow = getView().findViewById(R.id.thesecondshow);
+                        thesecondshow.setVisibility(View.VISIBLE);
+                        thefirstshow = getView().findViewById(R.id.thefirstshow);
+                        thefirstshow.setVisibility(View.INVISIBLE);
+
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

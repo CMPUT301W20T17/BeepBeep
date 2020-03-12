@@ -7,6 +7,34 @@
     android:layout_height="match_parent">
 
 
+
+        <!--
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="5dp"-->
+
+    <RelativeLayout
+        android:id="@+id/thesecondshow"
+        android:layout_width="match_parent"
+        android:layout_height="125dp"
+        android:visibility="invisible"
+        >
+
+        <ScrollView
+            android:id="@+id/scroll_table"
+            android:layout_width="match_parent"
+            android:layout_height="85dp"/>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/scroll_table"
+            android:text="CANCEL REQUEST"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/thefirstshow"
+        android:layout_width="match_parent"
+        android:layout_height="125dp"
+        android:visibility="visible">
     <fragment
         android:id="@+id/destination"
         android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
@@ -14,10 +42,6 @@
         android:layout_width="match_parent"
         android:layout_height="32dp"
         android:hint="Enter the destination" />
-        <!--
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="5dp"-->
-
 
     <fragment
         android:id="@+id/pickup_location"
@@ -25,18 +49,8 @@
         android:layout_width="match_parent"
         android:layout_height="32dp"
         android:hint="Enter the pickup location"
-        android:layout_below="@+id/pickupView"/>
-
-
-
-    <fragment
-        android:layout_below="@+id/confirm"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="2dp"
-        android:id="@+id/map"
-        tools:context=".RiderMapActivity"
-        android:name="com.google.android.gms.maps.SupportMapFragment"/>
+        android:layout_below="@+id/pickupView"
+        />
 
     <Button
         android:id="@+id/confirm"
@@ -60,4 +74,16 @@
         android:textSize="8sp"
         android:layout_below="@+id/pickup_location"/>
 
+    </RelativeLayout>
+
+    <fragment
+        android:layout_below="@+id/thefirstshow"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="2dp"
+        android:id="@+id/map"
+        tools:context=".RiderMapActivity"
+        android:name="com.google.android.gms.maps.SupportMapFragment"/>
+
 </RelativeLayout>
+

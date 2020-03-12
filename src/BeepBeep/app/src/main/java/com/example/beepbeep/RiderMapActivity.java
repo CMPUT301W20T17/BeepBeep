@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.common.api.Status;
@@ -173,6 +174,7 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
                 docData.put("Price",0);
                 docData.put("PickUpPoint",pickupGeo);
                 docData.put("Destination",destinaitonGeo);
+
 
                 //connect to firestore and store the data
                 db.collection("Requests").document(uniqueID)
