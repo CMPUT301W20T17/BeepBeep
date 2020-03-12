@@ -16,6 +16,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.Objects;
 /*
  Title: Edit  profile
  Author: Junqi Zhou, Lyuyang Wang
@@ -89,10 +91,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
                         });
 
                         final SharedPreferences sharedPref = EditProfileActivity.this.getSharedPreferences("identity", Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sharedPref.edit();
-                        editor.putString("email",emailEdit);
-                        editor.putString("phone",phoneEdit);
-                        editor.apply();
+
+                        sharedPref.edit().putString("email", emailEdit).apply();
+                        sharedPref.edit().putString("phone", phoneEdit).apply();
                     }
                     else{
                         //input invalid, shows error message

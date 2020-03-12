@@ -114,7 +114,6 @@ public class ViewProfile extends AppCompatActivity {
         });
 
     }
-
     //change the edited valid email and phone to show correctly after returning to the view profile activity
     @Override
     protected void onResume() {

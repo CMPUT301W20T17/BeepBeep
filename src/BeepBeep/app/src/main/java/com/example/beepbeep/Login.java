@@ -180,11 +180,7 @@ public class Login extends AppCompatActivity {
                                             != PackageManager.PERMISSION_GRANTED) {
                                     }
                                     else {
-                                        /*Intent intent = new Intent(Login.this, MapsActivity.class);
-                                        startActivity(intent);*/
-
-                                        Intent intent = new Intent(Login.this, ViewProfile.class);
-                                        intent.putExtra("profile_name", username);
+                                        Intent intent = new Intent(Login.this, MapsActivity.class);
                                         startActivity(intent);
                                     }
                                 }else{ // password does not match
