@@ -39,7 +39,7 @@ public class HistoryOrderActivity extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_history_order);
+        setContentView(R.layout.activity_order_history);
 
         //change to shared preference
         //****************************************************************************

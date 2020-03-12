@@ -10,9 +10,9 @@
         android:id="@+id/name_rider_driver"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:text="   Name"
+        android:text="   Name:  "
         android:textSize="14sp"
         android:padding="2dp"/>
 
@@ -20,39 +20,60 @@
         android:id="@+id/rider_driver_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/name_rider_driver"
+        android:layout_toEndOf="@id/name_rider_driver"
         android:padding="2dp"
-        android:text="text of rider-driver"
+        android:text="Loading..."
         android:textSize="14sp" />
 
     <TextView
-        android:id="@+id/name_date"
+        android:id="@+id/name_start_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_below="@id/name_rider_driver"
-        android:text="   Date:"
+        android:text="   Start time:  "
         android:textSize="14sp"
         android:padding="2dp"/>
 
     <TextView
-        android:id="@+id/date_text"
+        android:id="@+id/start_time_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/rider_driver_text"
         android:layout_marginTop="0dp"
-        android:layout_toRightOf="@id/name_date"
+        android:layout_toEndOf="@id/name_start_time"
         android:padding="2dp"
-        android:text="date text"
+        android:text="Loading..."
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/name_end_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/name_start_time"
+        android:text="   End time:  "
+        android:textSize="14sp"
+        android:padding="2dp"/>
+
+    <TextView
+        android:id="@+id/end_time_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/start_time_text"
+        android:layout_marginTop="0dp"
+        android:layout_toEndOf="@id/name_end_time"
+        android:padding="2dp"
+        android:text="Loading..."
         android:textSize="14sp" />
 
     <TextView
         android:id="@+id/name_start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@id/name_date"
-        android:text="   Start Location:"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/name_end_time"
+        android:text="   Start Location:  "
         android:textSize="14sp"
         android:padding="2dp"/>
 
@@ -60,20 +81,20 @@
         android:id="@+id/start_loca_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/date_text"
+        android:layout_below="@id/end_time_text"
         android:layout_marginTop="0dp"
-        android:layout_toRightOf="@id/name_start"
+        android:layout_toEndOf="@id/name_start"
         android:padding="2dp"
-        android:text="start location text"
+        android:text="Loading..."
         android:textSize="14sp" />
 
     <TextView
         android:id="@+id/name_destination"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_below="@id/name_start"
-        android:text="   Destination:"
+        android:text="   Destination:  "
         android:textSize="14sp"
         android:padding="2dp"/>
 
@@ -83,9 +104,51 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/start_loca_text"
         android:layout_marginTop="0dp"
-        android:layout_toRightOf="@id/name_destination"
+        android:layout_toEndOf="@id/name_destination"
         android:padding="2dp"
-        android:text="destination text"
+        android:text="Loading..."
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/name_price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/name_destination"
+        android:text="   Price:  "
+        android:textSize="14sp"
+        android:padding="2dp"/>
+
+    <TextView
+        android:id="@+id/price_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/destination_text"
+        android:layout_marginTop="0dp"
+        android:layout_toEndOf="@id/name_price"
+        android:padding="2dp"
+        android:text="Loading..."
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/name_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/name_price"
+        android:text="   Price:  "
+        android:textSize="14sp"
+        android:padding="2dp"/>
+
+    <TextView
+        android:id="@+id/status_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/price_text"
+        android:layout_marginTop="0dp"
+        android:layout_toEndOf="@id/name_status"
+        android:padding="2dp"
+        android:text="Loading..."
         android:textSize="14sp" />
 
     <Button
@@ -93,7 +156,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:text="VIEW"
         android:focusable="false"
