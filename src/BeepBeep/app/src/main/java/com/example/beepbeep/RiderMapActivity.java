@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -30,6 +31,8 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.model.Place;
@@ -46,9 +49,18 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Arrays;
 import java.util.List;
+/*
+ Title: Rider map activity class
+ Author: Junyao Cui, Xiyuan Shen
+ Date: 2020/03/07
+ Code version: 2.1
+ Availability: https://stackoom.com/question/2Zl7c/%E5%9C%A8%E8%87%AA%E5%8A%A8%E5%AE%8C%E6%88%90%E6%90%9C%E7%B4%A2%E4%BD%8D%E7%BD%AE%E8%AE%BE%E7%BD%AE%E6%A0%87%E8%AE%B0
+*/
 
 
-public class RiderMapActivity extends FragmentActivity implements OnMapReadyCallback {
+
+public class RiderMapActivity extends FragmentActivity implements OnMapReadyCallback, TaskLoadedCallback{
+
     final String TAG1 = "Account";
     FirebaseFirestore db;
     DocumentReference ref;
@@ -94,6 +106,17 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
     //set two geo point
     private LatLng pickup;
     private LatLng destination;
+    private String pickupName;
+    private String destinationName;
+
+    private Marker mpickup;
+    private Marker mdestination;
+
+    //
+    Polyline currentPolyline;
+
+    private MarkerOptions opickup;
+    private MarkerOptions odestination;
 
 
 
@@ -147,7 +170,15 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
             }
         });
 
+        new FetchURL(RiderMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
 
+    }
+
+    @Override
+    public void onTaskDone(Object... values) {
+        if (currentPolyline != null)
+            currentPolyline.remove();
+        currentPolyline = mMap.addPolyline((PolylineOptions) values[0]);
     }
 
 
@@ -164,63 +195,109 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
         }
     }
 
+    private String getUrl(LatLng origin, LatLng dest, String directionMode){
+        //origin of route
+        String str_origin = "origin" + origin.latitude +","+origin.longitude;
+        //destination of route
+        String star_dest = "destination"+dest.latitude+","+dest.longitude;
+        //mode
+        String mode = "mode="+directionMode;
+        //building the parameters to the web service
+        String parameter = str_origin+"&"+star_dest+"&"+mode;
+        //output format
+        String output = "jeson";
+        //building the url to the web service
+        String url = "//maps.googleapis.com/maps/api/directions/"+output+"?"+parameter+"&keys"+getString(R.string.google_api_key);
+        return url;
+    }
+
+
+
+    //TODO:delete the marker after remove the place name auto
     private void getAutocompleteDestination() {
         //search the location by autocomplete
         AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
                 getSupportFragmentManager().findFragmentById(R.id.destination);
+        assert autocompleteFragment != null;
 
-        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
+        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.LAT_LNG, Place.Field.NAME));
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
-            public void onPlaceSelected(Place place) {
-                Log.i("Destination", "Place: " + place.getName() + ", " + place.getId());
-                destination = place.getLatLng();
+            public void onPlaceSelected(@NonNull final Place place) {
+                if (place.getLatLng() != null){
+                    destination = place.getLatLng();
+                    destinationName = place.getName();
+                }
+                Toast.makeText(getApplicationContext(), String.valueOf(destination), Toast.LENGTH_SHORT).show();
 
-//
+                odestination = new MarkerOptions();
+                odestination.position(destination);
+                odestination.title(destinationName);
 //                mMap.clear();
-//                mMap.addMarker(new MarkerOptions().position(place.getLatLng()).title(place.getName().toString()));
-//                mMap.moveCamera(CameraUpdateFactory.newLatLng(place.getLatLng()));
-//                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 12.0f));
+                mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                    @Override
+                    public void onMapLoaded() {
+                        if (mdestination != null){
+                            mdestination.remove();
+                        }else if(destinationName == null){
+                            mdestination.remove();
+                        }
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(destination, 11));
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(destination, 12.0f));
+                        mdestination = mMap.addMarker(odestination);
+                    }
+                });
             }
 
             @Override
-            public void onError(Status status) {
+            public void onError(@NonNull Status status) {
                 Log.i("Destination", "An error occurred: " + status);
 
             }
         });
     }
 
+    //TODO:delete the marker after remove the place name auto
+    //     change the marker to the round point
+    //     auto set the current location as the pick up location at beginning
     private void getAutocompletePickup() {
         //search the location by autocomplete
         AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
                 getSupportFragmentManager().findFragmentById(R.id.pickup_location);
-//        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
-//                getFragmentManager().findFragmentById(R.id.destination);
+        assert autocompleteFragment != null;
 
-        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
+        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID,Place.Field.LAT_LNG,Place.Field.NAME));
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
-            public void onPlaceSelected(Place place) {
-                Log.i("PickUp", "Place: " + place.getName() + ", " + place.getId());
-                String name = place.getName();
-                pickup = place.getLatLng();
-                MarkerOptions markerOptions = new MarkerOptions();
-                markerOptions.position(pickup);
-                markerOptions.title(name);
-                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-                mMap.addMarker(markerOptions);
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pickup, 11));
+            public void onPlaceSelected(@NonNull final Place place) {
+                if (place.getLatLng() != null){
+                    pickup = place.getLatLng();
 
-//
+                    pickupName = place.getName();
+                }
+                Toast.makeText(getApplicationContext(), String.valueOf(pickup), Toast.LENGTH_SHORT).show();
+
+                opickup = new MarkerOptions();
+                opickup.position(pickup);
+                opickup.title(pickupName);
 //                mMap.clear();
-//                mMap.addMarker(new MarkerOptions().position(place.getLatLng()).title(place.getName().toString()));
-//                mMap.moveCamera(CameraUpdateFactory.newLatLng(place.getLatLng()));
-//                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 12.0f));
+                mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                    @Override
+                    public void onMapLoaded() {
+                        if (mpickup != null){
+                            mpickup.remove();
+                        }else if(pickupName == null){
+                            mpickup.remove();
+                        }
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pickup, 11));
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(pickup, 12.0f));
+                        mpickup = mMap.addMarker(opickup);
+                    }
+                });
             }
 
             @Override
-            public void onError(Status status) {
+            public void onError(@NonNull Status status) {
                 Log.i("PickUp", "An error occurred: " + status);
 
             }
@@ -280,7 +357,7 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
         mMap = googleMap;
         // Use a custom info window adapter to handle multiple lines of text in the
         // info window contents.
-//        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Maker"));
+//        mMap.addMarker(new MarkerOptions().position(new LatLng(pickup.latitude, pickup.longitude)).title("Maker"));
 
         mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
 
@@ -305,6 +382,10 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
                 return infoWindow;
             }
         });
+//        if(mMap != null){
+//            mMap.addMarker(new MarkerOptions().position(pickup).title("Pick-Up"));
+//        }
+
 
         // Prompt the user for permission.
         getLocationPermission();
