@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -44,6 +45,11 @@ public class request_fragment extends DialogFragment {
     //set filestore related variables
     private FirebaseFirestore db;
     final String TAG = "Requests";
+    //set firestore variable to store
+    private String riderID;
+    private String pickup_address;
+    private String destination_address;
+    private String price;
 
     @NonNull
     @Override
@@ -58,6 +64,7 @@ public class request_fragment extends DialogFragment {
         //get shared preference and user now
         final SharedPreferences sharedPref = this.getActivity().getSharedPreferences("identity", MODE_PRIVATE);
         final String username = sharedPref.getString("username", "");
+        riderID = username;
         //get firesotre information about the request
         //TODO: get the id from the mapsActivity to start showing the inf
         //final DocumentReference docIdRef = db.collection("Requests").document(username);
@@ -74,16 +81,16 @@ public class request_fragment extends DialogFragment {
                         final GeoPoint destination = document.getGeoPoint("Destination");
                         final double desti_lat = destination.getLatitude();
                         final double desti_long = destination.getLongitude();
-                        String destination_address = getAddress(desti_lat,desti_long);
+                        destination_address = getAddress(desti_lat,desti_long);
 
                         //get address of pickup location
                         final GeoPoint pickup = document.getGeoPoint("PickUpPoint");
                         final double pick_lat = pickup.getLatitude();
                         final double pick_long = pickup.getLongitude();
-                        String pickup_address = getAddress(pick_lat,pick_long);
+                        pickup_address = getAddress(pick_lat,pick_long);
 
                         //get price
-                        final String price = document.get("Price").toString();
+                        price = document.get("Price").toString();
                         show_start.setText("Start: "+pickup_address);
                         show_end.setText("End: "+destination_address);
                         show_price.setText("Price: "+price);
@@ -111,10 +118,30 @@ public class request_fragment extends DialogFragment {
                         Map<String,Object> update_type= new HashMap<>();
                         update_type.put("Type","active");
                         RequestIdInf.set(update_type, SetOptions.merge());
-                        RelativeLayout theFirstLayout = getActivity().findViewById(R.id.thefirstshow);
+                        //change layout from the first show to the second show
+                        final RelativeLayout theFirstLayout = getActivity().findViewById(R.id.thefirstshow);
                         theFirstLayout.setVisibility(View.INVISIBLE);
-                        RelativeLayout theSecondLayout = getActivity().findViewById(R.id.thesecondshow);
+                        final RelativeLayout theSecondLayout = getActivity().findViewById(R.id.thesecondshow);
                         theSecondLayout.setVisibility(View.VISIBLE);
+                        //set scroll view
+                        TextView scrollStart = getActivity().findViewById(R.id.scroll_start);
+                        scrollStart.setText("Start: " + pickup_address);
+                        TextView scrollEnd = getActivity().findViewById(R.id.scroll_end);
+                        scrollEnd.setText("End: " + destination_address);
+                        TextView scrollPrice = getActivity().findViewById(R.id.scroll_price);
+                        scrollPrice.setText("Price: " + price);
+                        TextView scrollUser = getActivity().findViewById(R.id.scroll_user);
+                        scrollUser.setText("User: " + riderID + "\n");
+                        //set button
+                        Button btnCancelRequest = getActivity().findViewById(R.id.btn_cancel_request);
+                        btnCancelRequest.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                theFirstLayout.setVisibility(View.VISIBLE);
+                                theSecondLayout.setVisibility(View.INVISIBLE);
+                            }
+                        });
+
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
