@@ -139,6 +139,7 @@ public class Login extends AppCompatActivity {
         editor.putString("email", Objects.requireNonNull(document.get("email")).toString());
         editor.putString("role", Objects.requireNonNull(document.get("role")).toString());
         editor.putString("phone", Objects.requireNonNull(document.get("phone")).toString());
+        editor.putString("balance", Objects.requireNonNull(document.get("balance")).toString());
         if(Objects.requireNonNull(document.get("role")).toString().equals("Driver")){
             editor.putString("positive", Objects.requireNonNull(document.get("positive")).toString());
             editor.putString("negative", Objects.requireNonNull(document.get("negative")).toString());
