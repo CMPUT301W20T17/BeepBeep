@@ -87,7 +87,7 @@ public class MakePayment extends AppCompatActivity {
                         DocumentSnapshot document = task.getResult();
                         if (document.exists()) {
                             Double balance = Double.parseDouble(Objects.requireNonNull(document.get("balance")).toString());
-                            if(balance > amount){ // transaction can be made
+                            if(balance >= amount){ // transaction can be made
                                 // update new balance to cloud
                                 double newBalance = balance - amount;
                                 db.collection("Accounts").document(username).update("balance", Double.toString(newBalance));
