@@ -61,11 +61,16 @@ import java.util.HashMap;
 import java.util.List;
 
 /*
- Title: Rider map activity class
- Author: Junyao Cui, Xiyuan Shen
+ Title: Add the marker for autocomplete search
+ Author: Junyao Cui
  Date: 2020/03/07
  Code version: 2.1
  Availability: https://stackoom.com/question/2Zl7c/%E5%9C%A8%E8%87%AA%E5%8A%A8%E5%AE%8C%E6%88%90%E6%90%9C%E7%B4%A2%E4%BD%8D%E7%BD%AE%E8%AE%BE%E7%BD%AE%E6%A0%87%E8%AE%B0
+
+ Title: Android tutorial: How to get directions between 2 points using Google Map API
+ Author: Junyao Cui, Vishal
+ Date: 2020/03/13
+ Availability: https://www.youtube.com/watch?v=jg1urt3FGCY
 */
 
 import java.util.Map;
@@ -136,6 +141,7 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
 
 
     private String uniqueID;
+    Button getDirection;
 
 
     @Override
@@ -171,6 +177,8 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
         //active the autocomplete place selection for pickup location
         getAutocompletePickup();
 
+
+
         //set the Buttom confirm, and send the request information to firestore
         uniqueID = UUID.randomUUID().toString();
         Button confirm_button;
@@ -188,22 +196,28 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
 
                 //prepare the data in specific type
                 Date startTime = Calendar.getInstance().getTime(); //start time
-                Timestamp startStamp = new Timestamp(startTime);
-                //TODO: zuobian xuyao gai, bu neng yong
-                double pickupLat = 53.52322; //pickup geolocation
-                double pickupLng = -113.526321;
+                String startTime2 = startTime.toString();
+                //get lat and long
+                double pickupLat = pickup.latitude; //pickup geolocation
+                double pickupLng =  pickup.longitude;
+//                double pickupLat = 53.542100;
+//                double pickupLng = -113.507890;
                 GeoPoint pickupGeo = new GeoPoint(pickupLat,pickupLng);
-                double destinLat = 29.40628; //destination geolocation
-                double destinLng = -82.28923;
+                double destinLat = destination.latitude; //destination geolocation
+                double destinLng = destination.longitude;
+//                double destinLat = 53.523220 ;
+//                double destinLng = -113.526321;
                 GeoPoint destinaitonGeo = new GeoPoint(destinLat,destinLng);
+//                Toast.makeText(getApplicationContext(), String.valueOf(pickupLat), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), String.valueOf(destinLat), Toast.LENGTH_SHORT).show();
 
                 //set the storing data
                 docData.put("Type", "inactive");
                 docData.put("RiderID", username);
                 docData.put("DriverID", "");
-                docData.put("StartTime",startStamp);
-                docData.put("FinishTime",null);
-                docData.put("Price",0);
+                docData.put("StartTime",startTime2);
+                docData.put("FinishTime","");
+                docData.put("Price",20);
                 docData.put("PickUpPoint",pickupGeo);
                 docData.put("Destination",destinaitonGeo);
 
@@ -233,7 +247,19 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
             }
         });
 
-//        new FetchURL(RiderMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
+        //show direction
+        getDirection = findViewById(R.id.direction);
+        getDirection.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if ((odestination != null) && (opickup != null)) {
+                    new FetchURL(RiderMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
+                }
+            }
+        });
+//        if ((odestination!=null)&&(opickup!= null)){
+//            new FetchURL(RiderMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
+//        }
 
     }
 
@@ -259,22 +285,20 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
         }
     }
 
-    private String getUrl(LatLng origin, LatLng dest, String directionMode){
-        //origin of route
-        String str_origin = "origin" + origin.latitude +","+origin.longitude;
-        //destination of route
-        String star_dest = "destination"+dest.latitude+","+dest.longitude;
-        //mode
-        String mode = "mode="+directionMode;
-        //building the parameters to the web service
-        String parameter = str_origin+"&"+star_dest+"&"+mode;
-        //output format
-        String output = "jeson";
-        //building the url to the web service
-        String url = "//maps.googleapis.com/maps/api/directions/"+output+"?"+parameter+"&keys"+getString(R.string.google_api_key);
-        return url;
+    private String getUrl(LatLng origin, LatLng dest, String directionMode) {
+        // Origin of route
+        String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
+        // Destination of route
+        String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
+        // Mode
+        String mode = "mode=" + directionMode;
+        // Building the parameters to the web service
+        String parameters = str_origin + "&" + str_dest + "&" + mode;
+        // Output format
+        String output = "json";
+        // Building the url to the web service
+        return "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + "&key=" + getString(R.string.google_maps_key);
     }
-
 
 
     //TODO:delete the marker after remove the place name auto
@@ -292,7 +316,7 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
                     destination = place.getLatLng();
                     destinationName = place.getName();
                 }
-                Toast.makeText(getApplicationContext(), String.valueOf(destination), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), String.valueOf(destination), Toast.LENGTH_SHORT).show();
 
                 odestination = new MarkerOptions();
                 odestination.position(destination);
@@ -339,7 +363,7 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
 
                     pickupName = place.getName();
                 }
-                Toast.makeText(getApplicationContext(), String.valueOf(pickup), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), String.valueOf(pickup), Toast.LENGTH_SHORT).show();
 
                 opickup = new MarkerOptions();
                 opickup.position(pickup);
