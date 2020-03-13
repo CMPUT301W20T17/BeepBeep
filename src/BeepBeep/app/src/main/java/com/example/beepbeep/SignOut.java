@@ -26,7 +26,7 @@ class SignOut {
         int mPendingIntentId = 123456;
         PendingIntent mPendingIntent = PendingIntent.getActivity(c, mPendingIntentId,    mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
         AlarmManager mgr = (AlarmManager)c.getSystemService(Context.ALARM_SERVICE);
-        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
+        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1, mPendingIntent);
         System.exit(0);
     }
 
