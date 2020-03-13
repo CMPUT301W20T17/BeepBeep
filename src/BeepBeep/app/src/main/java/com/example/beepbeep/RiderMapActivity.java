@@ -191,22 +191,28 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
 
                 //prepare the data in specific type
                 Date startTime = Calendar.getInstance().getTime(); //start time
-                Timestamp startStamp = new Timestamp(startTime);
-                //TODO: zuobian xuyao gai, bu neng yong
-                double pickupLat = 53.52322; //pickup geolocation
-                double pickupLng = -113.526321;
+                String startTime2 = startTime.toString();
+                //get lat and long
+                double pickupLat = pickup.latitude; //pickup geolocation
+                double pickupLng =  pickup.longitude;
+//                double pickupLat = 53.542100;
+//                double pickupLng = -113.507890;
                 GeoPoint pickupGeo = new GeoPoint(pickupLat,pickupLng);
-                double destinLat = 29.40628; //destination geolocation
-                double destinLng = -82.28923;
+                double destinLat = destination.latitude; //destination geolocation
+                double destinLng = destination.longitude;
+//                double destinLat = 53.523220 ;
+//                double destinLng = -113.526321;
                 GeoPoint destinaitonGeo = new GeoPoint(destinLat,destinLng);
+//                Toast.makeText(getApplicationContext(), String.valueOf(pickupLat), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), String.valueOf(destinLat), Toast.LENGTH_SHORT).show();
 
                 //set the storing data
                 docData.put("Type", "inactive");
                 docData.put("RiderID", username);
                 docData.put("DriverID", "");
-                docData.put("StartTime",startStamp);
-                docData.put("FinishTime",null);
-                docData.put("Price",0);
+                docData.put("StartTime",startTime2);
+                docData.put("FinishTime","");
+                docData.put("Price",20);
                 docData.put("PickUpPoint",pickupGeo);
                 docData.put("Destination",destinaitonGeo);
 
@@ -305,7 +311,7 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
                     destination = place.getLatLng();
                     destinationName = place.getName();
                 }
-                Toast.makeText(getApplicationContext(), String.valueOf(destination), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), String.valueOf(destination), Toast.LENGTH_SHORT).show();
 
                 odestination = new MarkerOptions();
                 odestination.position(destination);
@@ -352,7 +358,7 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
 
                     pickupName = place.getName();
                 }
-                Toast.makeText(getApplicationContext(), String.valueOf(pickup), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), String.valueOf(pickup), Toast.LENGTH_SHORT).show();
 
                 opickup = new MarkerOptions();
                 opickup.position(pickup);
