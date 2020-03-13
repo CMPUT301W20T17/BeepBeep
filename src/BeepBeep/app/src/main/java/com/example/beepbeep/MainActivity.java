@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
 
     // launch main page
     private void launchMain(){
-        Intent intent = new Intent(this, MapsActivity.class);
+        Intent intent = new Intent(this, RiderMapActivity.class);
         startActivity(intent);
         finishAffinity();
     }
