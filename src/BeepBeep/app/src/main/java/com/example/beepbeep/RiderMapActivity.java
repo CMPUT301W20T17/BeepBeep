@@ -136,6 +136,7 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
 
 
     private String uniqueID;
+    Button getDirection;
 
 
     @Override
@@ -170,6 +171,8 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
 
         //active the autocomplete place selection for pickup location
         getAutocompletePickup();
+
+
 
         //set the Buttom confirm, and send the request information to firestore
         uniqueID = UUID.randomUUID().toString();
@@ -233,7 +236,19 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
             }
         });
 
-//        new FetchURL(RiderMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
+        //show direction
+        getDirection = findViewById(R.id.direction);
+        getDirection.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if ((odestination != null) && (opickup != null)) {
+                    new FetchURL(RiderMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
+                }
+            }
+        });
+//        if ((odestination!=null)&&(opickup!= null)){
+//            new FetchURL(RiderMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
+//        }
 
     }
 
@@ -259,22 +274,20 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
         }
     }
 
-    private String getUrl(LatLng origin, LatLng dest, String directionMode){
-        //origin of route
-        String str_origin = "origin" + origin.latitude +","+origin.longitude;
-        //destination of route
-        String star_dest = "destination"+dest.latitude+","+dest.longitude;
-        //mode
-        String mode = "mode="+directionMode;
-        //building the parameters to the web service
-        String parameter = str_origin+"&"+star_dest+"&"+mode;
-        //output format
-        String output = "jeson";
-        //building the url to the web service
-        String url = "//maps.googleapis.com/maps/api/directions/"+output+"?"+parameter+"&keys"+getString(R.string.google_api_key);
-        return url;
+    private String getUrl(LatLng origin, LatLng dest, String directionMode) {
+        // Origin of route
+        String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
+        // Destination of route
+        String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
+        // Mode
+        String mode = "mode=" + directionMode;
+        // Building the parameters to the web service
+        String parameters = str_origin + "&" + str_dest + "&" + mode;
+        // Output format
+        String output = "json";
+        // Building the url to the web service
+        return "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + "&key=" + getString(R.string.google_maps_key);
     }
-
 
 
     //TODO:delete the marker after remove the place name auto
