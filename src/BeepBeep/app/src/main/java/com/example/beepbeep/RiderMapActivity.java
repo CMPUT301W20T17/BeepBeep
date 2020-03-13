@@ -198,7 +198,7 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
         viewOrder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent a = new Intent(RiderMapActivity.this, HistoryOrderActivity.class);
+                Intent a = new Intent(RiderMapActivity.this, OrderHistoryActivity.class);
                 a.putExtra("profile_name", username);
                 startActivity(a);
             }
