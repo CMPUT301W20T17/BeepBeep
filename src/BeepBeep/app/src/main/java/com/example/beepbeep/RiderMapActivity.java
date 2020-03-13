@@ -61,11 +61,16 @@ import java.util.HashMap;
 import java.util.List;
 
 /*
- Title: Rider map activity class
- Author: Junyao Cui, Xiyuan Shen
+ Title: Add the marker for autocomplete search
+ Author: Junyao Cui
  Date: 2020/03/07
  Code version: 2.1
  Availability: https://stackoom.com/question/2Zl7c/%E5%9C%A8%E8%87%AA%E5%8A%A8%E5%AE%8C%E6%88%90%E6%90%9C%E7%B4%A2%E4%BD%8D%E7%BD%AE%E8%AE%BE%E7%BD%AE%E6%A0%87%E8%AE%B0
+
+ Title: Android tutorial: How to get directions between 2 points using Google Map API
+ Author: Junyao Cui, Vishal
+ Date: 2020/03/13
+ Availability: https://www.youtube.com/watch?v=jg1urt3FGCY
 */
 
 import java.util.Map;
