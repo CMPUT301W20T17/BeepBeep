@@ -56,7 +56,7 @@ public class LoginTest {
     /**
      * test login button when all input is correct
      * @throws Exception
-     */
+
     @Test
     public void TestLoginButtonCorrectEntry() throws Exception {
         solo.assertCurrentActivity("Wrong Activity", Login.class);
@@ -64,7 +64,7 @@ public class LoginTest {
         solo.enterText((EditText) solo.getView(R.id.Login_inputPassword), "1234qwer");
         solo.clickOnButton("Login");
         solo.assertCurrentActivity("Wrong Activity", MapsActivity.class);
-    }
+    }*/
 
     /**
      * test login button when password input is incorrect
