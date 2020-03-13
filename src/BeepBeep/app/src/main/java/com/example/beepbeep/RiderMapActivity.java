@@ -6,6 +6,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -133,7 +134,6 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
     private Marker mpickup;
     private Marker mdestination;
 
-    //
     Polyline currentPolyline;
 
     private MarkerOptions opickup;
@@ -143,6 +143,13 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
     private String uniqueID;
     Button getDirection;
 
+    //TODO Test DEMO code
+    Button profile;
+    Button makePayment;
+    Button receivePayment;
+    Button viewOrder;
+    Button signOut;
+    //TODO END
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,6 +163,53 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
 
         // Retrieve the content view that renders the map.
         setContentView(R.layout.activity_rider_map);
+
+        //TODO Test DEMO code
+         profile = findViewById(R.id.TestProfile);
+         makePayment = findViewById(R.id.TestMakePayment);
+         receivePayment = findViewById(R.id.TestReceivePayment);
+         viewOrder = findViewById(R.id.TestOrderHistory);
+         signOut = findViewById(R.id.TestSignOut);
+
+        SharedPreferences sharedPref = this.getSharedPreferences("identity", Context.MODE_PRIVATE);
+        final String username = sharedPref.getString("username", "");
+        profile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent a = new Intent(RiderMapActivity.this, ViewProfile.class);
+                a.putExtra("profile_name", username);
+                startActivity(a);
+            }
+        });
+        makePayment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent a = new Intent(RiderMapActivity.this, MakePayment.class);
+                startActivity(a);
+            }
+        });
+        receivePayment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent a = new Intent(RiderMapActivity.this, ReceivePayment.class);
+                startActivity(a);
+            }
+        });
+        viewOrder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent a = new Intent(RiderMapActivity.this, OrderHistoryActivity.class);
+                a.putExtra("profile_name", username);
+                startActivity(a);
+            }
+        });
+        signOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SignOut.now(RiderMapActivity.this);
+            }
+        });
+        //TODO END
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
