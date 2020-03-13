@@ -190,16 +190,18 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
                 Date startTime = Calendar.getInstance().getTime(); //start time
                 String startTime2 = startTime.toString();
                 //get lat and long
-//                double pickupLat = Math.round(pickup.latitude*100.0) / 100.0; //pickup geolocation
-//                double pickupLng =  Math.round(pickup.longitude*100.0) / 100.0;
-                double pickupLat = 53.542100;
-                double pickupLng = -113.507890;
+                double pickupLat = pickup.latitude; //pickup geolocation
+                double pickupLng =  pickup.longitude;
+//                double pickupLat = 53.542100;
+//                double pickupLng = -113.507890;
                 GeoPoint pickupGeo = new GeoPoint(pickupLat,pickupLng);
-//                double destinLat = Math.round(destination.latitude*100.0) / 100.0; //destination geolocation
-//                double destinLng = Math.round(destination.longitude*100.0) / 100.0;
-                double destinLat = 53.523220 ;
-                double destinLng = -113.526321;
+                double destinLat = destination.latitude; //destination geolocation
+                double destinLng = destination.longitude;
+//                double destinLat = 53.523220 ;
+//                double destinLng = -113.526321;
                 GeoPoint destinaitonGeo = new GeoPoint(destinLat,destinLng);
+//                Toast.makeText(getApplicationContext(), String.valueOf(pickupLat), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), String.valueOf(destinLat), Toast.LENGTH_SHORT).show();
 
                 //set the storing data
                 docData.put("Type", "inactive");
@@ -296,7 +298,7 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
                     destination = place.getLatLng();
                     destinationName = place.getName();
                 }
-                Toast.makeText(getApplicationContext(), String.valueOf(destination), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), String.valueOf(destination), Toast.LENGTH_SHORT).show();
 
                 odestination = new MarkerOptions();
                 odestination.position(destination);
@@ -343,7 +345,7 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
 
                     pickupName = place.getName();
                 }
-                Toast.makeText(getApplicationContext(), String.valueOf(pickup), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), String.valueOf(pickup), Toast.LENGTH_SHORT).show();
 
                 opickup = new MarkerOptions();
                 opickup.position(pickup);

@@ -89,6 +89,7 @@ public class request_fragment extends DialogFragment {
                         final double pick_long = pickup.getLongitude();
                         pickup_address = getAddress(pick_lat,pick_long);
 
+
                         //get price
                         price = document.get("Price").toString();
                         show_start.setText("Start: "+pickup_address);
