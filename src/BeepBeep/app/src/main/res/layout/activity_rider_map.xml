@@ -7,30 +7,77 @@
     android:layout_height="match_parent">
 
 
-    <fragment
-        android:id="@+id/destination"
-        android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
-        android:layout_below="@+id/pickup_location"
-        android:layout_width="match_parent"
-        android:layout_height="32dp"
-        android:hint="Enter the destination" />
+
         <!--
         android:layout_marginStart="8dp"
         android:layout_marginTop="5dp"-->
 
-
-    <fragment
-        android:id="@+id/pickup_location"
-        android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+    <RelativeLayout
+        android:id="@+id/thesecondshow"
         android:layout_width="match_parent"
-        android:layout_height="32dp"
-        android:hint="Enter the pickup location"
-        android:layout_below="@+id/pickupView"/>
+        android:layout_height="125dp"
+        android:visibility="invisible"
+        >
 
+        <ScrollView
+            android:id="@+id/scroll_table"
+            android:layout_width="match_parent"
+            android:layout_height="85dp"/>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/scroll_table"
+            android:text="CANCEL REQUEST"/>
+    </RelativeLayout>
 
+    <RelativeLayout
+        android:id="@+id/thefirstshow"
+        android:layout_width="match_parent"
+        android:layout_height="125dp"
+        android:visibility="visible">
+        <fragment
+            android:id="@+id/destination"
+            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+            android:layout_below="@+id/pickup_location"
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:hint="Enter the destination" />
+
+        <fragment
+            android:id="@+id/pickup_location"
+            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:hint="Enter the pickup location"
+            android:layout_below="@+id/pickupView"
+            />
+
+        <Button
+            android:id="@+id/confirm"
+            android:layout_below="@+id/destination"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="CONFIRM" />
+
+        <TextView
+            android:id="@+id/pickupView"
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:text="Pickup Location"
+            android:textSize="8sp" />
+
+        <TextView
+            android:id="@+id/destinationView"
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:text="Destination"
+            android:textSize="8sp"
+            android:layout_below="@+id/pickup_location"/>
+
+    </RelativeLayout>
 
     <fragment
-        android:layout_below="@+id/confirm"
+        android:layout_below="@+id/thefirstshow"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="2dp"
@@ -38,26 +85,5 @@
         tools:context=".RiderMapActivity"
         android:name="com.google.android.gms.maps.SupportMapFragment"/>
 
-    <Button
-        android:id="@+id/confirm"
-        android:layout_below="@+id/destination"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="CONFIRM" />
-
-    <TextView
-        android:id="@+id/pickupView"
-        android:layout_width="match_parent"
-        android:layout_height="10dp"
-        android:text="Pickup Location"
-        android:textSize="8sp" />
-
-    <TextView
-        android:id="@+id/destinationView"
-        android:layout_width="match_parent"
-        android:layout_height="10dp"
-        android:text="Destination"
-        android:textSize="8sp"
-        android:layout_below="@+id/pickup_location"/>
-
 </RelativeLayout>
+
