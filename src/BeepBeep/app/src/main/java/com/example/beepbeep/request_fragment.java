@@ -111,12 +111,10 @@ public class request_fragment extends DialogFragment {
                         Map<String,Object> update_type= new HashMap<>();
                         update_type.put("Type","active");
                         RequestIdInf.set(update_type, SetOptions.merge());
-                        //TODO: not working
-                        thesecondshow = getView().findViewById(R.id.thesecondshow);
-                        thesecondshow.setVisibility(View.VISIBLE);
-                        thefirstshow = getView().findViewById(R.id.thefirstshow);
-                        thefirstshow.setVisibility(View.INVISIBLE);
-
+                        RelativeLayout theFirstLayout = getActivity().findViewById(R.id.thefirstshow);
+                        theFirstLayout.setVisibility(View.INVISIBLE);
+                        RelativeLayout theSecondLayout = getActivity().findViewById(R.id.thesecondshow);
+                        theSecondLayout.setVisibility(View.VISIBLE);
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -142,6 +140,7 @@ public class request_fragment extends DialogFragment {
                 .create();
     }
 
+
     private String getAddress(double LAT, double LONG){
         String address = "";
         Geocoder geocoder = new Geocoder(this.getActivity(), Locale.getDefault());
@@ -162,13 +161,13 @@ public class request_fragment extends DialogFragment {
             else{
                 Log.w("My Current loction address", "No Address returned!");
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return address;
     }
+
+
 
 
 }

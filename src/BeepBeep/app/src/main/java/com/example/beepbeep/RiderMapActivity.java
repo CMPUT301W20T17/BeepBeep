@@ -6,7 +6,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -18,6 +17,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -45,6 +45,7 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -105,6 +106,7 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
     //set two geo point
     private LatLng pickup;
     private LatLng destination;
+    private String uniqueID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,7 +132,6 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
         }
         mPlacesClient = Places.createClient(this);
 
-
         // Construct a FusedLocationProviderClient.
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -141,6 +142,7 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
         getAutocompletePickup();
 
         //set the Buttom confirm, and send the request information to firestore
+        uniqueID = UUID.randomUUID().toString();
         Button confirm_button;
         confirm_button = findViewById(R.id.confirm);
         confirm_button.setOnClickListener(new View.OnClickListener() {
@@ -151,7 +153,7 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
                 final String username = sharedPref.getString("username", "");
                 //connect to firestore and get unique ID
                 db = FirebaseFirestore.getInstance();
-                String uniqueID = UUID.randomUUID().toString();
+
                 Map<String, Object> docData = new HashMap<>();
 
                 //prepare the data in specific type
@@ -175,7 +177,6 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
                 docData.put("PickUpPoint",pickupGeo);
                 docData.put("Destination",destinaitonGeo);
 
-
                 //connect to firestore and store the data
                 db.collection("Requests").document(uniqueID)
                         .set(docData)
@@ -198,8 +199,28 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
                 request_fragment request_frag = new request_fragment();
                 request_frag.setArguments(bundle);
                 request_frag.show(getSupportFragmentManager(),"SHOW_REQUEST");
+
             }
         });
+
+//        db = FirebaseFirestore.getInstance();
+//        DocumentReference RequestIdInf = db.collection("Requests").document(uniqueID);
+//        RequestIdInf.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//            @Override
+//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                if (task.isSuccessful()) {
+//                    DocumentSnapshot document = task.getResult();
+//                    String type_now = document.get("Type").toString();
+//                    Toast.makeText(RiderMapActivity.this, type_now, Toast.LENGTH_SHORT).show();
+//                    if (type_now == "active"){
+//                        RelativeLayout theFirstLayout = findViewById(R.id.thefirstshow);
+//                        theFirstLayout.setVisibility(View.INVISIBLE);
+//                        RelativeLayout theSecondLayout = findViewById(R.id.thesecondshow);
+//                        theSecondLayout.setVisibility(View.VISIBLE);
+//                    }
+//                }
+//            }
+//        });
 
 
     }
