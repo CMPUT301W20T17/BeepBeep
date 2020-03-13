@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
     private void launchMain(){
         Intent intent = new Intent(this, MapsActivity.class);
         startActivity(intent);
+        finishAffinity();
     }
 
     /**
