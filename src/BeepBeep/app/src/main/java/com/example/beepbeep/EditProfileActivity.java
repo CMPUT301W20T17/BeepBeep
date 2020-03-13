@@ -17,13 +17,11 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.Objects;
 /*
  Title: Edit  profile
- Author: Junqi Zhou, Lyuyang Wang
+ Author: Junqi Zou, Lyuyang Wang
  Date: 2020/03/06
- Code version: N/A
- Availability: https://stackoverflow.com/questions/53332471/checking-if-a-document-exists-in-a-firestore-collection/53335711
+ Last edited: 2020/03/12
 */
 
     /**
@@ -101,7 +99,6 @@ import java.util.Objects;
                         if (!emailValid){
                             String message = "Your email is not valid.";
                             Toast.makeText(EditProfileActivity.this, message, Toast.LENGTH_SHORT).show();
-
                         }
                         //invalid input phone
                         if(!phoneValid){

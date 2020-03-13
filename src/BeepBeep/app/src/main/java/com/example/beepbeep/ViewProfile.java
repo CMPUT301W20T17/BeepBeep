@@ -18,10 +18,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 /*
  Title: View  profile
- Author: Junqi Zhou, Lyuyang Wang
+ Author: Junqi Zou, Lyuyang Wang
  Date: 2020/03/06
- Code version: N/A
- Availability: https://stackoverflow.com/questions/53332471/checking-if-a-document-exists-in-a-firestore-collection/53335711
+ Last edited: 2020/03/12
 */
 
 /**
@@ -58,13 +57,13 @@ public class ViewProfile extends AppCompatActivity {
 
         //Read data from FireStore and fill the TextView
         db = FirebaseFirestore.getInstance();
+
         DocumentReference userRef = db.collection("Accounts").document(profileName);
         userRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
                 if(task.isSuccessful()){
-
                     TextView nameTextView = findViewById(R.id.profile_view_name);
                     TextView phoneTextView = findViewById(R.id.profile_view_phone);
                     TextView emailTextView = findViewById(R.id.profile_view_email);
