@@ -1,12 +1,13 @@
 package com.example.beepbeep;
 
+import com.google.firebase.firestore.GeoPoint;
 import java.io.Serializable;
 
 /*
  Title: Order class
- Author: Junqi Zhou, Lyuyang Wang
+ Author: Junqi Zou, Lyuyang Wang
  Date: 2020/03/07
- Code version: N/A
+ Last edited: 2020/03/12
  Availability: https://stackoverflow.com/questions/53332471/checking-if-a-document-exists-in-a-firestore-collection/53335711
 */
 
@@ -16,53 +17,68 @@ import java.io.Serializable;
 
 public class Order implements Serializable {
     private String user;
-    private String driver;
-    private String rider;
-    private String date;
-    private String startLocation;
-    private String destination;
+    private String DriverID;
+    private String RiderID;
+    private String StartTime;
+    private String FinishTime;
+    private Double Price;
+    private GeoPoint PickUpPoint;
+    private GeoPoint Destination;
+    private String Type;
 
     public Order(){};
 
     /**
      * create order class
      * @param user
-     * @param driver
-     * @param rider
-     * @param date
-     * @param startLocation
-     * @param destination
+     * @param DriverID
+     * @param RiderID
+     * @param StartTime
+     * @param FinishTime
+     * @param Price
+     * @param PickupPoint
+     * @param Destination
+     * @param Type
      */
-    public Order(String user, String driver, String rider, String date, String startLocation, String destination){
+    public Order(String user, String DriverID, String RiderID, String StartTime, String FinishTime, Double Price, GeoPoint PickupPoint, GeoPoint Destination, String Type){
         this.user = user;
-        this.driver = driver;
-        this.rider = rider;
-        this.date = date;
-        this.startLocation = startLocation;
-        this.destination = destination;
+        this.DriverID = DriverID;
+        this.RiderID = RiderID;
+        this.StartTime = StartTime;
+        this.FinishTime = FinishTime;
+        this.Price = Price;
+        this.PickUpPoint = PickupPoint;
+        this.Destination = Destination;
+        this.Type = Type;
     }
 
     public String getUser(){return user;}
 
-    public String getDriver(){return driver;}
+    public String getDriverID(){return DriverID;}
 
-    public String getRider(){return rider;}
+    public String getRiderID(){return RiderID;}
 
-    public String getDate(){return date;}
+    public String getStartTime(){return StartTime;}
 
-    public String getStartLocation(){return startLocation;}
+    public String getFinishTime(){return FinishTime;}
 
-    public String getDestination(){return destination;}
+    public Double getPrice(){return Price;}
 
-    public void setUser(String user){this.user= user;}
+    public GeoPoint getPickupPoint(){
+        /*
+        double LAT  = PickupPoint.getLatitude();
+        double LONG = PickupPoint.getLongitude();
+         */
+        return PickUpPoint;
+    }
 
-    public void setDriver(String driver){this.driver = driver;}
+    public GeoPoint getDestination(){
+        //double LAT  = Destination.getLatitude();
+        //double LONG = Destination.getLongitude();
+        return Destination;}
 
-    public void setRider(String rider){this.rider = rider;}
+    public String getType(){return Type;}
 
-    public void setDate(String date){this.date = date;}
+    public void setUser(String userName){this.user = userName;}
 
-    public void setStartLocation(String startLocation){this.startLocation = startLocation;}
-
-    public void setDestination(String destination){this.destination = destination;}
 }
