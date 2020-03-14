@@ -41,8 +41,7 @@ public class request_fragment extends DialogFragment {
     private TextView show_start;
     private TextView show_end;
     private TextView show_price;
-    private RelativeLayout thesecondshow;
-    private RelativeLayout thefirstshow;
+
     //set filestore related variables
     private FirebaseFirestore db;
     final String TAG = "Requests";
