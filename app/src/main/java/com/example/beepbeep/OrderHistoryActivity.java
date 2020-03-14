@@ -61,27 +61,35 @@ public class OrderHistoryActivity extends AppCompatActivity{
                     List<String> orders = (List<String>)document.get("order");
                     //cloned.addAll(orders);
 
-                    for (int i = 0; i < orders.size(); i++){
-                        db = FirebaseFirestore.getInstance();
-                        String name = orders.get(i);
-                        DocumentReference doc = db.collection("Requests").document(name);
-                        doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if(task.isSuccessful()){
-                                    DocumentSnapshot doc = task.getResult();
-                                    Order order = doc.toObject(Order.class);
-                                    order.setUser(userName);
-                                    orderDataList.add(order);
-                                    orderArrayAdapter = new OrderList(OrderHistoryActivity.this, orderDataList);
-                                    orderList.setAdapter(orderArrayAdapter);
-                                    Log.d(TAG, doc.getId() + " => " + doc.getData());
+                    if (orders!=null){
+                        for (int i = 0; i < orders.size(); i++){
+                            db = FirebaseFirestore.getInstance();
+                            String name = orders.get(i);
+                            DocumentReference doc = db.collection("Requests").document(name);
+                            doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if(task.isSuccessful()){
+                                        DocumentSnapshot doc = task.getResult();
+                                        Order order = doc.toObject(Order.class);
+                                        order.setUser(userName);
+                                        orderDataList.add(order);
+                                        orderArrayAdapter = new OrderList(OrderHistoryActivity.this, orderDataList);
+                                        orderList.setAdapter(orderArrayAdapter);
+                                        Log.d(TAG, doc.getId() + " => " + doc.getData());
+                                    }
+                                    else{
+                                        Log.d(TAG, "Error getting documents: ", task.getException());
+                                    }
                                 }
-                                else{
-                                    Log.d(TAG, "Error getting documents: ", task.getException());
-                                }
-                            }
-                        });
+                            });
+                    }
+
+
+                    }
+                    else{
+                        orderArrayAdapter = new OrderList(OrderHistoryActivity.this, orderDataList);
+                        orderList.setAdapter(orderArrayAdapter);
                     }
                     Log.d(TAG, document.getId() + " => " + document.getData());
                 }

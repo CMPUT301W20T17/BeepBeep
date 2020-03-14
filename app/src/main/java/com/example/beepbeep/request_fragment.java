@@ -24,6 +24,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.SetOptions;
@@ -119,6 +120,7 @@ public class request_fragment extends DialogFragment {
                         Map<String,Object> update_type= new HashMap<>();
                         update_type.put("Type","active");
                         RequestIdInf.set(update_type, SetOptions.merge());
+
                         //change layout from the first show to the second show
                         final RelativeLayout theFirstLayout = getActivity().findViewById(R.id.thefirstshow);
                         theFirstLayout.setVisibility(View.INVISIBLE);
@@ -140,8 +142,31 @@ public class request_fragment extends DialogFragment {
                             public void onClick(View view) {
                                 theFirstLayout.setVisibility(View.VISIBLE);
                                 theSecondLayout.setVisibility(View.INVISIBLE);
+                                //delete the order history
+                                final DocumentReference Accountref = db.collection("Accounts").document(username);
+                                Accountref.update("order", FieldValue.arrayRemove(uniqueID));
+                                //delete the requestID
+                                db.collection("Requests").document(uniqueID)
+                                        .delete()
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.w(TAG, "Error deleting document", e);
+                                            }
+                                        });
                             }
                         });
+
+                        //add request ID into order history
+                        final DocumentReference Accountref = db.collection("Accounts").document(username);
+                        Accountref.update("order", FieldValue.arrayUnion(uniqueID));
+
 
                     }
                 })

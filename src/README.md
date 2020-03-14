@@ -1,1 +1,0 @@
-The folder BeepBeep contains the source code for the project.
