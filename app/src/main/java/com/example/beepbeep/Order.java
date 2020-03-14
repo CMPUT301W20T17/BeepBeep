@@ -26,7 +26,6 @@ public class Order implements Serializable {
     private GeoPoint Destination;
     private String Type;
 
-    public Order(){};
 
     /**
      * create order class
