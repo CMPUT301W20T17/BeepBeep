@@ -2,6 +2,7 @@ package com.example.beepbeep;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -16,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -80,7 +82,7 @@ import java.util.UUID;
 
 
 
-public class RiderMapActivity extends FragmentActivity implements OnMapReadyCallback, TaskLoadedCallback{
+public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCallback, TaskLoadedCallback{
 
     final String TAG1 = "Account";
     FirebaseFirestore db;
@@ -143,13 +145,7 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
     private String uniqueID;
     Button getDirection;
 
-    //TODO Test DEMO code
-    Button profile;
-    Button makePayment;
-    Button receivePayment;
-    Button viewOrder;
-    Button signOut;
-    //TODO END
+    ImageView bentoMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,50 +161,53 @@ public class RiderMapActivity extends FragmentActivity implements OnMapReadyCall
         setContentView(R.layout.activity_rider_map);
 
         //TODO Test DEMO code
-         profile = findViewById(R.id.TestProfile);
-         makePayment = findViewById(R.id.TestMakePayment);
-         receivePayment = findViewById(R.id.TestReceivePayment);
-         viewOrder = findViewById(R.id.TestOrderHistory);
-         signOut = findViewById(R.id.TestSignOut);
+        bentoMenu = findViewById(R.id.bentoView);
 
         SharedPreferences sharedPref = this.getSharedPreferences("identity", Context.MODE_PRIVATE);
         final String username = sharedPref.getString("username", "");
-        profile.setOnClickListener(new View.OnClickListener() {
+        bentoMenu.setOnClickListener(new View.OnClickListener(){
             @Override
-            public void onClick(View view) {
-                Intent a = new Intent(RiderMapActivity.this, ViewProfile.class);
-                a.putExtra("profile_name", username);
+            public void onClick(View view){
+                Intent a = new Intent(RiderMapActivity.this, Menu.class);
                 startActivity(a);
             }
         });
-        makePayment.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent a = new Intent(RiderMapActivity.this, MakePayment.class);
-                startActivity(a);
-            }
-        });
-        receivePayment.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent a = new Intent(RiderMapActivity.this, ReceivePayment.class);
-                startActivity(a);
-            }
-        });
-        viewOrder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent a = new Intent(RiderMapActivity.this, OrderHistoryActivity.class);
-                a.putExtra("profile_name", username);
-                startActivity(a);
-            }
-        });
-        signOut.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                SignOut.now(RiderMapActivity.this);
-            }
-        });
+//        profile.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent a = new Intent(RiderMapActivity.this, ViewProfile.class);
+//                a.putExtra("profile_name", username);
+//                startActivity(a);
+//            }
+//        });
+//        makePayment.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent a = new Intent(RiderMapActivity.this, MakePayment.class);
+//                startActivity(a);
+//            }
+//        });
+//        receivePayment.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent a = new Intent(RiderMapActivity.this, ReceivePayment.class);
+//                startActivity(a);
+//            }
+//        });
+//        viewOrder.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent a = new Intent(RiderMapActivity.this, OrderHistoryActivity.class);
+//                a.putExtra("profile_name", username);
+//                startActivity(a);
+//            }
+//        });
+//        signOut.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                SignOut.now(RiderMapActivity.this);
+//            }
+//        });
         //TODO END
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.

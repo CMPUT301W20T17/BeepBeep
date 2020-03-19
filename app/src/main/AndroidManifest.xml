@@ -29,6 +29,7 @@
         <activity android:name=".MakePayment" />
         <activity android:name=".ViewProfile" />
         <activity android:name=".EditProfileActivity" />
+        <activity android:name=".Menu"/>
         <activity
             android:name=".Signup"
             android:screenOrientation="portrait"
