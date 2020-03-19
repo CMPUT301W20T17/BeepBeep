@@ -19,4 +19,9 @@
     <string name="qrbuck">QRBUCK</string>
     <string name="confirm">Confirm</string>
     <string name="placeholder">PLACEHOLDER</string>
+    <string name="balance">Balance:</string>
+    <string name="add_money">Add Money</string>
+    <string name="make_payment">Make Payment</string>
+    <string name="receive_payment">Receive Payment</string>
+    <string name="please_wait">Please Wait ...</string>
 </resources>
