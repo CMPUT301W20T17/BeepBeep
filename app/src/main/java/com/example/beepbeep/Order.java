@@ -50,7 +50,9 @@ public class Order implements Serializable {
         this.Destination = Destination;
         this.Type = Type;
     }
-
+    
+    public Order(){}
+ 
     public String getUser(){return user;}
 
     public String getDriverID(){return DriverID;}
