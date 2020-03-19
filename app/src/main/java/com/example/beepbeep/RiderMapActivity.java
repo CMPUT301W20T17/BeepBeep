@@ -47,6 +47,7 @@ import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.Timestamp;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
@@ -137,7 +138,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     private String uniqueID;
     Button getDirection;
 
-    ImageView bentoMenu;
+    FloatingActionButton bentoMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
