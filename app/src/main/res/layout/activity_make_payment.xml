@@ -20,10 +20,11 @@
 
     <Button
         android:id="@+id/MakePayment_confirmButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="104dp"
+        android:layout_height="42dp"
         android:layout_marginTop="7dp"
-        android:text="@string/confirm_amount"
+        android:background="@drawable/custom_button"
+        android:text="@string/confirm"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/MakePayment_amountInput" />
@@ -32,7 +33,7 @@
         android:id="@+id/MakePayment_prompt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="163dp"
+        android:layout_marginTop="268dp"
         android:text="@string/please_enter_amount"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
