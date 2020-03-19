@@ -9,6 +9,13 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+/*
+ Title: OrderList class
+ Author: Jonathan Martins
+ Date: 2020/03/16
+ Code version: N/A
+*/
+
 public class Menu extends AppCompatActivity {
     CardView profileMenu;
     CardView mapMenu;
@@ -16,11 +23,12 @@ public class Menu extends AppCompatActivity {
     CardView scanMenu;
     CardView historyMenu;
     CardView logoutMenu;
-
+    //intiates all the CardView objects stored inside GridView
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
+        //set content to activity_menu.xml
 
         profileMenu = findViewById(R.id.profileMenu);
         mapMenu = findViewById(R.id.mapMenu);
@@ -28,6 +36,7 @@ public class Menu extends AppCompatActivity {
         scanMenu = findViewById(R.id.scanMenu);
         historyMenu = findViewById(R.id.historyMenu);
         logoutMenu = findViewById(R.id.logoutMenu);
+        //link all the CardView objects with their id in the xml.
 
         SharedPreferences sharedPref = this.getSharedPreferences("identity", Context.MODE_PRIVATE);
         final String username = sharedPref.getString("username", "");

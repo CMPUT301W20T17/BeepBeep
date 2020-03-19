@@ -83,6 +83,7 @@ import java.util.UUID;
 
 
 public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCallback, TaskLoadedCallback{
+    //march 19th, 2020 changed from extends fragmentactivity to appcompatactivity due to incompatibility with png files.
 
     FirebaseFirestore db;
 
@@ -151,7 +152,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         // Retrieve the content view that renders the map.
         setContentView(R.layout.activity_rider_map);
 
-        //TODO Test DEMO code
+        //setup the bentomenu on the activity screen
         bentoMenu = findViewById(R.id.bentoView);
 
         SharedPreferences sharedPref = this.getSharedPreferences("identity", Context.MODE_PRIVATE);
@@ -163,43 +164,6 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 startActivity(a);
             }
         });
-//        profile.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent a = new Intent(RiderMapActivity.this, ViewProfile.class);
-//                a.putExtra("profile_name", username);
-//                startActivity(a);
-//            }
-//        });
-//        makePayment.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent a = new Intent(RiderMapActivity.this, MakePayment.class);
-//                startActivity(a);
-//            }
-//        });
-//        receivePayment.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent a = new Intent(RiderMapActivity.this, ReceivePayment.class);
-//                startActivity(a);
-//            }
-//        });
-//        viewOrder.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent a = new Intent(RiderMapActivity.this, OrderHistoryActivity.class);
-//                a.putExtra("profile_name", username);
-//                startActivity(a);
-//            }
-//        });
-//        signOut.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                SignOut.now(RiderMapActivity.this);
-//            }
-//        });
-        //TODO END
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
