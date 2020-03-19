@@ -4,4 +4,6 @@
     <color name="colorPrimaryDark">#03DAC5</color>
     <color name="colorAccent">#03DAC5</color>
     <color name="orange">#FFA500</color>
+    <color name="MenuCardView">#AFEEEE</color>
+    <color name="TextCardView">#6F7C80</color>
 </resources>

@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -48,7 +49,7 @@ public class ViewProfile extends AppCompatActivity {
         final SharedPreferences sharedPref = ViewProfile.this.getSharedPreferences("identity", Context.MODE_PRIVATE);
         String loginName = sharedPref.getString("username","");
 
-        final Button editButton = findViewById(R.id.edit_profile_button);
+        final ImageView editButton = findViewById(R.id.edit_profile_button);
 
         // If the user is viewing his/her own profile, set the edit button to be visible
         if(loginName.equals(profileName)){
@@ -126,7 +127,7 @@ public class ViewProfile extends AppCompatActivity {
         String loginName = sharedPref.getString("username","");
 
         // Set the edit button to be visible if user is viewing his/her own profile
-        final Button editButton = findViewById(R.id.edit_profile_button);
+        final ImageView editButton = findViewById(R.id.edit_profile_button);
         if(loginName.equals(profileName)){
             editButton.setVisibility(View.VISIBLE);
         }
