@@ -84,9 +84,7 @@ import java.util.UUID;
 
 public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCallback, TaskLoadedCallback{
 
-    final String TAG1 = "Account";
     FirebaseFirestore db;
-    DocumentReference ref;
 
 
     private GoogleMap mMap;
@@ -112,13 +110,6 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     // The geographical location where the device is currently located. That is, the last-known
     // location retrieved by the Fused Location Provider.
     private Location mLastKnownLocation;
-
-    // Used for selecting the current place.
-    private static final int M_MAX_ENTRIES = 5;
-    private String[] mLikelyPlaceNames;
-    private String[] mLikelyPlaceAddresses;
-    private List[] mLikelyPlaceAttributions;
-    private LatLng[] mLikelyPlaceLatLngs;
 
     // Keys for storing activity state.
     private static final String KEY_CAMERA_POSITION = "camera_position";
