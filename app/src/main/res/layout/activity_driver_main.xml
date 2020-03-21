@@ -1,6 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <LinearLayout
+        android:id="@+id/temp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/SearchView"
+                android:layout_width="80dp"
+                android:layout_height="14dp"
+                android:text="Origin"
+                android:textAlignment="center"
+                android:textSize="12sp" />
+
+            <fragment
+                android:id="@+id/location"
+                android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+                android:layout_width="match_parent"
+                android:layout_height="32dp"
+                android:hint="Enter the pickup location" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/direction_"
+        android:layout_width="160dp"
+        android:layout_height="35dp"
+        android:layout_below="@+id/temp"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/custom_edit_text"
+        android:text="Direction" />
+
+    <Button
+        android:id="@+id/confirm_"
+        android:layout_width="160dp"
+        android:layout_height="35dp"
+        android:layout_marginTop="4dp"
+        android:layout_below="@+id/temp"
+        android:layout_alignParentEnd="true"
+        android:background="@drawable/custom_edit_text"
+        android:text="CONFIRM" />
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_below="@+id/direction_"
+        android:layout_width="match_parent"
+        android:layout_height="400dp">
+
+    </ScrollView>
+
+    <fragment
+    android:id="@+id/map_"
+    android:name="com.google.android.gms.maps.SupportMapFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_below="@+id/direction_"
+    tools:context=".RiderMapActivity" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    android:id="@+id/bentoView_"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentEnd="true"
+    android:layout_alignParentBottom="true"
+    android:layout_marginEnd="22dp"
+    android:layout_marginBottom="23dp"
+    android:clickable="true"
+    app:srcCompat="@mipmap/bentomenuicon" />
+
+</RelativeLayout>
