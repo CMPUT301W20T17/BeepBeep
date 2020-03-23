@@ -43,6 +43,7 @@ import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 
@@ -154,10 +155,33 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
 
 
 
-//        //set the Buttom confirm, and send the request information to firestore
+        //set the Buttom confirm, and send the request information to firestore
 //        uniqueID = UUID.randomUUID().toString();
-//        Button confirm_button;
-//        confirm_button = findViewById(R.id.confirm);
+        Button confirm_button;
+        confirm_button = findViewById(R.id.confirm_);
+        confirm_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //get shared preference and UserName
+                final SharedPreferences sharedPref = DriverMapActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
+                final String username = sharedPref.getString("username", "");
+
+                // get pickup location
+                Location pickuploc = new Location("");
+                pickuploc.setLatitude(pickup.latitude);
+                pickuploc.setLongitude(pickup.longitude);
+
+                //prepare the list of ID
+
+
+                //connect to firestore
+                db = FirebaseFirestore.getInstance();
+                CollectionReference citiesRef = db.collection("Requests")
+                        .where("")
+
+
+            }
+        });
 //        confirm_button.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
@@ -181,6 +205,7 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
 //                double destinLat = destination.latitude; //destination geolocation
 //                double destinLng = destination.longitude;
 ////                double destinLat = 53.523220 ;
+
 ////                double destinLng = -113.526321;
 //                GeoPoint destinaitonGeo = new GeoPoint(destinLat,destinLng);
 ////                Toast.makeText(getApplicationContext(), String.valueOf(pickupLat), Toast.LENGTH_SHORT).show();

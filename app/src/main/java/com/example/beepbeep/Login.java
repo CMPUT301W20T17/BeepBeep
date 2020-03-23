@@ -183,7 +183,7 @@ public class Login extends AppCompatActivity {
                                             != PackageManager.PERMISSION_GRANTED) {
                                     }
                                     else {
-                                        Intent intent = new Intent(Login.this, RiderMapActivity.class);
+                                        Intent intent = new Intent(Login.this, DriverMapActivity.class);
                                         startActivity(intent);
                                     }
                                 }else{ // password does not match
