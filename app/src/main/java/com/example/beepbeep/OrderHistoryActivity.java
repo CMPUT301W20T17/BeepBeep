@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -83,7 +85,7 @@ public class OrderHistoryActivity extends AppCompatActivity{
                                     }
                                 }
                             });
-                    }
+                        }
 
 
                     }
@@ -102,6 +104,7 @@ public class OrderHistoryActivity extends AppCompatActivity{
 
     //use the button of VIEW to view other role's information, go to view profile activity
     public void viewOtherProfile(View view){
+        ImageView ViewButton = findViewById(R.id.view_contact_button);
         final int position = orderList.getPositionForView((View)view.getParent());
         Order order = orderDataList.get(position);
         String profileName;
@@ -112,9 +115,13 @@ public class OrderHistoryActivity extends AppCompatActivity{
             profileName = order.getDriverID();
         }
 
+
         //change to new intent to view profile
+        //ViewButton.setVisibility(View.VISIBLE);
         Intent viewP = new Intent(getApplicationContext(), ViewProfile.class);
         viewP.putExtra("profile_name", profileName);
         startActivity(viewP);
+
+
     }
 }

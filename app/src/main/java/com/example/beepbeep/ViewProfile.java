@@ -55,6 +55,9 @@ public class ViewProfile extends AppCompatActivity {
         if(loginName.equals(profileName)){
             editButton.setVisibility(View.VISIBLE);
         }
+        else{
+            editButton.setVisibility(View.INVISIBLE);
+        }
 
         //Read data from FireStore and fill the TextView
         db = FirebaseFirestore.getInstance();

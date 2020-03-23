@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Locale;
 
 import android.content.Context;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.util.Log;
@@ -13,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -62,10 +64,18 @@ public class OrderList extends ArrayAdapter<Order> {
         TextView destination = view.findViewById(R.id.destination_text);
         TextView price = view.findViewById(R.id.price_text);
         TextView status = view.findViewById(R.id.status_text); //same as Type in database
+        ImageView ViewButton = view.findViewById(R.id.view_contact_button);
 
         //Set up the prompt for other user's name, and the order's information
         //if current user is driver, the get information about respond rider.
         //if current user is rider, then get information about respond driver.
+        if (order.getRiderID()==""||order.getDriverID()==""){
+            ViewButton.setVisibility(View.INVISIBLE);
+        }
+        else{
+            //change to new intent to view profile
+            ViewButton.setVisibility(View.VISIBLE);
+        }
         if (order.getUser().equals(order.getDriverID())) {
             otherName.setText(order.getRiderID());
             otherIdentity.setText("   Rider:");
@@ -81,6 +91,7 @@ public class OrderList extends ArrayAdapter<Order> {
         destination.setText(getAddress(order.getDestination()));
         price.setText(order.getPrice() + " CAD");
         status.setText(order.getType());
+
 
         return view;
     }
