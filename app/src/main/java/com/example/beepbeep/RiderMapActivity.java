@@ -5,22 +5,18 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentActivity;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -29,7 +25,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -48,21 +43,17 @@ import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.Timestamp;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
+
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.QuerySnapshot;
 
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
+
 
 /*
  Title: Add the marker for autocomplete search
@@ -77,6 +68,8 @@ import java.util.List;
  Availability: https://www.youtube.com/watch?v=jg1urt3FGCY
 */
 
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -139,6 +132,8 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     Button getDirection;
 
     FloatingActionButton bentoMenu;
+
+    private String placeName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -266,6 +261,8 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 }
             }
         });
+
+//        placeName = getAddress(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude());
 //        if ((odestination!=null)&&(opickup!= null)){
 //            new FetchURL(RiderMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
 //        }
@@ -309,6 +306,32 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         return "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + "&key=" + getString(R.string.google_maps_key);
     }
 
+    private String getAddress(double LAT, double LONG){
+        String address = "";
+        Geocoder geocoder = new Geocoder(RiderMapActivity.this, Locale.getDefault());
+        try{
+            //get address in list
+            List<Address> addresses = geocoder.getFromLocation(LAT, LONG, 1);
+            //if there is address
+            if (addresses != null) {
+                //get the returned addresses
+                Address returnedAddress = addresses.get(0);
+                StringBuilder strReturnedAddress = new StringBuilder("");
+                //set the returned address in string
+                for (int i = 0; i <= returnedAddress.getMaxAddressLineIndex(); i++) {
+                    strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n");
+                }
+                address = strReturnedAddress.toString();
+            }
+            else{
+                Log.w("My Current loction address", "No Address returned!");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return address;
+    }
+
 
     //TODO:delete the marker after remove the place name auto
     private void getAutocompleteDestination() {
@@ -316,7 +339,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
                 getSupportFragmentManager().findFragmentById(R.id.destination);
         assert autocompleteFragment != null;
-
+        autocompleteFragment.setHint("Enter the destination");
         autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.LAT_LNG, Place.Field.NAME));
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
@@ -364,8 +387,12 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         assert autocompleteFragment != null;
 
         autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID,Place.Field.LAT_LNG,Place.Field.NAME));
+        autocompleteFragment.setHint("Enter the pickup location");
+        placeName = getAddress(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude());
+        autocompleteFragment.setText(placeName);
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
+
             public void onPlaceSelected(@NonNull final Place place) {
                 if (place.getLatLng() != null){
                     pickup = place.getLatLng();
@@ -456,29 +483,6 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         // info window contents.
 //        mMap.addMarker(new MarkerOptions().position(new LatLng(pickup.latitude, pickup.longitude)).title("Maker"));
 
-        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
-
-            @Override
-            // Return null here, so that getInfoContents() is called next.
-            public View getInfoWindow(Marker arg0) {
-                return null;
-            }
-
-            @Override
-            public View getInfoContents(Marker marker) {
-                // Inflate the layouts for the info window, title and snippet.
-                View infoWindow = getLayoutInflater().inflate(R.layout.map_info_content,
-                        (FrameLayout) findViewById(R.id.map), false);
-
-                TextView title = infoWindow.findViewById(R.id.title);
-                title.setText(marker.getTitle());
-
-                TextView snippet = infoWindow.findViewById(R.id.snippet);
-                snippet.setText(marker.getSnippet());
-
-                return infoWindow;
-            }
-        });
 //        if(mMap != null){
 //            mMap.addMarker(new MarkerOptions().position(pickup).title("Pick-Up"));
 //        }

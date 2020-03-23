@@ -379,29 +379,29 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         // info window contents.
 //        mMap.addMarker(new MarkerOptions().position(new LatLng(pickup.latitude, pickup.longitude)).title("Maker"));
 
-        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
-
-            @Override
-            // Return null here, so that getInfoContents() is called next.
-            public View getInfoWindow(Marker arg0) {
-                return null;
-            }
-
-            @Override
-            public View getInfoContents(Marker marker) {
-                // Inflate the layouts for the info window, title and snippet.
-                View infoWindow = getLayoutInflater().inflate(R.layout.map_info_content,
-                        (FrameLayout) findViewById(R.id.map_), false);
-
-                TextView title = infoWindow.findViewById(R.id.title);
-                title.setText(marker.getTitle());
-
-                TextView snippet = infoWindow.findViewById(R.id.snippet);
-                snippet.setText(marker.getSnippet());
-
-                return infoWindow;
-            }
-        });
+//        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+//
+//            @Override
+//            // Return null here, so that getInfoContents() is called next.
+//            public View getInfoWindow(Marker arg0) {
+//                return null;
+//            }
+//
+//            @Override
+//            public View getInfoContents(Marker marker) {
+//                // Inflate the layouts for the info window, title and snippet.
+//                View infoWindow = getLayoutInflater().inflate(R.layout.map_info_content,
+//                        (FrameLayout) findViewById(R.id.map_), false);
+//
+//                TextView title = infoWindow.findViewById(R.id.title);
+//                title.setText(marker.getTitle());
+//
+//                TextView snippet = infoWindow.findViewById(R.id.snippet);
+//                snippet.setText(marker.getSnippet());
+//
+//                return infoWindow;
+//            }
+//        });
 //        if(mMap != null){
 //            mMap.addMarker(new MarkerOptions().position(pickup).title("Pick-Up"));
 //        }
