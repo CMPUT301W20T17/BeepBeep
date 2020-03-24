@@ -1,15 +1,22 @@
 package com.example.beepbeep;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -17,6 +24,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -25,6 +33,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -61,6 +71,12 @@ import java.util.HashMap;
  Date: 2020/03/07
  Code version: 2.1
  Availability: https://stackoom.com/question/2Zl7c/%E5%9C%A8%E8%87%AA%E5%8A%A8%E5%AE%8C%E6%88%90%E6%90%9C%E7%B4%A2%E4%BD%8D%E7%BD%AE%E8%AE%BE%E7%BD%AE%E6%A0%87%E8%AE%B0
+
+ Title: How to change the position of My Location Button in Google Maps using android studio
+ Author: Junyao Cui
+ Date: 2020/03/23
+ Code version: 2.1
+ Availability:https://stackoverflow.com/questions/36785542/how-to-change-the-position-of-my-location-button-in-google-maps-using-android-st
 
  Title: Android tutorial: How to get directions between 2 points using Google Map API
  Author: Junyao Cui, Vishal
@@ -106,6 +122,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     // location retrieved by the Fused Location Provider.
     private Location mLastKnownLocation;
 
+
     // Keys for storing activity state.
     private static final String KEY_CAMERA_POSITION = "camera_position";
     private static final String KEY_LOCATION = "location";
@@ -133,7 +150,10 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 
     FloatingActionButton bentoMenu;
 
+    private View mapView;
+
     private String placeName;
+    private LatLng mLaatknonlocationLatLng;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,6 +185,8 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        mapView = mapFragment.getView();
 
         // Construct a PlacesClient
         if (!Places.isInitialized()) {
@@ -204,16 +226,10 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 //get lat and long
                 double pickupLat = pickup.latitude; //pickup geolocation
                 double pickupLng =  pickup.longitude;
-//                double pickupLat = 53.542100;
-//                double pickupLng = -113.507890;
                 GeoPoint pickupGeo = new GeoPoint(pickupLat,pickupLng);
                 double destinLat = destination.latitude; //destination geolocation
                 double destinLng = destination.longitude;
-//                double destinLat = 53.523220 ;
-//                double destinLng = -113.526321;
                 GeoPoint destinaitonGeo = new GeoPoint(destinLat,destinLng);
-//                Toast.makeText(getApplicationContext(), String.valueOf(pickupLat), Toast.LENGTH_SHORT).show();
-//                Toast.makeText(getApplicationContext(), String.valueOf(destinLat), Toast.LENGTH_SHORT).show();
 
                 //set the storing data
                 docData.put("Type", "inactive");
@@ -308,7 +324,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 
     private String getAddress(double LAT, double LONG){
         String address = "";
-        Geocoder geocoder = new Geocoder(RiderMapActivity.this, Locale.getDefault());
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         try{
             //get address in list
             List<Address> addresses = geocoder.getFromLocation(LAT, LONG, 1);
@@ -353,6 +369,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 odestination = new MarkerOptions();
                 odestination.position(destination);
                 odestination.title(destinationName);
+                odestination.zIndex(1.0f);
 //                mMap.clear();
                 mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
                     @Override
@@ -379,7 +396,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 
     //TODO:delete the marker after remove the place name auto
     //     change the marker to the round point
-    //     auto set the current location as the pick up location at beginning
+    //     auto set the current location as the pick up location at beginning---------later
     private void getAutocompletePickup() {
         //search the location by autocomplete
         AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
@@ -388,11 +405,10 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 
         autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID,Place.Field.LAT_LNG,Place.Field.NAME));
         autocompleteFragment.setHint("Enter the pickup location");
-        placeName = getAddress(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude());
+//        placeName = getAddress(mLaatknonlocationLatLng.latitude,mLaatknonlocationLatLng.longitude);
         autocompleteFragment.setText(placeName);
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
-
             public void onPlaceSelected(@NonNull final Place place) {
                 if (place.getLatLng() != null){
                     pickup = place.getLatLng();
@@ -404,6 +420,10 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 opickup = new MarkerOptions();
                 opickup.position(pickup);
                 opickup.title(pickupName);
+                opickup.zIndex(1.0f);
+//                locationMarkerIcon = LayoutUtils.getBitmapFromVector(ctx, R.drawable.ic_location_marker,
+//                        ContextCompat.getColor(ctx, R.color.marker_color));
+                opickup.icon(getBitmapFromVector(getApplicationContext(),R.drawable.ic_custom_map_marker));
 //                mMap.clear();
                 mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
                     @Override
@@ -426,6 +446,20 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 
             }
         });
+    }
+
+    private BitmapDescriptor getBitmapFromVector(@NonNull Context context, @DrawableRes int vectorResourceId){
+        Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResourceId);
+        if (vectorDrawable == null) {
+            Log.e(TAG, "Requested vector resource was not found");
+            return BitmapDescriptorFactory.defaultMarker();
+        }
+        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
+        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(),
+                vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        vectorDrawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
     private void getLocationPermission() {
@@ -479,20 +513,20 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        // Use a custom info window adapter to handle multiple lines of text in the
-        // info window contents.
-//        mMap.addMarker(new MarkerOptions().position(new LatLng(pickup.latitude, pickup.longitude)).title("Maker"));
-
-//        if(mMap != null){
-//            mMap.addMarker(new MarkerOptions().position(pickup).title("Pick-Up"));
-//        }
-
 
         // Prompt the user for permission.
         getLocationPermission();
 
         // Turn on the My Location layer and the related control on the map.
         updateLocationUI();
+        if (mapView != null && mapView.findViewById(Integer.parseInt("1")) != null) {
+            View locationButton = ((View) mapView.findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
+            RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
+            // position on right bottom
+            rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+            rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+            rlp.setMargins(0,0,40,350);
+        }
 
         // Get the current location of the device and set the position of the map.
         getDeviceLocation();
@@ -513,6 +547,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
             }
         }
     }
+
 
     private void updateLocationUI() {
         if (mMap == null) {
@@ -548,9 +583,10 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                             // Set the map's camera position to the current location of the device.
                             mLastKnownLocation = (Location) task.getResult();
                             assert mLastKnownLocation != null;
+                            mLaatknonlocationLatLng =  new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
+                            placeName = getAddress(mLaatknonlocationLatLng.latitude,mLaatknonlocationLatLng.longitude);
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                                    new LatLng(mLastKnownLocation.getLatitude(),
-                                            mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
+                                    mLaatknonlocationLatLng, DEFAULT_ZOOM));
                         } else {
                             Log.d(TAG, "Current location is null. Using defaults.");
                             Log.e(TAG, "Exception: %s", task.getException());
