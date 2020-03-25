@@ -220,13 +220,19 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 //                Toast.makeText(getApplicationContext(), String.valueOf(pickupLat), Toast.LENGTH_SHORT).show();
 //                Toast.makeText(getApplicationContext(), String.valueOf(destinLat), Toast.LENGTH_SHORT).show();
 
+                //get the price
+                float[] results = new float[1];
+                Location.distanceBetween(pickupLat, pickupLng, destinLat, destinLng, results);
+                int price = (int)results[0];
+                price = price /1000 * 2;
+
                 //set the storing data
                 docData.put("Type", "inactive");
                 docData.put("RiderID", username);
                 docData.put("DriverID", "");
                 docData.put("StartTime",startTime2);
                 docData.put("FinishTime","");
-                docData.put("Price",20);
+                docData.put("Price",price );
                 docData.put("PickUpPoint",pickupGeo);
                 docData.put("Destination",destinaitonGeo);
 

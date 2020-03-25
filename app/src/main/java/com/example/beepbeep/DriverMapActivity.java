@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -46,6 +47,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -167,17 +171,26 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                 final String username = sharedPref.getString("username", "");
 
                 // get pickup location
-                Location pickuploc = new Location("");
-                pickuploc.setLatitude(pickup.latitude);
-                pickuploc.setLongitude(pickup.longitude);
+//                Location pickuploc = new Location("");
+//                pickuploc.setLatitude(pickup.latitude);
+//                pickuploc.setLongitude(pickup.longitude);
 
                 //prepare the list of ID
 
 
                 //connect to firestore
                 db = FirebaseFirestore.getInstance();
-                CollectionReference citiesRef = db.collection("Requests")
-                        .where("")
+                CollectionReference citiesRef = db.collection("Requests");
+                citiesRef.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                            @Override
+                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                String data = "";
+                                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
+
+                                }
+                            }
+                        });
+
 
 
             }
