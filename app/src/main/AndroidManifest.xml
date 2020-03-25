@@ -24,13 +24,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Wallet"></activity>
+        <activity android:name=".RiderRatingActivity"></activity>
+        <activity android:name=".Wallet" />
         <activity android:name=".OrderHistoryActivity" />
         <activity android:name=".ReceivePayment" />
         <activity android:name=".MakePayment" />
         <activity android:name=".ViewProfile" />
         <activity android:name=".EditProfileActivity" />
-        <activity android:name=".Menu"/>
+        <activity android:name=".Menu" />
         <activity
             android:name=".Signup"
             android:screenOrientation="portrait"
