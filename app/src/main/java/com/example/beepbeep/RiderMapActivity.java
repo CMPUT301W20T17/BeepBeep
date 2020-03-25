@@ -69,14 +69,17 @@ import java.util.HashMap;
  Title: Add the marker for autocomplete search
  Author: Junyao Cui
  Date: 2020/03/07
- Code version: 2.1
  Availability: https://stackoom.com/question/2Zl7c/%E5%9C%A8%E8%87%AA%E5%8A%A8%E5%AE%8C%E6%88%90%E6%90%9C%E7%B4%A2%E4%BD%8D%E7%BD%AE%E8%AE%BE%E7%BD%AE%E6%A0%87%E8%AE%B0
 
  Title: How to change the position of My Location Button in Google Maps using android studio
  Author: Junyao Cui
  Date: 2020/03/23
- Code version: 2.1
- Availability:https://stackoverflow.com/questions/36785542/how-to-change-the-position-of-my-location-button-in-google-maps-using-android-st
+ Availability: https://stackoverflow.com/questions/36785542/how-to-change-the-position-of-my-location-button-in-google-maps-using-android-st
+
+ Title: How to add Custom Marker in Google maps in Android
+ Author: Junyao Cui, Gadgets and Technical field Android Tech
+ Date: 2020/03/23
+ Availability: https://www.youtube.com/watch?v=26bl4r3VtGQ
 
  Title: Android tutorial: How to get directions between 2 points using Google Map API
  Author: Junyao Cui, Vishal
@@ -395,7 +398,6 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     }
 
     //TODO:delete the marker after remove the place name auto
-    //     change the marker to the round point
     //     auto set the current location as the pick up location at beginning---------later
     private void getAutocompletePickup() {
         //search the location by autocomplete
@@ -406,7 +408,9 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID,Place.Field.LAT_LNG,Place.Field.NAME));
         autocompleteFragment.setHint("Enter the pickup location");
 //        placeName = getAddress(mLaatknonlocationLatLng.latitude,mLaatknonlocationLatLng.longitude);
-        autocompleteFragment.setText(placeName);
+        if (mLastKnownLocation != null) {
+            autocompleteFragment.setText(placeName);
+        }
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(@NonNull final Place place) {
@@ -582,7 +586,6 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                         if (task.isSuccessful()) {
                             // Set the map's camera position to the current location of the device.
                             mLastKnownLocation = (Location) task.getResult();
-                            assert mLastKnownLocation != null;
                             mLaatknonlocationLatLng =  new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
                             placeName = getAddress(mLaatknonlocationLatLng.latitude,mLaatknonlocationLatLng.longitude);
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
