@@ -13,14 +13,16 @@
         android:id="@+id/thesecondshow"
         android:layout_alignParentRight="true"
         android:layout_width="fill_parent"
-        android:layout_height="130dp"
+        android:layout_height="305dp"
         android:visibility="invisible"
         >
 
         <ScrollView
             android:id="@+id/scroll_table"
             android:layout_width="match_parent"
-            android:layout_height="85dp">
+            android:layout_height="260dp"
+            android:background="@color/quantum_white_text"
+            android:layout_margin="10dp">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -45,11 +47,20 @@
         </ScrollView>
         <Button
             android:id="@+id/btn_cancel_request"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="160dp"
+            android:layout_height="35dp"
             android:background="@drawable/custom_button"
             android:layout_below="@+id/scroll_table"
-            android:text="CANCEL REQUEST"/>
+            android:text="CANCEL"/>
+        <Button
+            android:id="@+id/btn_complete"
+            android:layout_width="160dp"
+            android:layout_height="35dp"
+            android:background="@drawable/custom_button"
+            android:layout_below="@+id/scroll_table"
+            android:layout_alignParentEnd="true"
+            android:text="COMPLETE"/>
+
     </RelativeLayout>
 
 

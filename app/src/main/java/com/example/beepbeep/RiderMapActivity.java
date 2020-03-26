@@ -533,6 +533,20 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+//        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+//            @Override
+//            public void onMapClick(LatLng latLng) {
+//                String pN = getAddress(latLng.latitude,latLng.longitude);
+//                MarkerOptions marker = new MarkerOptions()
+//                        .position(new LatLng(latLng.latitude,latLng.longitude))
+//                        .title(pN)
+//                        .zIndex(1.0f);
+//                mMap.clear();
+//                mMap.addMarker(marker);
+//                System.out.println(latLng.latitude+"---"+latLng.longitude);
+//            }
+//        });
+
         // Prompt the user for permission.
         getLocationPermission();
 
