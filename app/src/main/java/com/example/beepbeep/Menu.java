@@ -23,7 +23,8 @@ public class Menu extends AppCompatActivity {
     CardView scanMenu;
     CardView historyMenu;
     CardView logoutMenu;
-    //intiates all the CardView objects stored inside GridView
+
+    //initialize all the CardView objects stored inside GridView
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
