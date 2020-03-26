@@ -60,10 +60,10 @@ public class OrderHistoryActivity extends AppCompatActivity{
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()){
                     DocumentSnapshot document = task.getResult();
-                    List<String> orders = (List<String>)document.get("order");
+                    List<String> orders = (List<String>) document.get("order");
                     //cloned.addAll(orders);
 
-                    if (orders!=null){
+                    if (orders != null && !orders.isEmpty()){
                         for (int i = 0; i < orders.size(); i++){
                             db = FirebaseFirestore.getInstance();
                             String name = orders.get(i);
@@ -73,14 +73,17 @@ public class OrderHistoryActivity extends AppCompatActivity{
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                     if(task.isSuccessful()){
                                         DocumentSnapshot doc = task.getResult();
-                                        Order order = doc.toObject(Order.class);
-                                        order.setUser(userName);
-                                        orderDataList.add(order);
-                                        orderArrayAdapter = new OrderList(OrderHistoryActivity.this, orderDataList);
-                                        orderList.setAdapter(orderArrayAdapter);
-                                        Log.d(TAG, doc.getId() + " => " + doc.getData());
-                                    }
-                                    else{
+                                        if(doc != null && doc.exists()){
+                                            Order order = doc.toObject(Order.class);
+                                            order.setUser(userName);
+                                            orderDataList.add(order);
+                                            orderArrayAdapter = new OrderList(OrderHistoryActivity.this, orderDataList);
+                                            orderList.setAdapter(orderArrayAdapter);
+                                            Log.d(TAG, doc.getId() + " => " + doc.getData());
+                                        }else{
+                                            Log.d(TAG, "Error getting order: ", task.getException());
+                                        }
+                                    }else{
                                         Log.d(TAG, "Error getting documents: ", task.getException());
                                     }
                                 }
@@ -88,8 +91,7 @@ public class OrderHistoryActivity extends AppCompatActivity{
                         }
 
 
-                    }
-                    else{
+                    }else{
                         orderArrayAdapter = new OrderList(OrderHistoryActivity.this, orderDataList);
                         orderList.setAdapter(orderArrayAdapter);
                     }
