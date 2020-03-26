@@ -1,6 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".DriverMapActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <include layout="@layout/driver_map_info" />
+
+    <LinearLayout
+        android:id="@+id/temp"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:orientation="horizontal"
+        android:layout_margin="7dp"
+        android:background="@drawable/custom_edit_text">
+            <fragment
+                android:id="@+id/location"
+                android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+                android:layout_width="match_parent"
+                android:layout_height="32dp" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/direction_"
+        android:layout_width="160dp"
+        android:layout_height="35dp"
+        android:layout_below="@+id/temp"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/custom_edit_text"
+        android:text="Direction" />
+
+    <Button
+        android:id="@+id/confirm_"
+        android:layout_width="160dp"
+        android:layout_height="35dp"
+        android:layout_marginTop="4dp"
+        android:layout_below="@+id/temp"
+        android:layout_alignParentEnd="true"
+        android:background="@drawable/custom_edit_text"
+        android:text="CONFIRM" />
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_below="@+id/direction_"
+        android:layout_width="match_parent"
+        android:layout_height="400dp">
+
+    </ScrollView>
+
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    android:id="@+id/bentoView_"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentEnd="true"
+    android:layout_alignParentBottom="true"
+    android:layout_marginEnd="22dp"
+    android:layout_marginBottom="23dp"
+    android:clickable="true"
+    app:srcCompat="@mipmap/bentomenuicon" />
+
+</RelativeLayout>

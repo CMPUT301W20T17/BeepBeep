@@ -1,0 +1,7 @@
+<vector android:height="30dp" android:viewportHeight="192"
+    android:viewportWidth="192" android:width="30dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="#00ff00" android:name="椭圆 1" android:pathData="m96 42c29.82 0 54 24.18 54 54c0 29.82 -24.18 54 -54 54c-29.82 0 -54 -24.18 -54 -54c0 -29.82 24.18 -54 54 -54z"/>
+    <path android:fillColor="#00ff00" android:name="形状 1" android:pathData="m26 96c0 38.6 31.4 70 70 70c38.6 0 70 -31.4 70 -70c0 -38.6 -31.4 -70 -70 -70c-38.6 0 -70 31.4 -70 70zm5.6 0c0 -35.51 28.89 -64.4 64.4 -64.4c35.51 0 64.4 28.89 64.4 64.4c0 35.51 -28.89 64.4 -64.4 64.4c-35.51 0 -64.4 -28.89 -64.4 -64.4z"/>
+    <path android:fillColor="#fff" android:name="椭圆 2" android:pathData="m96 61c19.33 0 35 15.67 35 35c0 19.33 -15.67 35 -35 35c-19.33 0 -35 -15.67 -35 -35c0 -19.33 15.67 -35 35 -35z"/>
+    <path android:fillColor="#00ff00" android:name="椭圆 3" android:pathData="m96.5 73c12.98 0 23.5 10.52 23.5 23.5c0 12.98 -10.52 23.5 -23.5 23.5c-12.98 0 -23.5 -10.52 -23.5 -23.5c0 -12.98 10.52 -23.5 23.5 -23.5z"/>
+</vector>
