@@ -58,7 +58,7 @@
         android:id="@+id/thefirstshow"
         android:layout_alignParentRight="true"
         android:layout_width="fill_parent"
-        android:layout_height="136dp"
+        android:layout_height="140dp"
         android:visibility="visible">
 
         <LinearLayout
@@ -74,17 +74,18 @@
 
                 <TextView
                     android:id="@+id/pickupView"
-                    android:layout_width="80dp"
-                    android:layout_height="14dp"
+                    android:layout_width="65dp"
+                    android:layout_height="fill_parent"
                     android:text="Origin"
                     android:textAlignment="center"
+                    android:gravity="center"
                     android:textSize="12sp" />
 
                 <fragment
                     android:id="@+id/pickup_location"
                     android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
                     android:layout_width="match_parent"
-                    android:layout_height="32dp"
+                    android:layout_height="fill_parent"
                     android:hint="Enter the pickup location" />
             </LinearLayout>
 
@@ -95,9 +96,10 @@
 
                 <TextView
                     android:id="@+id/destinationView"
-                    android:layout_width="80dp"
-                    android:layout_height="14dp"
+                    android:layout_width="65dp"
+                    android:layout_height="fill_parent"
                     android:text="Destination"
+                    android:gravity="center"
                     android:textAlignment="center"
                     android:textSize="12sp" />
 
@@ -105,30 +107,53 @@
                     android:id="@+id/destination"
                     android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
                     android:layout_width="match_parent"
-                    android:layout_height="32dp"
+                    android:layout_height="fill_parent"
                     android:hint="Enter the destination" />
             </LinearLayout>
+
         </LinearLayout>
 
-        <Button
-            android:id="@+id/direction"
-            android:layout_width="160dp"
-            android:layout_height="35dp"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_below="@+id/temp"
-            android:layout_alignParentStart="true"
-            android:layout_marginTop="4dp"
-            android:background="@drawable/custom_edit_text"
-            android:text="Direction" />
+            android:orientation="horizontal"
+            android:weightSum="1">
 
-        <Button
-            android:id="@+id/confirm"
-            android:layout_width="160dp"
-            android:layout_height="35dp"
-            android:layout_marginTop="4dp"
-            android:layout_below="@+id/temp"
-            android:layout_alignParentEnd="true"
-            android:background="@drawable/custom_edit_text"
-            android:text="CONFIRM" />
+            <androidx.legacy.widget.Space
+                android:layout_width="3dp"
+                android:layout_height="match_parent"/>
+
+            <Button
+                android:id="@+id/direction"
+                android:layout_width="fill_parent"
+                android:layout_height="35dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp"
+                android:layout_weight="0.5"
+                android:background="@drawable/custom_edit_text"
+                android:text="Direction" />
+
+            <androidx.legacy.widget.Space
+                android:layout_width="3dp"
+                android:layout_height="match_parent"/>
+
+            <Button
+                android:id="@+id/confirm"
+                android:layout_width="fill_parent"
+                android:layout_height="35dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp"
+                android:layout_weight="0.5"
+                android:background="@drawable/custom_edit_text"
+                android:text="CONFIRM" />
+
+            <androidx.legacy.widget.Space
+                android:layout_width="3dp"
+                android:layout_height="match_parent"/>
+
+        </LinearLayout>
+
 
     </RelativeLayout>
 
