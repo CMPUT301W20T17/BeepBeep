@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -108,6 +109,8 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
 
     FloatingActionButton bentoMenu;
 
+    private View mapView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -138,6 +141,7 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map_);
         mapFragment.getMapAsync(this);
+        mapView = mapFragment.getView();
 
         // Construct a PlacesClient
         if (!Places.isInitialized()) {
@@ -287,6 +291,7 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         assert autocompleteFragment != null;
 
         autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID,Place.Field.LAT_LNG,Place.Field.NAME));
+        autocompleteFragment.setHint("Enter location to search requests");
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(@NonNull final Place place) {
@@ -300,6 +305,8 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                 opickup = new MarkerOptions();
                 opickup.position(pickup);
                 opickup.title(pickupName);
+                opickup.zIndex(1.0f);
+
 //                mMap.clear();
                 mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
                     @Override
@@ -412,6 +419,15 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
 
         // Turn on the My Location layer and the related control on the map.
         updateLocationUI();
+        if (mapView != null && mapView.findViewById(Integer.parseInt("1")) != null) {
+            View locationButton = ((View) mapView.findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
+            RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
+            // position on right bottom
+            rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+            rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+            rlp.setMargins(0,0,40,350);
+        }
+
 
         // Get the current location of the device and set the position of the map.
         getDeviceLocation();
