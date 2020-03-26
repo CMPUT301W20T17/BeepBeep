@@ -5,7 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -50,56 +53,69 @@ public class OrderHistoryActivity extends AppCompatActivity{
 
         orderList = findViewById(R.id.history_order_listview);
         orderDataList = new ArrayList<>();
+
         //Get the document of current user from database
         db = FirebaseFirestore.getInstance();
         DocumentReference userInfo = db.collection("Accounts").document(userName);
-        //final List<String> cloned;
 
-        userInfo.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()){
-                    DocumentSnapshot document = task.getResult();
-                    List<String> orders = (List<String>)document.get("order");
-                    //cloned.addAll(orders);
+        if(hasNetworkAccess()){
+            // launch offline record manager
+            OrderRecordManager orm = new OrderRecordManager(this);
+            orm.saveRecord();
 
-                    if (orders!=null){
-                        for (int i = 0; i < orders.size(); i++){
-                            db = FirebaseFirestore.getInstance();
-                            String name = orders.get(i);
-                            DocumentReference doc = db.collection("Requests").document(name);
-                            doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if(task.isSuccessful()){
-                                        DocumentSnapshot doc = task.getResult();
-                                        Order order = doc.toObject(Order.class);
-                                        order.setUser(userName);
-                                        orderDataList.add(order);
-                                        orderArrayAdapter = new OrderList(OrderHistoryActivity.this, orderDataList);
-                                        orderList.setAdapter(orderArrayAdapter);
-                                        Log.d(TAG, doc.getId() + " => " + doc.getData());
+            userInfo.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()){
+                        DocumentSnapshot document = task.getResult();
+                        List<String> orders = (List<String>) document.get("order");
+                        //cloned.addAll(orders);
+
+                        if (orders != null && !orders.isEmpty()){
+                            for (int i = 0; i < orders.size(); i++){
+                                db = FirebaseFirestore.getInstance();
+                                String name = orders.get(i);
+                                DocumentReference doc = db.collection("Requests").document(name);
+                                doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if(task.isSuccessful()){
+                                            DocumentSnapshot doc = task.getResult();
+                                            if(doc != null && doc.exists()){
+                                                Order order = doc.toObject(Order.class);
+                                                order.setUser(userName);
+                                                orderDataList.add(order);
+                                                orderArrayAdapter = new OrderList(OrderHistoryActivity.this, orderDataList);
+                                                orderList.setAdapter(orderArrayAdapter);
+                                                Log.d(TAG, doc.getId() + " => " + doc.getData());
+                                            }else{
+                                                Log.d(TAG, "Error getting order: ", task.getException());
+                                            }
+                                        }else{
+                                            Log.d(TAG, "Error getting documents: ", task.getException());
+                                        }
                                     }
-                                    else{
-                                        Log.d(TAG, "Error getting documents: ", task.getException());
-                                    }
-                                }
-                            });
+                                });
+                            }
+                        }else{
+                            orderArrayAdapter = new OrderList(OrderHistoryActivity.this, orderDataList);
+                            orderList.setAdapter(orderArrayAdapter);
                         }
+                        Log.d(TAG, document.getId() + " => " + document.getData());
+                    } else{
+                        Log.d(TAG, "Error getting documents: ", task.getException());
+                    }
+                }
+            });
+        }else{ // if don't have internet
+            // launch offline record manager
+            OrderRecordManager orm = new OrderRecordManager(this);
+            orderDataList = orm.getRecord();
+            orderArrayAdapter = new OrderList(OrderHistoryActivity.this, orderDataList);
+            orderList.setAdapter(orderArrayAdapter);
+        }
 
 
-                    }
-                    else{
-                        orderArrayAdapter = new OrderList(OrderHistoryActivity.this, orderDataList);
-                        orderList.setAdapter(orderArrayAdapter);
-                    }
-                    Log.d(TAG, document.getId() + " => " + document.getData());
-                }
-                else{
-                    Log.d(TAG, "Error getting documents: ", task.getException());
-                }
-            }
-        });
     }
 
     //use the button of VIEW to view other role's information, go to view profile activity
@@ -115,13 +131,22 @@ public class OrderHistoryActivity extends AppCompatActivity{
             profileName = order.getDriverID();
         }
 
-
         //change to new intent to view profile
         //ViewButton.setVisibility(View.VISIBLE);
         Intent viewP = new Intent(getApplicationContext(), ViewProfile.class);
         viewP.putExtra("profile_name", profileName);
         startActivity(viewP);
+    }
 
-
+    /**
+     * check if device have network access
+     * @return true if device have network access
+     */
+    private boolean hasNetworkAccess(){
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(this.CONNECTIVITY_SERVICE);
+        assert connectivityManager != null;
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }
