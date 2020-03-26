@@ -32,13 +32,13 @@ import java.util.regex.Pattern;
 
 import static android.content.Context.MODE_PRIVATE;
 
-public class OrderRecordManager {
+class OrderRecordManager {
     private Context context;
     private String username;
     private FirebaseFirestore db;
 
     // constructor assign context, get username, start db
-    public OrderRecordManager(Context context){
+    OrderRecordManager(Context context){
         this.context = context;
 
         // get username
@@ -49,7 +49,7 @@ public class OrderRecordManager {
         this.db = FirebaseFirestore.getInstance();
     }
 
-    public void saveRecord(){
+    void saveRecord(){
         final String filename = "OrderRecord.json"; // filename
 
         // write json beginning
@@ -103,7 +103,7 @@ public class OrderRecordManager {
         });
     }
 
-    public ArrayList<Order> getRecord(){
+    ArrayList<Order> getRecord(){
         JSONArray jsonArray = null;
         final String filename = "OrderRecord.json";
         try (FileInputStream fis = context.openFileInput(filename)){
@@ -136,7 +136,8 @@ public class OrderRecordManager {
                 GeoPoint d = toGeoPoint(Destination);
                 String PickUpPoint = arrayObject.getString("PickUpPoint");
                 GeoPoint p = toGeoPoint(PickUpPoint);
-                Order o = new Order(this.username,
+                Order o = new Order(
+                        this.username,
                         arrayObject.getString("DriverID"),
                         arrayObject.getString("RiderID"),
                         arrayObject.getString("StartTime"),
@@ -144,7 +145,8 @@ public class OrderRecordManager {
                         Double.parseDouble(arrayObject.getString("Price")),
                         p,
                         d,
-                        arrayObject.getString("Type"));
+                        arrayObject.getString("Type")
+                );
                 ret.add(o); // add the newly constructed record into records
             }
         }catch (Exception e){
