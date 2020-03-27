@@ -18,6 +18,7 @@ import android.widget.ListView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -42,11 +43,28 @@ public class OrderHistoryActivity extends AppCompatActivity{
     FirebaseFirestore db;
     final String TAG = "Accounts";
 
+    FloatingActionButton refreshButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order_history);
 
+        // map refresh Button
+        refreshButton = findViewById(R.id.history_order_refreshButton);
+
+        // add refresh Button listenser
+        refreshButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                refresh();
+            }
+        });
+
+        refresh();
+    }
+
+    void refresh(){
         //Get user name from SharedPreferences to see whose order history the activity should display
         final SharedPreferences sharedPref = OrderHistoryActivity.this.getSharedPreferences("identity", Context.MODE_PRIVATE);
         final String userName = sharedPref.getString("username","");
