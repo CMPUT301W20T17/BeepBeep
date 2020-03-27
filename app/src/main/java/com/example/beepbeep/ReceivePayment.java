@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -78,17 +80,24 @@ public class ReceivePayment extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
 
-        if(result != null) {
-            if(result.getContents() == null) { //cancelled by user
-                messageDisplay.setText("No payment received");
-            } else { //Scan successful
-                // get scan result
-                double amount = Double.parseDouble(result.getContents());
-                processTransaction(amount); // update cloud wallet balance
+        IntentResult result = null;
+        if(hasNetworkAccess()){
+            result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
 
+            if(result != null) {
+                if(result.getContents() == null) { //cancelled by user
+                    messageDisplay.setVisibility(View.VISIBLE);
+                    messageDisplay.setText("No payment received");
+                } else { //Scan successful
+                    // get scan result
+                    double amount = Double.parseDouble(result.getContents());
+                    processTransaction(amount); // update cloud wallet balance
+                }
             }
+        }else{
+            messageDisplay.setVisibility(View.VISIBLE);
+            messageDisplay.setText("No payment received\nA network connection is required to receive payment");
         }
     }
 
@@ -124,6 +133,18 @@ public class ReceivePayment extends AppCompatActivity {
                 confirmButton.setVisibility(View.VISIBLE);
             }
         });
+    }
+
+    /**
+     * check if device have network access
+     * @return true if device have network access
+     */
+    private boolean hasNetworkAccess(){
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(this.CONNECTIVITY_SERVICE);
+        assert connectivityManager != null;
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }
 
