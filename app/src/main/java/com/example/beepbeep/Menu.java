@@ -54,7 +54,7 @@ public class Menu extends AppCompatActivity {
         mapMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent a = new Intent(Menu.this, RiderMapActivity.class);
+                Intent a = new Intent(Menu.this, Wallet.class);
                 startActivity(a);
             }
         });
