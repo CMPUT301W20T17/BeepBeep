@@ -9,9 +9,15 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,17 +50,23 @@ import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.api.Distribution;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -113,6 +125,10 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
 
     FloatingActionButton bentoMenu;
 
+    private TextView qulifiedListView;
+    private ArrayList<String> qulifiedListData;
+    private ArrayAdapter<String> requestListAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -157,39 +173,56 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         //active the autocomplete place selection for pickup location
         getAutocompletePickup();
 
-
-
+        qulifiedListView = findViewById(R.id.qulifiedRequest);
+        qulifiedListData = new ArrayList<>();
         //set the Buttom confirm, and send the request information to firestore
-//        uniqueID = UUID.randomUUID().toString();
         Button confirm_button;
         confirm_button = findViewById(R.id.confirm_);
         confirm_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+//                Toast toast=Toast. makeText(getApplicationContext(),"Hello Javatpoint",Toast. LENGTH_SHORT);
+//                toast. show();
+                final LinearLayout changeLayout = DriverMapActivity.this.findViewById(R.id.invis_linear);
+                changeLayout.setVisibility(View.VISIBLE);
                 //get shared preference and UserName
                 final SharedPreferences sharedPref = DriverMapActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
                 final String username = sharedPref.getString("username", "");
 
-                // get pickup location
-//                Location pickuploc = new Location("");
-//                pickuploc.setLatitude(pickup.latitude);
-//                pickuploc.setLongitude(pickup.longitude);
+                //get all request name
+                final List<String> requestNameList = new ArrayList<>();
+                //connect to firestone
+                CollectionReference requestRef = db.collection("Requests");
+                
 
-                //prepare the list of ID
+//
+//
+//
+//                if (requestNameList != null) {
+//                    for (int i = 0; i < requestNameList.size(); i++) {
+//                        final String requestName = requestNameList.get(i);
+//                        final DocumentReference doc = db.collection("Requests").document(requestName);
+//                        doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//                            @Override
+//                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                                if (task.isSuccessful()){
+//                                    DocumentSnapshot document = task.getResult();
+//                                    if (document.exists()){
+//                                        if (document.get("Type").toString() == "active" || document.get("DriverID").toString() == ""){
+////                                            GeoPoint pickupgeo = (GeoPoint)document.get("PickUpPoint");
+////                                            float[] disResults = new float[1];
+////                                            Location.distanceBetween(?,?,pickupgeo.getLatitude(),pickupgeo.getLongitude(),disResults);
+////                                            int finaldisResult = (int)disResults[0]/100;
+//                                            qulifiedListData.add(requestName);
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        });
+//                    }
+//                }
+//                qulifiedListView.setText(requestNameList.toString());
 
-
-                //connect to firestore
-                db = FirebaseFirestore.getInstance();
-                CollectionReference citiesRef = db.collection("Requests");
-                citiesRef.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                            @Override
-                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                                String data = "";
-                                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
-
-                                }
-                            }
-                        });
 
 
 

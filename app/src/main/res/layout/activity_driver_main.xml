@@ -53,21 +53,38 @@
         android:layout_alignParentEnd="true"
         android:background="@drawable/custom_edit_text"
         android:text="CONFIRM" />
+
+    <fragment
+        android:id="@+id/map_"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/direction_"
+        tools:context=".RiderMapActivity" />
+
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_below="@+id/direction_"
         android:layout_width="match_parent"
         android:layout_height="400dp">
 
+        <LinearLayout
+            android:id="@+id/invis_linear"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="invisible">
+
+            <TextView
+                android:id="@+id/qulifiedRequest"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="asdasdasdasd"/>
+
+        </LinearLayout>
+
     </ScrollView>
 
-    <fragment
-    android:id="@+id/map_"
-    android:name="com.google.android.gms.maps.SupportMapFragment"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_below="@+id/direction_"
-    tools:context=".RiderMapActivity" />
+
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
     android:id="@+id/bentoView_"
