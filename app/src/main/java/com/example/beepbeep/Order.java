@@ -82,4 +82,10 @@ public class Order implements Serializable {
 
     public void setUser(String userName){this.user = userName;}
 
+    public String toString(){
+        return this.user + "\n" + this.DriverID + "\n" + this.RiderID + "\n" + this.StartTime
+                + "\n" + this.FinishTime + "\n" + this.Price + "\n" + this.PickUpPoint + "\n"
+                + this.Destination + "\n" + this.Type + "\n";
+    }
+
 }

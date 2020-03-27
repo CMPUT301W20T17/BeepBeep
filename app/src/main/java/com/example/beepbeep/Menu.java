@@ -23,7 +23,8 @@ public class Menu extends AppCompatActivity {
     CardView scanMenu;
     CardView historyMenu;
     CardView logoutMenu;
-    //intiates all the CardView objects stored inside GridView
+
+    //initialize all the CardView objects stored inside GridView
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,7 +54,7 @@ public class Menu extends AppCompatActivity {
         mapMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent a = new Intent(Menu.this, RiderMapActivity.class);
+                Intent a = new Intent(Menu.this, Wallet.class);
                 startActivity(a);
             }
         });

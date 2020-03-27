@@ -24,4 +24,6 @@
     <string name="make_payment">Make Payment</string>
     <string name="receive_payment">Receive Payment</string>
     <string name="please_wait">Please Wait ...</string>
+    <string name="tip">Tip:</string>
+    <string name="price_x">Price: $x</string>
 </resources>
