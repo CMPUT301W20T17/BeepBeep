@@ -50,39 +50,53 @@ public class OrderhistoryTest {
      */
     @Test
     public void testViewOrderHistory() throws Exception{
-        solo.enterText((EditText) solo.getView(R.id.Login_inputUsername), "123");
-        solo.enterText((EditText) solo.getView(R.id.Login_inputPassword), "A123456");
+        solo.enterText((EditText) solo.getView(R.id.Login_inputUsername), "DoNotDelete");
+        solo.enterText((EditText) solo.getView(R.id.Login_inputPassword), "1234qwer");
         solo.clickOnButton("Login");
-        solo.clickOnButton("OrderHistory");
-        //Switch to OrderHistory activity ***********************
+        //solo.clickOnButton("Profile");
+        //solo.clickOnButton("Allow only while using the app");
+        //solo.clickOnButton("Login");
+
+        solo.clickOnView(solo.getView(R.id.bentoView));
+        solo.assertCurrentActivity("Wrong Activity", Menu.class);
+
+        solo.clickOnView(solo.getView(R.id.historyMenu));
         solo.assertCurrentActivity("Wrong Activity", OrderHistoryActivity.class);
 
+        //solo.clickOnView(solo.getView(R.id.history_order_refreshButton));
+
         assertTrue(solo.waitForText("234", 1, 2000));
-        assertTrue(solo.waitForText("121212", 1, 2000));
-        assertTrue(solo.waitForText("Mali Prefecture", 1, 2000));
-        assertTrue(solo.waitForText("Atlantic Ocean", 1, 2000));
+        assertTrue(solo.waitForText("Fri Mar 27 11:41:45 MDT 2020", 1, 2000));
+        assertTrue(solo.waitForText("10125 109St NW,Edmonton,AB T5J 3M5,Canada", 1, 2000));
+        assertTrue(solo.waitForText("100 Princess Rd,Hulme,Manchester M151AS,UK", 1, 2000));
         assertTrue(solo.waitForText("10.0 CAD", 1, 2000));
         assertTrue(solo.waitForText("active", 1, 2000));
     }
 
+    /*
     @Test
     public void testViewButton() throws Exception{
-        solo.enterText((EditText) solo.getView(R.id.Login_inputUsername), "123");
-        solo.enterText((EditText) solo.getView(R.id.Login_inputPassword), "A123456");
+        solo.enterText((EditText) solo.getView(R.id.Login_inputUsername), "DoNotDelete");
+        solo.enterText((EditText) solo.getView(R.id.Login_inputPassword), "1234qwer");
         solo.clickOnButton("Login");
+        //solo.clickOnButton("Profile");
+        //solo.clickOnButton("Allow only while using the app");
+        //solo.clickOnButton("Login");
 
-        //Switch to OrderHistory activity ***********************
-        solo.clickOnButton("OrderHistory");
+        solo.clickOnView(solo.getView(R.id.bentoView));
+        solo.assertCurrentActivity("Wrong Activity", Menu.class);
+
+        solo.clickOnView(solo.getView(R.id.historyMenu));
         solo.assertCurrentActivity("Wrong Activity", OrderHistoryActivity.class);
 
         //Switch to ViewProfile activity ***********************
-        solo.clickOnButton("VIEW");
+        solo.clickOnView(solo.getView(R.id.view_contact_button));
         solo.assertCurrentActivity("Wrong Activity", ViewProfile.class);
 
         assertTrue(solo.waitForText("234", 1, 2000));
         assertTrue(solo.waitForText("249176381", 1, 2000));
         assertTrue(solo.waitForText("abc@111.11", 1, 2000));
-    }
+    } */
 
 
 }
