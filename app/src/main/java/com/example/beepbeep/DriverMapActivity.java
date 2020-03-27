@@ -174,7 +174,8 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         getAutocompletePickup();
 
         qulifiedListView = findViewById(R.id.qulifiedRequest);
-        qulifiedListData = new ArrayList<>();
+        qulifiedListData = new ArrayList<String>();
+
         //set the Buttom confirm, and send the request information to firestore
         Button confirm_button;
         confirm_button = findViewById(R.id.confirm_);
@@ -189,11 +190,47 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                 final SharedPreferences sharedPref = DriverMapActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
                 final String username = sharedPref.getString("username", "");
 
-                //get all request name
-                final List<String> requestNameList = new ArrayList<>();
                 //connect to firestone
-                CollectionReference requestRef = db.collection("Requests");
-                
+                db = FirebaseFirestore.getInstance();
+                db.collection("Requests")
+                        .whereEqualTo("Type","active")
+                        .whereEqualTo("DriverID","")
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        List<String> requestNameList = new ArrayList<>();
+                        if (task.isSuccessful()){
+                            for (QueryDocumentSnapshot document : task.getResult()){
+                                String id = document.getId();
+                                requestNameList.add(id);
+                            }
+                        }
+                        if (requestNameList != null){
+                            for (int i = 0; i < requestNameList.size(); i++){
+                                final String requestName = requestNameList.get(i);
+                                final DocumentReference doc = db.collection("Requests").document(requestName);
+                                doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if (task.isSuccessful()){
+                                            DocumentSnapshot document = task.getResult();
+                                            if (document.exists()){
+                                                GeoPoint pickupgeo = (GeoPoint)document.get("PickUpPoint");
+                                                float[] disResults = new float[1];
+                                                Location.distanceBetween(pickup.latitude, pickup.longitude,pickupgeo.getLatitude(),pickupgeo.getLongitude(),disResults);
+                                                if ((int)(disResults[0]/1000) < 5) {
+                                                    qulifiedListData.add(requestName);
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                        qulifiedListView.setText(qulifiedListData.toString());
+                    }
+                });
 
 //
 //
