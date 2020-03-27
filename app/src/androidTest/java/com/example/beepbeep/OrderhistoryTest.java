@@ -48,6 +48,7 @@ public class OrderhistoryTest {
      * Log in, and then test if user can see his/her own profile, and make sure the proper info show up
      * @throws Exception
      */
+    /*
     @Test
     public void testViewOrderHistory() throws Exception{
         solo.enterText((EditText) solo.getView(R.id.Login_inputUsername), "DoNotDelete");
@@ -67,13 +68,14 @@ public class OrderhistoryTest {
 
         assertTrue(solo.waitForText("234", 1, 2000));
         assertTrue(solo.waitForText("Fri Mar 27 11:41:45 MDT 2020", 1, 2000));
-        assertTrue(solo.waitForText("10125 109St NW,Edmonton,AB T5J 3M5,Canada", 1, 2000));
-        assertTrue(solo.waitForText("100 Princess Rd,Hulme,Manchester M151AS,UK", 1, 2000));
+        assertTrue(solo.waitForText("", 1, 2000));
+        assertTrue(solo.waitForText("10125 109 St NW, Edmonton, AB T5J 3M5, Canada", 1, 2000));
+        assertTrue(solo.waitForText("100 Princess Rd, Hulme, Manchester M15 5AS, UK", 1, 2000));
         assertTrue(solo.waitForText("10.0 CAD", 1, 2000));
         assertTrue(solo.waitForText("active", 1, 2000));
-    }
+    } */
 
-    /*
+
     @Test
     public void testViewButton() throws Exception{
         solo.enterText((EditText) solo.getView(R.id.Login_inputUsername), "DoNotDelete");
@@ -96,7 +98,7 @@ public class OrderhistoryTest {
         assertTrue(solo.waitForText("234", 1, 2000));
         assertTrue(solo.waitForText("249176381", 1, 2000));
         assertTrue(solo.waitForText("abc@111.11", 1, 2000));
-    } */
+    }
 
 
 }
