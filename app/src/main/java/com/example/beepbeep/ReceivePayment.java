@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -21,6 +22,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import java.util.Locale;
 import java.util.Objects;
 
 /*
@@ -32,9 +34,6 @@ import java.util.Objects;
 */
 
 public class ReceivePayment extends AppCompatActivity {
-    TextView messageDisplay;
-    Button confirmButton;
-
     FirebaseFirestore db;
 
     String username;
@@ -45,14 +44,6 @@ public class ReceivePayment extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_receive_payment);
-
-        // map View elements
-        messageDisplay = findViewById(R.id.ReceivePayment_textDisplay);
-        confirmButton = findViewById(R.id.ReceivePayment_confirmButton);
-
-        // hide all View element
-        messageDisplay.setVisibility(View.INVISIBLE);
-        confirmButton.setVisibility(View.INVISIBLE);
 
         // get username from shared preference
         final SharedPreferences sharedPref = ReceivePayment.this.getSharedPreferences("identity", MODE_PRIVATE);
@@ -67,14 +58,6 @@ public class ReceivePayment extends AppCompatActivity {
         scanner.setCameraId(0);
         scanner.setBeepEnabled(true);
         scanner.initiateScan();
-
-        // when confirm Button is click, finish activity
-        confirmButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
     }
 
     @Override
@@ -87,8 +70,7 @@ public class ReceivePayment extends AppCompatActivity {
 
             if(result != null) {
                 if(result.getContents() == null) { //cancelled by user
-                    messageDisplay.setVisibility(View.VISIBLE);
-                    messageDisplay.setText("No payment received");
+                    showDialog("No payment received");
                 } else { //Scan successful
                     // get scan result
                     double amount = Double.parseDouble(result.getContents());
@@ -96,9 +78,17 @@ public class ReceivePayment extends AppCompatActivity {
                 }
             }
         }else{
-            messageDisplay.setVisibility(View.VISIBLE);
-            messageDisplay.setText("No payment received\nA network connection is required to receive payment");
+            showDialog("No payment received\nA network connection is required to receive payment");
         }
+        finish();
+    }
+
+    /**
+     * Display a message as a toast to prompt user
+     * @param message String
+     */
+    private void showDialog(String message) {
+        Toast.makeText(ReceivePayment.this, message, Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -118,19 +108,17 @@ public class ReceivePayment extends AppCompatActivity {
                             double balance = Double.parseDouble(Objects.requireNonNull(document.get("balance")).toString());
                             double newBalance = balance + amount;
                             db.collection("Accounts").document(username).update("balance", Double.toString(newBalance));
-                            messageDisplay.setText("Received $" + amount);
+                            showDialog(String.format(Locale.CANADA, "Received $%.2f", amount));
                         }else{
-                            messageDisplay.setText("Unable to receive payment, please try again");
+                            showDialog("Unable to receive payment, please try again");
                         }
                     }else{
                         Log.d(TAG, "Failed with:", task.getException());
-                        messageDisplay.setText("Unable to receive payment, please try again");
+                        showDialog("Unable to receive payment, please try again");
                     }
                 }else{
-                    messageDisplay.setText("Invalid payment received, transaction cancelled");
+                    showDialog("Invalid payment received, transaction cancelled");
                 }
-                messageDisplay.setVisibility(View.VISIBLE);
-                confirmButton.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -141,7 +129,7 @@ public class ReceivePayment extends AppCompatActivity {
      */
     private boolean hasNetworkAccess(){
         ConnectivityManager connectivityManager
-                = (ConnectivityManager) getSystemService(this.CONNECTIVITY_SERVICE);
+                = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
         assert connectivityManager != null;
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
