@@ -158,6 +158,10 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     private String placeName;
     private LatLng mLaatknonlocationLatLng;
 
+    private AutocompleteSupportFragment autocompletePickup;
+
+
+    //TODO: fix the bug about confirm
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -170,6 +174,9 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 
         // Retrieve the content view that renders the map.
         setContentView(R.layout.activity_rider_map);
+
+        autocompletePickup = (AutocompleteSupportFragment)
+                getSupportFragmentManager().findFragmentById(R.id.pickup_location);
 
         //setup the bentomenu on the activity screen
         bentoMenu = findViewById(R.id.bentoView);
@@ -276,6 +283,22 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
             @Override
             public void onClick(View view) {
                 if ((odestination != null) && (opickup != null)) {
+                    new FetchURL(RiderMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
+                }
+                if (pickupName == null && destinationName != null){
+                    opickup = new MarkerOptions();
+                    opickup.position(mLaatknonlocationLatLng);
+                    opickup.title(placeName);
+                    opickup.zIndex(1.0f);
+                    opickup.icon(getBitmapFromVector(getApplicationContext(),R.drawable.ic_custom_map_marker));
+                    mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                        @Override
+                        public void onMapLoaded() {
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLaatknonlocationLatLng, 11));
+                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mLaatknonlocationLatLng, 12.0f));
+                            mpickup = mMap.addMarker(opickup);
+                        }
+                    });
                     new FetchURL(RiderMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
                 }
             }
@@ -398,20 +421,12 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     }
 
     //TODO:delete the marker after remove the place name auto
-    //     auto set the current location as the pick up location at beginning---------later
     private void getAutocompletePickup() {
-        //search the location by autocomplete
-        AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
-                getSupportFragmentManager().findFragmentById(R.id.pickup_location);
-        assert autocompleteFragment != null;
+        assert autocompletePickup != null;
 
-        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID,Place.Field.LAT_LNG,Place.Field.NAME));
-        autocompleteFragment.setHint("Enter the pickup location");
-//        placeName = getAddress(mLaatknonlocationLatLng.latitude,mLaatknonlocationLatLng.longitude);
-        if (mLastKnownLocation != null) {
-            autocompleteFragment.setText(placeName);
-        }
-        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+        autocompletePickup.setPlaceFields(Arrays.asList(Place.Field.ID,Place.Field.LAT_LNG,Place.Field.NAME));
+        autocompletePickup.setHint("Enter the pickup location");
+        autocompletePickup.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(@NonNull final Place place) {
                 if (place.getLatLng() != null){
@@ -425,8 +440,6 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 opickup.position(pickup);
                 opickup.title(pickupName);
                 opickup.zIndex(1.0f);
-//                locationMarkerIcon = LayoutUtils.getBitmapFromVector(ctx, R.drawable.ic_location_marker,
-//                        ContextCompat.getColor(ctx, R.color.marker_color));
                 opickup.icon(getBitmapFromVector(getApplicationContext(),R.drawable.ic_custom_map_marker));
 //                mMap.clear();
                 mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
@@ -514,9 +527,25 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
+
+    //TODO: add marker when touch the map
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
+//        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+//            @Override
+//            public void onMapClick(LatLng latLng) {
+//                String pN = getAddress(latLng.latitude,latLng.longitude);
+//                MarkerOptions marker = new MarkerOptions()
+//                        .position(new LatLng(latLng.latitude,latLng.longitude))
+//                        .title(pN)
+//                        .zIndex(1.0f);
+//                mMap.clear();
+//                mMap.addMarker(marker);
+//                System.out.println(latLng.latitude+"---"+latLng.longitude);
+//            }
+//        });
 
         // Prompt the user for permission.
         getLocationPermission();
@@ -534,6 +563,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 
         // Get the current location of the device and set the position of the map.
         getDeviceLocation();
+
     }
 
     @Override
@@ -588,8 +618,8 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                             mLastKnownLocation = (Location) task.getResult();
                             mLaatknonlocationLatLng =  new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
                             placeName = getAddress(mLaatknonlocationLatLng.latitude,mLaatknonlocationLatLng.longitude);
-                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                                    mLaatknonlocationLatLng, DEFAULT_ZOOM));
+                            autocompletePickup.setText(placeName);
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLaatknonlocationLatLng, DEFAULT_ZOOM));
                         } else {
                             Log.d(TAG, "Current location is null. Using defaults.");
                             Log.e(TAG, "Exception: %s", task.getException());
