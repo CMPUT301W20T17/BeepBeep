@@ -1,20 +1,15 @@
 package com.example.beepbeep;
 
 import android.app.Activity;
-import android.view.View;
 import android.widget.EditText;
-
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
-
 import com.robotium.solo.Solo;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import static junit.framework.TestCase.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
