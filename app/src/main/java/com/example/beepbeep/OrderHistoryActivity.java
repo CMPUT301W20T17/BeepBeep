@@ -114,8 +114,6 @@ public class OrderHistoryActivity extends AppCompatActivity{
             orderArrayAdapter = new OrderList(OrderHistoryActivity.this, orderDataList);
             orderList.setAdapter(orderArrayAdapter);
         }
-
-
     }
 
     //use the button of VIEW to view other role's information, go to view profile activity
