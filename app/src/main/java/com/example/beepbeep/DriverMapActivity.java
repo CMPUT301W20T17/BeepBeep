@@ -229,6 +229,7 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
 //        });
 
         //Set the complete button, switch to the make payment activity since it's the rider want to complete
+        /*
         Button completeButton;
         completeButton = findViewById(R.id.btn_complete);
         completeButton.setOnClickListener(new View.OnClickListener() {
@@ -248,7 +249,7 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                     }
                 });
             }
-        });
+        }); */
 
         //show direction
         getDirection = findViewById(R.id.direction_);
