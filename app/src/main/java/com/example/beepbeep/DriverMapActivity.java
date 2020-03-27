@@ -44,6 +44,8 @@ import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 
@@ -225,6 +227,28 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
 //
 //            }
 //        });
+
+        //Set the complete button, switch to the make payment activity since it's the rider want to complete
+        Button completeButton;
+        completeButton = findViewById(R.id.btn_complete);
+        completeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DocumentReference order = db.collection("Requests").document(uniqueID);
+                order.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.isSuccessful()){
+                            DocumentSnapshot doc = task.getResult();
+                            String price = (doc.get("Price")).toString();
+                            Intent a = new Intent(DriverMapActivity.this, ReceivePayment.class);
+                            a.putExtra("Price", price);
+                            startActivity(a);
+                        }
+                    }
+                });
+            }
+        });
 
         //show direction
         getDirection = findViewById(R.id.direction_);
