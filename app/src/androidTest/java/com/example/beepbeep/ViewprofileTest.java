@@ -10,7 +10,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import static junit.framework.TestCase.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
