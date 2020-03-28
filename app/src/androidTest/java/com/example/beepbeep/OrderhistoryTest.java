@@ -48,7 +48,7 @@ public class OrderhistoryTest {
      * Log in, and then test if user can see his/her own profile, and make sure the proper info show up
      * @throws Exception
      */
-    /*
+
     @Test
     public void testViewOrderHistory() throws Exception{
         solo.enterText((EditText) solo.getView(R.id.Login_inputUsername), "DoNotDelete");
@@ -73,7 +73,7 @@ public class OrderhistoryTest {
         assertTrue(solo.waitForText("100 Princess Rd, Hulme, Manchester M15 5AS, UK", 1, 2000));
         assertTrue(solo.waitForText("10.0 CAD", 1, 2000));
         assertTrue(solo.waitForText("active", 1, 2000));
-    } */
+    }
 
 
     @Test
