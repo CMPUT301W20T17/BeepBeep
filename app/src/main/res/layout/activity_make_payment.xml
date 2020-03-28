@@ -33,11 +33,11 @@
         android:id="@+id/MakePayment_prompt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="268dp"
-        android:text="@string/please_enter_amount"
+        android:layout_marginTop="30dp"
+        android:text="@string/tip"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/MakePayment_BasePrice" />
 
     <ImageView
         android:id="@+id/MakePayment_QRbuckCode"
@@ -49,4 +49,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/MakePayment_confirmButton"
         app:srcCompat="@drawable/custom_button" />
+
+    <TextView
+        android:id="@+id/MakePayment_BasePrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:text="@string/price_x"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

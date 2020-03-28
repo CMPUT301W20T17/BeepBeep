@@ -101,9 +101,18 @@ public class MainActivity extends AppCompatActivity {
 
     // launch main page
     private void launchMain(){
-        Intent intent = new Intent(this, DriverMapActivity.class);
-        startActivity(intent);
-        finishAffinity();
+
+        final SharedPreferences sharedPref = MainActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
+        final String role = sharedPref.getString("role", "");
+        if(role.equals("Driver")){
+            Intent intent = new Intent(MainActivity.this, DriverMapActivity.class);
+            startActivity(intent);
+            finishAffinity();
+        }else{
+            Intent intent = new Intent(MainActivity.this, RiderMapActivity.class);
+            startActivity(intent);
+            finishAffinity();
+        }
     }
 
     /**

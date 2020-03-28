@@ -1,25 +1,31 @@
 package com.example.beepbeep;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentActivity;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
@@ -29,9 +35,11 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -48,28 +56,40 @@ import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.Timestamp;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.CollectionReference;
+
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.QuerySnapshot;
 
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
+
 
 /*
  Title: Add the marker for autocomplete search
  Author: Junyao Cui
  Date: 2020/03/07
- Code version: 2.1
  Availability: https://stackoom.com/question/2Zl7c/%E5%9C%A8%E8%87%AA%E5%8A%A8%E5%AE%8C%E6%88%90%E6%90%9C%E7%B4%A2%E4%BD%8D%E7%BD%AE%E8%AE%BE%E7%BD%AE%E6%A0%87%E8%AE%B0
+
+ Title: How to change the position of My Location Button in Google Maps using android studio
+ Author: Junyao Cui
+ Date: 2020/03/23
+ Availability: https://stackoverflow.com/questions/36785542/how-to-change-the-position-of-my-location-button-in-google-maps-using-android-st
+
+ Title: Places SDK for Android: How to validate AutocompleteSupportFragment is not empty?
+ Author: Junyao Cui
+ Date: 2020/03/23
+ Availability: https://stackoverflow.com/questions/59205440/places-sdk-for-android-how-to-validate-autocompletesupportfragment-is-not-empty
+
+ Title: How to add Custom Marker in Google maps in Android
+ Author: Junyao Cui, Gadgets and Technical field Android Tech
+ Date: 2020/03/23
+ Availability: https://www.youtube.com/watch?v=26bl4r3VtGQ
 
  Title: Android tutorial: How to get directions between 2 points using Google Map API
  Author: Junyao Cui, Vishal
@@ -77,9 +97,10 @@ import java.util.List;
  Availability: https://www.youtube.com/watch?v=jg1urt3FGCY
 */
 
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
-
 
 
 
@@ -113,6 +134,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     // location retrieved by the Fused Location Provider.
     private Location mLastKnownLocation;
 
+
     // Keys for storing activity state.
     private static final String KEY_CAMERA_POSITION = "camera_position";
     private static final String KEY_LOCATION = "location";
@@ -121,7 +143,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 
     //set two geo point
     private LatLng pickup;
-    private LatLng destination;
+    private LatLng destination = null;
 
     private String pickupName;
     private String destinationName;
@@ -136,9 +158,14 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 
 
     private String uniqueID;
-    Button getDirection;
 
     FloatingActionButton bentoMenu;
+
+    private View mapView;
+
+    private AutocompleteSupportFragment autocompletePickup;
+    private AutocompleteSupportFragment autocompleteDestination;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,6 +179,12 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 
         // Retrieve the content view that renders the map.
         setContentView(R.layout.activity_rider_map);
+
+        autocompletePickup = (AutocompleteSupportFragment)
+                getSupportFragmentManager().findFragmentById(R.id.pickup_location);
+
+        autocompleteDestination = (AutocompleteSupportFragment)
+                getSupportFragmentManager().findFragmentById(R.id.destination);
 
         //setup the bentomenu on the activity screen
         bentoMenu = findViewById(R.id.bentoView);
@@ -171,6 +204,8 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        mapView = mapFragment.getView();
+
         // Construct a PlacesClient
         if (!Places.isInitialized()) {
             Places.initialize(getApplicationContext(), getString(R.string.google_maps_key));
@@ -188,94 +223,96 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 
 
 
-        //set the Buttom confirm, and send the request information to firestore
+        //set the Button confirm, and send the request information to firestore
         uniqueID = UUID.randomUUID().toString();
         Button confirm_button;
         confirm_button = findViewById(R.id.confirm);
         confirm_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //get shared preference and user now
-                final SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
-                final String username = sharedPref.getString("username", "");
-                //connect to firestore and get unique ID
-                db = FirebaseFirestore.getInstance();
 
-                Map<String, Object> docData = new HashMap<>();
+                if (opickup != null && odestination != null) {
+                    //get shared preference and user now
+                    final SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
+                    final String username = sharedPref.getString("username", "");
+                    //connect to firestore and get unique ID
+                    db = FirebaseFirestore.getInstance();
 
-                //prepare the data in specific type
-                Date startTime = Calendar.getInstance().getTime(); //start time
-                String startTime2 = startTime.toString();
-                //get lat and long
-                double pickupLat = pickup.latitude; //pickup geolocation
-                double pickupLng =  pickup.longitude;
-//                double pickupLat = 53.542100;
-//                double pickupLng = -113.507890;
-                GeoPoint pickupGeo = new GeoPoint(pickupLat,pickupLng);
-                double destinLat = destination.latitude; //destination geolocation
-                double destinLng = destination.longitude;
-//                double destinLat = 53.523220 ;
-//                double destinLng = -113.526321;
-                GeoPoint destinaitonGeo = new GeoPoint(destinLat,destinLng);
-//                Toast.makeText(getApplicationContext(), String.valueOf(pickupLat), Toast.LENGTH_SHORT).show();
-//                Toast.makeText(getApplicationContext(), String.valueOf(destinLat), Toast.LENGTH_SHORT).show();
+                    Map<String, Object> docData = new HashMap<>();
 
-                //get the price
-                float[] results = new float[1];
-                Location.distanceBetween(pickupLat, pickupLng, destinLat, destinLng, results);
-                int price = (int)results[0];
-                price = price /1000 * 2;
+                    //prepare the data in specific type
+                    Date startTime = Calendar.getInstance().getTime(); //start time
+                    String startTime2 = startTime.toString();
+                    //get lat and long
+                    double pickupLat = pickup.latitude; //pickup geolocation
+                    double pickupLng = pickup.longitude;
+                    GeoPoint pickupGeo = new GeoPoint(pickupLat, pickupLng);
+                    double destinLat = destination.latitude; //destination geolocation
+                    double destinLng = destination.longitude;
+                    GeoPoint destinaitonGeo = new GeoPoint(destinLat, destinLng);
 
-                //set the storing data
-                docData.put("Type", "inactive");
-                docData.put("RiderID", username);
-                docData.put("DriverID", "");
-                docData.put("StartTime",startTime2);
-                docData.put("FinishTime","");
-                docData.put("Price",price );
-                docData.put("PickUpPoint",pickupGeo);
-                docData.put("Destination",destinaitonGeo);
+                    //set the storing data
+                    docData.put("Type", "inactive");
+                    docData.put("RiderID", username);
+                    docData.put("DriverID", "");
+                    docData.put("StartTime", startTime2);
+                    docData.put("FinishTime", "");
+                    docData.put("Price", 20);
+                    docData.put("PickUpPoint", pickupGeo);
+                    docData.put("Destination", destinaitonGeo);
 
-                //connect to firestore and store the data
-                db.collection("Requests").document(uniqueID)
-                        .set(docData)
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.d(TAG, "DocumentSnapshot successfully written!");
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.w(TAG, "Error writing document", e);
-                            }
-                        });
+                    //connect to firestore and store the data
+                    db.collection("Requests").document(uniqueID)
+                            .set(docData)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "DocumentSnapshot successfully written!");
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w(TAG, "Error writing document", e);
+                                }
+                            });
 
-                //pass the unique ID into the fragment
-                Bundle bundle = new Bundle();
-                bundle.putString("IDkey",uniqueID);
-                request_fragment request_frag = new request_fragment();
-                request_frag.setArguments(bundle);
-                request_frag.show(getSupportFragmentManager(),"SHOW_REQUEST");
-
-            }
-        });
-
-        //show direction
-        getDirection = findViewById(R.id.direction);
-        getDirection.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if ((odestination != null) && (opickup != null)) {
-                    new FetchURL(RiderMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
+                    //pass the unique ID into the fragment
+                    Bundle bundle = new Bundle();
+                    bundle.putString("IDkey", uniqueID);
+                    request_fragment request_frag = new request_fragment();
+                    request_frag.setArguments(bundle);
+                    request_frag.show(getSupportFragmentManager(), "SHOW_REQUEST");
                 }
+                else{
+                    Toast errorToast = Toast.makeText(getApplicationContext(),"Please enter the pickup location or destination.", Toast.LENGTH_SHORT);
+                    errorToast.show();
+                }
+
             }
         });
-//        if ((odestination!=null)&&(opickup!= null)){
-//            new FetchURL(RiderMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
-//        }
 
+        //Set the complete button, switch to the make payment activity since it's the rider want to complete
+        Button completeButton;
+        completeButton = findViewById(R.id.btn_complete);
+        completeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DocumentReference order = db.collection("Requests").document(uniqueID);
+                order.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.isSuccessful()){
+                            DocumentSnapshot doc = task.getResult();
+                            String price = (doc.get("Price")).toString();
+                            Intent a = new Intent(RiderMapActivity.this, MakePayment.class);
+                            a.putExtra("Price", price);
+                            startActivity(a);
+                        }
+                    }
+                });
+            }
+        });
     }
 
 
@@ -315,96 +352,160 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         return "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + "&key=" + getString(R.string.google_maps_key);
     }
 
+    private String getAddress(double LAT, double LONG){
+        String address = "";
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        try{
+            //get address in list
+            List<Address> addresses = geocoder.getFromLocation(LAT, LONG, 1);
+            //if there is address
+            if (addresses != null) {
+                //get the returned addresses
+                Address returnedAddress = addresses.get(0);
+                StringBuilder strReturnedAddress = new StringBuilder("");
+                //set the returned address in string
+                for (int i = 0; i <= returnedAddress.getMaxAddressLineIndex(); i++) {
+                    strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n");
+                }
+                address = strReturnedAddress.toString();
+            }
+            else{
+                Log.w("My Current loction address", "No Address returned!");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return address;
+    }
 
-    //TODO:delete the marker after remove the place name auto
     private void getAutocompleteDestination() {
         //search the location by autocomplete
-        AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
-                getSupportFragmentManager().findFragmentById(R.id.destination);
-        assert autocompleteFragment != null;
-
-        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.LAT_LNG, Place.Field.NAME));
-        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+        autocompleteDestination.setHint("Enter the destination");
+        autocompleteDestination.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.LAT_LNG, Place.Field.NAME));
+        autocompleteDestination.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(@NonNull final Place place) {
                 if (place.getLatLng() != null){
                     destination = place.getLatLng();
                     destinationName = place.getName();
                 }
-//                Toast.makeText(getApplicationContext(), String.valueOf(destination), Toast.LENGTH_SHORT).show();
-
                 odestination = new MarkerOptions();
                 odestination.position(destination);
                 odestination.title(destinationName);
-//                mMap.clear();
+                odestination.zIndex(1.0f);
                 mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
                     @Override
                     public void onMapLoaded() {
                         if (mdestination != null){
                             mdestination.remove();
-                        }else if(destinationName == null){
-                            mdestination.remove();
                         }
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(destination, 11));
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(destination, 12.0f));
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(destination, 15.0f));
                         mdestination = mMap.addMarker(odestination);
+                        setGetDirection();
                     }
                 });
             }
-
             @Override
             public void onError(@NonNull Status status) {
                 Log.i("Destination", "An error occurred: " + status);
 
             }
         });
+        View clearButton = autocompleteDestination.getView().findViewById(R.id.places_autocomplete_clear_button);
+        clearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                destination = null;
+                destinationName = null;
+                odestination = null;
+                autocompleteDestination.setText("");
+                if (mdestination != null ) {
+                    mdestination.remove();
+                    mMap.clear();
+                }
+                if (opickup != null){
+                    mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                        @Override
+                        public void onMapLoaded() {
+                            mpickup = mMap.addMarker(opickup);
+                        }
+                    });
+                }
+            }
+        });
     }
 
-    //TODO:delete the marker after remove the place name auto
-    //     change the marker to the round point
-    //     auto set the current location as the pick up location at beginning
     private void getAutocompletePickup() {
-        //search the location by autocomplete
-        AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
-                getSupportFragmentManager().findFragmentById(R.id.pickup_location);
-        assert autocompleteFragment != null;
-
-        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID,Place.Field.LAT_LNG,Place.Field.NAME));
-        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+        autocompletePickup.setPlaceFields(Arrays.asList(Place.Field.ID,Place.Field.LAT_LNG,Place.Field.NAME));
+        autocompletePickup.setHint("Enter the pickup location");
+        autocompletePickup.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(@NonNull final Place place) {
                 if (place.getLatLng() != null){
                     pickup = place.getLatLng();
-
                     pickupName = place.getName();
                 }
-//                Toast.makeText(getApplicationContext(), String.valueOf(pickup), Toast.LENGTH_SHORT).show();
-
                 opickup = new MarkerOptions();
                 opickup.position(pickup);
                 opickup.title(pickupName);
-//                mMap.clear();
+                opickup.zIndex(1.0f);
+                opickup.icon(getBitmapFromVector(getApplicationContext(),R.drawable.ic_custom_map_marker));
                 mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
                     @Override
                     public void onMapLoaded() {
                         if (mpickup != null){
                             mpickup.remove();
-                        }else if(pickupName == null){
-                            mpickup.remove();
                         }
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pickup, 11));
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(pickup, 12.0f));
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(pickup, 15.0f));
                         mpickup = mMap.addMarker(opickup);
+                        setGetDirection();
                     }
                 });
             }
-
             @Override
             public void onError(@NonNull Status status) {
                 Log.i("PickUp", "An error occurred: " + status);
 
             }
         });
+        View clearButton = autocompletePickup.getView().findViewById(R.id.places_autocomplete_clear_button);
+        clearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pickup = null;
+                pickupName = null;
+                opickup = null;
+                autocompletePickup.setText("");
+                if (mpickup != null) {
+                    mpickup.remove();
+                    mMap.clear();
+                }
+                if (odestination != null){
+                    mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                        @Override
+                        public void onMapLoaded() {
+                            mdestination = mMap.addMarker(odestination);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    private BitmapDescriptor getBitmapFromVector(@NonNull Context context, @DrawableRes int vectorResourceId){
+        Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResourceId);
+        if (vectorDrawable == null) {
+            Log.e(TAG, "Requested vector resource was not found");
+            return BitmapDescriptorFactory.defaultMarker();
+        }
+        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
+        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(),
+                vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        vectorDrawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
     private void getLocationPermission() {
@@ -441,10 +542,30 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         updateLocationUI();
     }
 
-
-
-
-
+    private void setGetDirection(){
+        if (odestination != null && opickup != null) {
+            new FetchURL(RiderMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
+        }
+        else if (opickup == null && odestination != null && pickup != null){
+            opickup = new MarkerOptions();
+            opickup.position(pickup);
+            opickup.title(pickupName);
+            opickup.zIndex(1.0f);
+            opickup.icon(getBitmapFromVector(getApplicationContext(), R.drawable.ic_custom_map_marker));
+            mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                @Override
+                public void onMapLoaded() {
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pickup, 11));
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(pickup, 15.0f));
+                    mpickup = mMap.addMarker(opickup);
+                }
+            });
+            new FetchURL(RiderMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
+        }
+        else{
+            Log.i(TAG, "Please enter the pick up location and destination.");
+        }
+    }
 
     /**
      * Manipulates the map once available.
@@ -455,49 +576,53 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        // Use a custom info window adapter to handle multiple lines of text in the
-        // info window contents.
-//        mMap.addMarker(new MarkerOptions().position(new LatLng(pickup.latitude, pickup.longitude)).title("Maker"));
 
-        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+        boolean success = googleMap.setMapStyle(new MapStyleOptions(getResources()
+                .getString(R.string.style_json)));
+        if (!success) {
+            Log.e(TAG, "Style parsing failed.");
+        }
 
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
-            // Return null here, so that getInfoContents() is called next.
-            public View getInfoWindow(Marker arg0) {
-                return null;
-            }
-
-            @Override
-            public View getInfoContents(Marker marker) {
-                // Inflate the layouts for the info window, title and snippet.
-                View infoWindow = getLayoutInflater().inflate(R.layout.map_info_content,
-                        (FrameLayout) findViewById(R.id.map), false);
-
-                TextView title = infoWindow.findViewById(R.id.title);
-                title.setText(marker.getTitle());
-
-                TextView snippet = infoWindow.findViewById(R.id.snippet);
-                snippet.setText(marker.getSnippet());
-
-                return infoWindow;
+            public void onMapClick(LatLng latLng) {
+                destination = latLng;
+                destinationName = getAddress(latLng.latitude,latLng.longitude);
+                odestination = new MarkerOptions()
+                        .position(new LatLng(latLng.latitude,latLng.longitude))
+                        .title(destinationName)
+                        .zIndex(1.0f);
+                if (mdestination != null){
+                    mdestination.remove();
+                }
+                autocompleteDestination.setText(destinationName);
+                mdestination = mMap.addMarker(odestination);
+                setGetDirection();
             }
         });
-//        if(mMap != null){
-//            mMap.addMarker(new MarkerOptions().position(pickup).title("Pick-Up"));
-//        }
-
 
         // Prompt the user for permission.
         getLocationPermission();
 
         // Turn on the My Location layer and the related control on the map.
         updateLocationUI();
+        if (mapView != null && mapView.findViewById(Integer.parseInt("1")) != null) {
+            View locationButton = ((View) mapView.findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
+            RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
+            // position on right bottom
+            rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+            rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+            rlp.setMargins(0,0,40,350);
+        }
 
         // Get the current location of the device and set the position of the map.
         getDeviceLocation();
+
     }
 
     @Override
@@ -515,6 +640,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
             }
         }
     }
+
 
     private void updateLocationUI() {
         if (mMap == null) {
@@ -549,10 +675,10 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                         if (task.isSuccessful()) {
                             // Set the map's camera position to the current location of the device.
                             mLastKnownLocation = (Location) task.getResult();
-                            assert mLastKnownLocation != null;
-                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                                    new LatLng(mLastKnownLocation.getLatitude(),
-                                            mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
+                            pickup =  new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
+                            pickupName = getAddress(pickup.latitude,pickup.longitude);
+                            autocompletePickup.setText(pickupName);
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pickup, DEFAULT_ZOOM));
                         } else {
                             Log.d(TAG, "Current location is null. Using defaults.");
                             Log.e(TAG, "Exception: %s", task.getException());

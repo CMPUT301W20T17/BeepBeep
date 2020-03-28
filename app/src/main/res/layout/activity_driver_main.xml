@@ -4,45 +4,66 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".DriverMapActivity">
+
+    <include layout="@layout/driver_map_info" />
+
     <LinearLayout
         android:id="@+id/temp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/SearchView"
-                android:layout_width="80dp"
-                android:layout_height="14dp"
-                android:text="Origin"
-                android:textAlignment="center"
-                android:textSize="12sp" />
-
+        android:layout_height="32dp"
+        android:orientation="horizontal"
+        android:layout_margin="7dp"
+        android:background="@drawable/custom_edit_text">
             <fragment
                 android:id="@+id/location"
                 android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
                 android:layout_width="match_parent"
-                android:layout_height="32dp"
-                android:hint="Enter the pickup location" />
-        </LinearLayout>
+                android:layout_height="32dp" />
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/direction_"
-        android:layout_width="160dp"
-        android:layout_height="35dp"
-        android:layout_below="@+id/temp"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="4dp"
-        android:background="@drawable/custom_edit_text"
-        android:text="Direction" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:weightSum="1"
+        android:layout_below="@+id/temp">
+
+        <androidx.legacy.widget.Space
+            android:layout_width="7dp"
+            android:layout_height="match_parent">
+        </androidx.legacy.widget.Space>
+
+        <Button
+            android:id="@+id/direction_"
+            android:layout_width="160dp"
+            android:layout_height="35dp"
+            android:layout_weight="0.5"
+            android:layout_marginTop="0dp"
+            android:background="@drawable/custom_edit_text"
+            android:text="Direction" />
+
+        <androidx.legacy.widget.Space
+            android:layout_width="4dp"
+            android:layout_height="match_parent">
+        </androidx.legacy.widget.Space>
+
+        <Button
+            android:id="@+id/confirm_"
+            android:layout_width="160dp"
+            android:layout_height="35dp"
+            android:layout_weight="0.5"
+            android:layout_marginTop="0dp"
+            android:background="@drawable/custom_edit_text"
+            android:text="CONFIRM" />
+
+        <androidx.legacy.widget.Space
+            android:layout_width="7dp"
+            android:layout_height="match_parent">
+        </androidx.legacy.widget.Space>
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/confirm_"
@@ -53,15 +74,6 @@
         android:layout_alignParentEnd="true"
         android:background="@drawable/custom_edit_text"
         android:text="CONFIRM" />
-
-    <fragment
-        android:id="@+id/map_"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/direction_"
-        tools:context=".RiderMapActivity" />
-
 
     <LinearLayout
         android:id="@+id/invis_linear"

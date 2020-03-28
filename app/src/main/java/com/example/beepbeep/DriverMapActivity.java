@@ -18,11 +18,14 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
+
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
+
+
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,6 +62,7 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.api.Distribution;
 import com.google.firebase.firestore.CollectionReference;
+
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -135,6 +139,7 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
 
     FloatingActionButton bentoMenu;
 
+
     //Request to driver related variables
     private ListView qulifiedListView;
     ArrayList<String> qulifiedListData = new ArrayList<String>();
@@ -143,6 +148,9 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
     ArrayList<String> qulifiedPickUp = new ArrayList<String>();
     ArrayList<String> qulifiedDestination = new ArrayList<String>();
     ArrayList<String> qulifiedPrice = new ArrayList<String>();
+
+
+    private View mapView;
 
 
     @Override
@@ -175,6 +183,7 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map_);
         mapFragment.getMapAsync(this);
+        mapView = mapFragment.getView();
 
         // Construct a PlacesClient
         if (!Places.isInitialized()) {
@@ -369,6 +378,29 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
             }
         });
 
+        //Set the complete button, switch to the make payment activity since it's the rider want to complete
+        /*
+        Button completeButton;
+        completeButton = findViewById(R.id.btn_complete);
+        completeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DocumentReference order = db.collection("Requests").document(uniqueID);
+                order.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.isSuccessful()){
+                            DocumentSnapshot doc = task.getResult();
+                            String price = (doc.get("Price")).toString();
+                            Intent a = new Intent(DriverMapActivity.this, ReceivePayment.class);
+                            a.putExtra("Price", price);
+                            startActivity(a);
+                        }
+                    }
+                });
+            }
+        }); */
+
         //show direction
         getDirection = findViewById(R.id.direction_);
         getDirection.setOnClickListener(new View.OnClickListener() {
@@ -494,7 +526,9 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                 getSupportFragmentManager().findFragmentById(R.id.location);
         assert autocompleteFragment != null;
 
-        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.LAT_LNG, Place.Field.NAME));
+
+        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID,Place.Field.LAT_LNG,Place.Field.NAME));
+        autocompleteFragment.setHint("Enter location to search requests");
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(@NonNull final Place place) {
@@ -508,6 +542,8 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                 opickup = new MarkerOptions();
                 opickup.position(pickup);
                 opickup.title(pickupName);
+                opickup.zIndex(1.0f);
+
 //                mMap.clear();
                 mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
                     @Override
@@ -583,29 +619,29 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         // info window contents.
 //        mMap.addMarker(new MarkerOptions().position(new LatLng(pickup.latitude, pickup.longitude)).title("Maker"));
 
-        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
-
-            @Override
-            // Return null here, so that getInfoContents() is called next.
-            public View getInfoWindow(Marker arg0) {
-                return null;
-            }
-
-            @Override
-            public View getInfoContents(Marker marker) {
-                // Inflate the layouts for the info window, title and snippet.
-                View infoWindow = getLayoutInflater().inflate(R.layout.map_info_content,
-                        (FrameLayout) findViewById(R.id.map_), false);
-
-                TextView title = infoWindow.findViewById(R.id.title);
-                title.setText(marker.getTitle());
-
-                TextView snippet = infoWindow.findViewById(R.id.snippet);
-                snippet.setText(marker.getSnippet());
-
-                return infoWindow;
-            }
-        });
+//        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+//
+//            @Override
+//            // Return null here, so that getInfoContents() is called next.
+//            public View getInfoWindow(Marker arg0) {
+//                return null;
+//            }
+//
+//            @Override
+//            public View getInfoContents(Marker marker) {
+//                // Inflate the layouts for the info window, title and snippet.
+//                View infoWindow = getLayoutInflater().inflate(R.layout.map_info_content,
+//                        (FrameLayout) findViewById(R.id.map_), false);
+//
+//                TextView title = infoWindow.findViewById(R.id.title);
+//                title.setText(marker.getTitle());
+//
+//                TextView snippet = infoWindow.findViewById(R.id.snippet);
+//                snippet.setText(marker.getSnippet());
+//
+//                return infoWindow;
+//            }
+//        });
 //        if(mMap != null){
 //            mMap.addMarker(new MarkerOptions().position(pickup).title("Pick-Up"));
 //        }
@@ -616,6 +652,15 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
 
         // Turn on the My Location layer and the related control on the map.
         updateLocationUI();
+        if (mapView != null && mapView.findViewById(Integer.parseInt("1")) != null) {
+            View locationButton = ((View) mapView.findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
+            RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
+            // position on right bottom
+            rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+            rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+            rlp.setMargins(0,0,40,350);
+        }
+
 
         // Get the current location of the device and set the position of the map.
         getDeviceLocation();
