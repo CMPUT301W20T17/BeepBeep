@@ -166,7 +166,6 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     private AutocompleteSupportFragment autocompleteDestination;
 
 
-    //TODO: fix the bug about confirm
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -230,57 +229,63 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         confirm_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //get shared preference and user now
-                final SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
-                final String username = sharedPref.getString("username", "");
-                //connect to firestore and get unique ID
-                db = FirebaseFirestore.getInstance();
+                if (opickup != null && odestination != null) {
+                    //get shared preference and user now
+                    final SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
+                    final String username = sharedPref.getString("username", "");
+                    //connect to firestore and get unique ID
+                    db = FirebaseFirestore.getInstance();
 
-                Map<String, Object> docData = new HashMap<>();
+                    Map<String, Object> docData = new HashMap<>();
 
-                //prepare the data in specific type
-                Date startTime = Calendar.getInstance().getTime(); //start time
-                String startTime2 = startTime.toString();
-                //get lat and long
-                double pickupLat = pickup.latitude; //pickup geolocation
-                double pickupLng =  pickup.longitude;
-                GeoPoint pickupGeo = new GeoPoint(pickupLat,pickupLng);
-                double destinLat = destination.latitude; //destination geolocation
-                double destinLng = destination.longitude;
-                GeoPoint destinaitonGeo = new GeoPoint(destinLat,destinLng);
+                    //prepare the data in specific type
+                    Date startTime = Calendar.getInstance().getTime(); //start time
+                    String startTime2 = startTime.toString();
+                    //get lat and long
+                    double pickupLat = pickup.latitude; //pickup geolocation
+                    double pickupLng = pickup.longitude;
+                    GeoPoint pickupGeo = new GeoPoint(pickupLat, pickupLng);
+                    double destinLat = destination.latitude; //destination geolocation
+                    double destinLng = destination.longitude;
+                    GeoPoint destinaitonGeo = new GeoPoint(destinLat, destinLng);
 
-                //set the storing data
-                docData.put("Type", "inactive");
-                docData.put("RiderID", username);
-                docData.put("DriverID", "");
-                docData.put("StartTime",startTime2);
-                docData.put("FinishTime","");
-                docData.put("Price",20);
-                docData.put("PickUpPoint",pickupGeo);
-                docData.put("Destination",destinaitonGeo);
+                    //set the storing data
+                    docData.put("Type", "inactive");
+                    docData.put("RiderID", username);
+                    docData.put("DriverID", "");
+                    docData.put("StartTime", startTime2);
+                    docData.put("FinishTime", "");
+                    docData.put("Price", 20);
+                    docData.put("PickUpPoint", pickupGeo);
+                    docData.put("Destination", destinaitonGeo);
 
-                //connect to firestore and store the data
-                db.collection("Requests").document(uniqueID)
-                        .set(docData)
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.d(TAG, "DocumentSnapshot successfully written!");
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.w(TAG, "Error writing document", e);
-                            }
-                        });
+                    //connect to firestore and store the data
+                    db.collection("Requests").document(uniqueID)
+                            .set(docData)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "DocumentSnapshot successfully written!");
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w(TAG, "Error writing document", e);
+                                }
+                            });
 
-                //pass the unique ID into the fragment
-                Bundle bundle = new Bundle();
-                bundle.putString("IDkey",uniqueID);
-                request_fragment request_frag = new request_fragment();
-                request_frag.setArguments(bundle);
-                request_frag.show(getSupportFragmentManager(),"SHOW_REQUEST");
+                    //pass the unique ID into the fragment
+                    Bundle bundle = new Bundle();
+                    bundle.putString("IDkey", uniqueID);
+                    request_fragment request_frag = new request_fragment();
+                    request_frag.setArguments(bundle);
+                    request_frag.show(getSupportFragmentManager(), "SHOW_REQUEST");
+                }
+                else{
+                    Toast errorToast = Toast.makeText(getApplicationContext(),"Please enter the pickup location or destination.", Toast.LENGTH_SHORT);
+                    errorToast.show();
+                }
 
             }
         });
