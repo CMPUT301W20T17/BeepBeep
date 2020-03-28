@@ -1,21 +1,23 @@
 package com.example.beepbeep;
 
+/*
+ Title: Edit  profile test
+ Author: Lyuyang Wang,Junqi Zou
+ Date: 2020/03/27
+*/
 import android.app.Activity;
-import android.view.View;
 import android.widget.EditText;
-
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
-
 import com.robotium.solo.Solo;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import static junit.framework.TestCase.assertTrue;
+
+
 
 @RunWith(AndroidJUnit4.class)
 public class EditprofileTest {
@@ -44,26 +46,6 @@ public class EditprofileTest {
         Activity activity = rule.getActivity();
     }
 
-    @Test
-    public void testback() throws Exception{
-        solo.enterText((EditText) solo.getView(R.id.Login_inputUsername), "DoNotDelete");
-        solo.enterText((EditText) solo.getView(R.id.Login_inputPassword), "1234qwer");
-        solo.clickOnButton("Login");
-        solo.clickOnButton("Profile");
-        //need som change to switch to ViewProfile activity ***********************
-        solo.clickOnButton("Edit");
-
-        //set back to original data
-
-        solo.enterText((EditText) solo.getView(R.id.email_editText), "");
-        solo.enterText((EditText) solo.getView(R.id.phone_editText), "");
-
-        solo.enterText((EditText) solo.getView(R.id.email_editText), "test@test.com");
-        solo.enterText((EditText) solo.getView(R.id.phone_editText), "2222222222");
-        solo.clickOnButton("SAVE");
-
-    }
-
     /**
      * Log in, and then test if user can see the profile to edit phone and email
      * @throws Exception
@@ -73,13 +55,19 @@ public class EditprofileTest {
         solo.enterText((EditText) solo.getView(R.id.Login_inputUsername), "DoNotDelete");
         solo.enterText((EditText) solo.getView(R.id.Login_inputPassword), "1234qwer");
         solo.clickOnButton("Login");
-        solo.clickOnButton("Profile");
-        solo.clickOnButton("Edit");
+
+        solo.clickOnView(solo.getView(R.id.bentoView));
+        solo.assertCurrentActivity("Wrong Activity", Menu.class);
+
+        solo.clickOnView(solo.getView(R.id.profileMenu));
+        solo.assertCurrentActivity("Wrong Activity", ViewProfile.class);
+
+        solo.clickOnView(solo.getView(R.id.edit_profile_button));
 
         solo.assertCurrentActivity("Wrong Activity", EditProfileActivity.class);
 
-        assertTrue(solo.waitForText("test1@test1.com", 1, 2000));
-        assertTrue(solo.waitForText("3333333333", 1, 2000));
+        assertTrue(solo.waitForText("test@test.com", 1, 2000));
+        assertTrue(solo.waitForText("2222222222", 1, 2000));
     }
 
     /**
@@ -91,9 +79,15 @@ public class EditprofileTest {
         solo.enterText((EditText) solo.getView(R.id.Login_inputUsername), "DoNotDelete");
         solo.enterText((EditText) solo.getView(R.id.Login_inputPassword), "1234qwer");
         solo.clickOnButton("Login");
-        solo.clickOnButton("Profile");
-        //need som change to switch to ViewProfile activity ***********************
-        solo.clickOnButton("Edit");
+
+        solo.clickOnView(solo.getView(R.id.bentoView));
+        solo.assertCurrentActivity("Wrong Activity", Menu.class);
+
+        solo.clickOnView(solo.getView(R.id.profileMenu));
+        solo.assertCurrentActivity("Wrong Activity", ViewProfile.class);
+        solo.clickOnView(solo.getView(R.id.edit_profile_button));
+
+        solo.assertCurrentActivity("Wrong Activity", EditProfileActivity.class);
 
         solo.enterText((EditText) solo.getView(R.id.email_editText), "");
         solo.enterText((EditText) solo.getView(R.id.phone_editText), "");
@@ -108,6 +102,19 @@ public class EditprofileTest {
         assertTrue(solo.waitForText("test1@test1.com", 1, 2000));
         assertTrue(solo.waitForText("3333333333", 1, 2000));
 
+
+        solo.clickOnView(solo.getView(R.id.edit_profile_button));
+
+        solo.assertCurrentActivity("Wrong Activity", EditProfileActivity.class);
+
+        solo.enterText((EditText) solo.getView(R.id.email_editText), "");
+        solo.enterText((EditText) solo.getView(R.id.phone_editText), "");
+
+        solo.enterText((EditText) solo.getView(R.id.email_editText), "test@test.com");
+        solo.enterText((EditText) solo.getView(R.id.phone_editText), "2222222222");
+
+        solo.clickOnButton("SAVE");
+
     }
 
     /**
@@ -119,9 +126,15 @@ public class EditprofileTest {
         solo.enterText((EditText) solo.getView(R.id.Login_inputUsername), "DoNotDelete");
         solo.enterText((EditText) solo.getView(R.id.Login_inputPassword), "1234qwer");
         solo.clickOnButton("Login");
-        solo.clickOnButton("Profile");
-        //need som change to switch to ViewProfile activity ***********************
-        solo.clickOnButton("Edit");
+
+        solo.clickOnView(solo.getView(R.id.bentoView));
+        solo.assertCurrentActivity("Wrong Activity", Menu.class);
+
+        solo.clickOnView(solo.getView(R.id.profileMenu));
+        solo.assertCurrentActivity("Wrong Activity", ViewProfile.class);
+        solo.clickOnView(solo.getView(R.id.edit_profile_button));
+
+        solo.assertCurrentActivity("Wrong Activity", EditProfileActivity.class);
 
         solo.enterText((EditText) solo.getView(R.id.email_editText), "");
         solo.enterText((EditText) solo.getView(R.id.phone_editText), "");

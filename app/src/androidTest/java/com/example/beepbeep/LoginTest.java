@@ -63,7 +63,7 @@ public class LoginTest {
         solo.enterText((EditText) solo.getView(R.id.Login_inputUsername), "DoNotDelete");
         solo.enterText((EditText) solo.getView(R.id.Login_inputPassword), "1234qwer");
         solo.clickOnButton("Login");
-        solo.assertCurrentActivity("Wrong Activity", MapsActivity.class);
+        solo.assertCurrentActivity("Wrong Activity", RiderMapActivity.class);
     }
 
     /**

@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -32,6 +33,8 @@ public class RiderRatingActivity extends AppCompatActivity {
         Button skipButton = findViewById(R.id.skip_button);
         ImageButton thumbsUp = findViewById(R.id.thumbs_up_pic);
         ImageButton thumbsDown = findViewById(R.id.thumbs_down_pic);
+        TextView driverNameText = findViewById(R.id.name_driver_text);
+        driverNameText.setText(driverName);
 
         //Missing the part to set up the driver photo
 

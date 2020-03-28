@@ -56,6 +56,8 @@ import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 
@@ -98,7 +100,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
-
 
 
 
@@ -223,7 +224,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 
 
 
-        //set the Buttom confirm, and send the request information to firestore
+        //set the Button confirm, and send the request information to firestore
         uniqueID = UUID.randomUUID().toString();
         Button confirm_button;
         confirm_button = findViewById(R.id.confirm);
@@ -281,6 +282,56 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 request_fragment request_frag = new request_fragment();
                 request_frag.setArguments(bundle);
                 request_frag.show(getSupportFragmentManager(),"SHOW_REQUEST");
+
+            }
+        });
+
+        //Set the complete button, switch to the make payment activity since it's the rider want to complete
+        Button completeButton;
+        completeButton = findViewById(R.id.btn_complete);
+        completeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DocumentReference order = db.collection("Requests").document(uniqueID);
+                order.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.isSuccessful()){
+                            DocumentSnapshot doc = task.getResult();
+                            String price = (doc.get("Price")).toString();
+                            Intent a = new Intent(RiderMapActivity.this, MakePayment.class);
+                            a.putExtra("Price", price);
+                            startActivity(a);
+                        }
+                    }
+                });
+            }
+        });
+
+        //show direction
+        getDirection = findViewById(R.id.direction);
+        getDirection.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if ((odestination != null) && (opickup != null)) {
+                    new FetchURL(RiderMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
+                }
+                if (pickupName == null && destinationName != null){
+                    opickup = new MarkerOptions();
+                    opickup.position(mLaatknonlocationLatLng);
+                    opickup.title(placeName);
+                    opickup.zIndex(1.0f);
+                    opickup.icon(getBitmapFromVector(getApplicationContext(),R.drawable.ic_custom_map_marker));
+                    mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                        @Override
+                        public void onMapLoaded() {
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLaatknonlocationLatLng, 11));
+                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mLaatknonlocationLatLng, 12.0f));
+                            mpickup = mMap.addMarker(opickup);
+                        }
+                    });
+                    new FetchURL(RiderMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
+                }
             }
         });
     }
