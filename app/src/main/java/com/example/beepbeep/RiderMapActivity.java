@@ -189,8 +189,6 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         //setup the bentomenu on the activity screen
         bentoMenu = findViewById(R.id.bentoView);
 
-        SharedPreferences sharedPref = this.getSharedPreferences("identity", Context.MODE_PRIVATE);
-        final String username = sharedPref.getString("username", "");
         bentoMenu.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
@@ -221,6 +219,8 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         //active the autocomplete place selection for pickup location
         getAutocompletePickup();
 
+        SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", Context.MODE_PRIVATE);
+        Boolean darkmode = sharedPref.getBoolean("darkmode", false);
 
 
         //set the Button confirm, and send the request information to firestore
@@ -581,7 +581,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         mMap = googleMap;
 
         boolean success = googleMap.setMapStyle(new MapStyleOptions(getResources()
-                .getString(R.string.style_json)));
+                .getString(R.string.standard)));
         if (!success) {
             Log.e(TAG, "Style parsing failed.");
         }
