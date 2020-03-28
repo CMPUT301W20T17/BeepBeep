@@ -62,27 +62,25 @@
         android:layout_below="@+id/direction_"
         tools:context=".RiderMapActivity" />
 
-    <ScrollView
-        android:id="@+id/scrollView"
-        android:layout_below="@+id/direction_"
-        android:layout_width="match_parent"
-        android:layout_height="400dp">
 
-        <LinearLayout
-            android:id="@+id/invis_linear"
+    <LinearLayout
+        android:id="@+id/invis_linear"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:visibility="visible"
+        android:layout_below="@+id/direction_"
+        >
+
+        <ListView
+            android:id="@+id/qulifiedRequest"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="invisible">
+            android:text="asdasdasdasd"
+            android:background="#808080"/>
 
-            <TextView
-                android:id="@+id/qulifiedRequest"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="asdasdasdasd"/>
+    </LinearLayout>
 
-        </LinearLayout>
 
-    </ScrollView>
 
 
 
