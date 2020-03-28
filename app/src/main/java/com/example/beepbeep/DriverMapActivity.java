@@ -211,8 +211,7 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
 
 
 
-        final MyAdapter adapter = new MyAdapter(DriverMapActivity.this, qulifiedId, qulifiedPickUp, qulifiedDestination, qulifiedPrice);
-        qulifiedListView.setAdapter(adapter);
+
 
         //set the Buttom confirm, and send the request information to firestore
         Button confirm_button;
@@ -223,7 +222,8 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
 //                Toast toast=Toast. makeText(getApplicationContext(),"Hello Javatpoint",Toast. LENGTH_SHORT);
 //                toast. show();
 
-
+                final MyAdapter adapter = new MyAdapter(DriverMapActivity.this, qulifiedId, qulifiedPickUp, qulifiedDestination, qulifiedPrice);
+                qulifiedListView.setAdapter(adapter);
                 final LinearLayout changeLayout = DriverMapActivity.this.findViewById(R.id.invis_linear);
                 changeLayout.setVisibility(View.VISIBLE);
                 //get shared preference and UserName
