@@ -111,21 +111,7 @@
             android:weightSum="1">
 
             <androidx.legacy.widget.Space
-                android:layout_width="7dp"
-                android:layout_height="match_parent">
-            </androidx.legacy.widget.Space>
-
-            <Button
-                android:id="@+id/direction"
-                android:layout_width="160dp"
-                android:layout_height="35dp"
-                android:layout_marginTop="2dp"
-                android:layout_weight="0.5"
-                android:background="@drawable/custom_edit_text"
-                android:text="Direction" />
-
-            <androidx.legacy.widget.Space
-                android:layout_width="6dp"
+                android:layout_width="242dp"
                 android:layout_height="match_parent">
             </androidx.legacy.widget.Space>
 

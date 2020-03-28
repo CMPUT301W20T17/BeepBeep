@@ -157,7 +157,6 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 
 
     private String uniqueID;
-    Button getDirection;
 
     FloatingActionButton bentoMenu;
 
@@ -305,33 +304,6 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                         }
                     }
                 });
-            }
-        });
-
-        //show direction
-        getDirection = findViewById(R.id.direction);
-        getDirection.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if ((odestination != null) && (opickup != null)) {
-                    new FetchURL(RiderMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
-                }
-                if (pickupName == null && destinationName != null){
-                    opickup = new MarkerOptions();
-                    opickup.position(mLaatknonlocationLatLng);
-                    opickup.title(placeName);
-                    opickup.zIndex(1.0f);
-                    opickup.icon(getBitmapFromVector(getApplicationContext(),R.drawable.ic_custom_map_marker));
-                    mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-                        @Override
-                        public void onMapLoaded() {
-                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLaatknonlocationLatLng, 11));
-                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mLaatknonlocationLatLng, 12.0f));
-                            mpickup = mMap.addMarker(opickup);
-                        }
-                    });
-                    new FetchURL(RiderMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
-                }
             }
         });
     }
