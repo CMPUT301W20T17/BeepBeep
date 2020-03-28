@@ -39,6 +39,7 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -579,6 +580,11 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+        boolean success = googleMap.setMapStyle(new MapStyleOptions(getResources()
+                .getString(R.string.style_json)));
+        if (!success) {
+            Log.e(TAG, "Style parsing failed.");
+        }
 
 
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
@@ -595,15 +601,9 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 }
                 autocompleteDestination.setText(destinationName);
                 mdestination = mMap.addMarker(odestination);
-//                if (odestination != null && opickup != null){
-//                    new FetchURL(RiderMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
-//                }
                 setGetDirection();
             }
         });
-
-
-//        setGetDirection();
 
         // Prompt the user for permission.
         getLocationPermission();

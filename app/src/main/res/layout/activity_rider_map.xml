@@ -144,5 +144,4 @@
         android:clickable="true"
         app:srcCompat="@mipmap/bentomenuicon" />
 
-
 </RelativeLayout>
