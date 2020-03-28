@@ -52,7 +52,7 @@ public class RiderMapTest {
      * @throws Exception
      */
     @Test
-    public void testStartLocation() throws Exception{
+    public void testEmptyStartLocation() throws Exception{
 
         solo.enterText((EditText) solo.getView(R.id.Login_inputUsername), "DoNotDelete");
         solo.enterText((EditText) solo.getView(R.id.Login_inputPassword), "1234qwer");
@@ -60,10 +60,10 @@ public class RiderMapTest {
         solo.assertCurrentActivity("Wrong Activity",RiderMapActivity.class);
 
         //test empty start location
-        solo.clickOnText("Enter the destination");
+        solo.clickOnText("Enter the pickup location");;
         solo.typeText(0, "Hub Mall");
         solo.clickOnText("112 Street Northwest");
-        solo.clickOnText("CONFIRM");
+        solo.clickOnText("Hub Mall");
         assertTrue(solo.waitForText("Please enter the pickup location or destination", 1, 2000));
     }
 
@@ -81,9 +81,9 @@ public class RiderMapTest {
         solo.assertCurrentActivity("Wrong Activity",RiderMapActivity.class);
 
         //test empty destination
-        solo.clickOnText("Enter the pickup location");
+        solo.clickOnText("Enter the destination");
         solo.typeText(0, "Hub Mall");
-        solo.clickOnText("112 Street Northwest");
+        solo.clickOnText("Hub Mall");
         solo.clickOnText("CONFIRM");
         assertTrue(solo.waitForText("Please enter the pickup location or destination", 1, 2000));
     }
@@ -118,27 +118,23 @@ public class RiderMapTest {
         solo.clickOnButton("Login");
         solo.assertCurrentActivity("Wrong Activity",RiderMapActivity.class);
 
-        //Access First value  and putting firstNumber value in it
-        EditText StartLocation = (EditText) solo.getView(R.id.pickupView);
-        solo.enterText(StartLocation, String.valueOf("HUB Mall"));
-
-        //Access Second value and putting SecondNumber value in it
-        EditText Destination = (EditText) solo.getView(R.id.destinationView);
-        solo.enterText( Destination , String.valueOf("West Edmonton Mall"));
-        solo.clickOnText("Confirm");
-
-
-        //test after press the first confirm button
-
-
-
+        //test empty destination
+        solo.clickOnText("Enter the pickup location");
+        solo.typeText(0, "Hub Mall");
+        solo.clickOnText("Hub Mall");
 
         //test empty destination
         solo.clickOnText("Enter the destination");
         solo.typeText(0, "West Edmonton Mall");
         solo.clickOnText("West Edmonton Mall");
+
+        //test after press the first confirm button
         solo.clickOnText("CONFIRM");
-        assertTrue(solo.waitForText("Please enter the pickup location or destination", 1, 2000));
+
+        assertTrue(solo.waitForText("Start: 9002 112 St NW, Edmonton, AB T6G 2C5, Canada", 1, 2000));
+        assertTrue(solo.waitForText("End: 8770 170 St NW, Edmonton, AB T5T 3J7, Canada", 1, 2000));
+        assertTrue(solo.waitForText("Price: 20", 1, 2000));
+
 
     }
 
