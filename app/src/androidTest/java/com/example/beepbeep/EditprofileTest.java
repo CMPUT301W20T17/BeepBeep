@@ -1,5 +1,10 @@
 package com.example.beepbeep;
 
+/*
+ Title: Edit  profile test
+ Author: Lyuyang Wang,Junqi Zou
+ Date: 2020/03/27
+*/
 import android.app.Activity;
 import android.widget.EditText;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -11,6 +16,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import static junit.framework.TestCase.assertTrue;
+
+
 
 @RunWith(AndroidJUnit4.class)
 public class EditprofileTest {
@@ -39,35 +46,6 @@ public class EditprofileTest {
         Activity activity = rule.getActivity();
     }
 
-    /*
-    @Test
-    public void testback() throws Exception{
-        solo.enterText((EditText) solo.getView(R.id.Login_inputUsername), "DoNotDelete");
-        solo.enterText((EditText) solo.getView(R.id.Login_inputPassword), "1234qwer");
-        solo.clickOnButton("Login");
-        //solo.clickOnButton("Profile");
-        //solo.clickOnButton("Allow only while using the app");
-        //solo.clickOnButton("Login");
-
-        solo.clickOnView(solo.getView(R.id.bentoView));
-        solo.assertCurrentActivity("Wrong Activity", Menu.class);
-
-        solo.clickOnView(solo.getView(R.id.profileMenu));
-        solo.assertCurrentActivity("Wrong Activity", ViewProfile.class);
-        //need som change to switch to ViewProfile activity ***********************
-        solo.clickOnView(solo.getView(R.id.edit_profile_button));
-
-        //set back to original data
-
-        solo.enterText((EditText) solo.getView(R.id.email_editText), "");
-        solo.enterText((EditText) solo.getView(R.id.phone_editText), "");
-
-        solo.enterText((EditText) solo.getView(R.id.email_editText), "test@test.com");
-        solo.enterText((EditText) solo.getView(R.id.phone_editText), "2222222222");
-        solo.clickOnButton("SAVE");
-
-    } */
-
     /**
      * Log in, and then test if user can see the profile to edit phone and email
      * @throws Exception
@@ -77,16 +55,13 @@ public class EditprofileTest {
         solo.enterText((EditText) solo.getView(R.id.Login_inputUsername), "DoNotDelete");
         solo.enterText((EditText) solo.getView(R.id.Login_inputPassword), "1234qwer");
         solo.clickOnButton("Login");
-        //solo.clickOnButton("Profile");
-        //solo.clickOnButton("Allow only while using the app");
-        //solo.clickOnButton("Login");
 
         solo.clickOnView(solo.getView(R.id.bentoView));
         solo.assertCurrentActivity("Wrong Activity", Menu.class);
 
         solo.clickOnView(solo.getView(R.id.profileMenu));
         solo.assertCurrentActivity("Wrong Activity", ViewProfile.class);
-        //need som change to switch to ViewProfile activity ***********************
+
         solo.clickOnView(solo.getView(R.id.edit_profile_button));
 
         solo.assertCurrentActivity("Wrong Activity", EditProfileActivity.class);
@@ -104,16 +79,12 @@ public class EditprofileTest {
         solo.enterText((EditText) solo.getView(R.id.Login_inputUsername), "DoNotDelete");
         solo.enterText((EditText) solo.getView(R.id.Login_inputPassword), "1234qwer");
         solo.clickOnButton("Login");
-        //solo.clickOnButton("Profile");
-        //solo.clickOnButton("Allow only while using the app");
-        //solo.clickOnButton("Login");
 
         solo.clickOnView(solo.getView(R.id.bentoView));
         solo.assertCurrentActivity("Wrong Activity", Menu.class);
 
         solo.clickOnView(solo.getView(R.id.profileMenu));
         solo.assertCurrentActivity("Wrong Activity", ViewProfile.class);
-        //need som change to switch to ViewProfile activity ***********************
         solo.clickOnView(solo.getView(R.id.edit_profile_button));
 
         solo.assertCurrentActivity("Wrong Activity", EditProfileActivity.class);
@@ -155,16 +126,12 @@ public class EditprofileTest {
         solo.enterText((EditText) solo.getView(R.id.Login_inputUsername), "DoNotDelete");
         solo.enterText((EditText) solo.getView(R.id.Login_inputPassword), "1234qwer");
         solo.clickOnButton("Login");
-        //solo.clickOnButton("Profile");
-        //solo.clickOnButton("Allow only while using the app");
-        //solo.clickOnButton("Login");
 
         solo.clickOnView(solo.getView(R.id.bentoView));
         solo.assertCurrentActivity("Wrong Activity", Menu.class);
 
         solo.clickOnView(solo.getView(R.id.profileMenu));
         solo.assertCurrentActivity("Wrong Activity", ViewProfile.class);
-        //need som change to switch to ViewProfile activity ***********************
         solo.clickOnView(solo.getView(R.id.edit_profile_button));
 
         solo.assertCurrentActivity("Wrong Activity", EditProfileActivity.class);

@@ -1,5 +1,11 @@
 package com.example.beepbeep;
 
+/*
+ Title: order history test
+ Author: Junqi Zou, Lyuyang Wang
+ Date: 2020/03/27
+*/
+
 import android.app.Activity;
 import android.view.View;
 import android.widget.EditText;
@@ -54,17 +60,12 @@ public class OrderhistoryTest {
         solo.enterText((EditText) solo.getView(R.id.Login_inputUsername), "DoNotDelete");
         solo.enterText((EditText) solo.getView(R.id.Login_inputPassword), "1234qwer");
         solo.clickOnButton("Login");
-        //solo.clickOnButton("Profile");
-        //solo.clickOnButton("Allow only while using the app");
-        //solo.clickOnButton("Login");
 
         solo.clickOnView(solo.getView(R.id.bentoView));
         solo.assertCurrentActivity("Wrong Activity", Menu.class);
 
         solo.clickOnView(solo.getView(R.id.historyMenu));
         solo.assertCurrentActivity("Wrong Activity", OrderHistoryActivity.class);
-
-        //solo.clickOnView(solo.getView(R.id.history_order_refreshButton));
 
         assertTrue(solo.waitForText("234", 1, 2000));
         assertTrue(solo.waitForText("Fri Mar 27 11:41:45 MDT 2020", 1, 2000));
@@ -81,9 +82,6 @@ public class OrderhistoryTest {
         solo.enterText((EditText) solo.getView(R.id.Login_inputUsername), "DoNotDelete");
         solo.enterText((EditText) solo.getView(R.id.Login_inputPassword), "1234qwer");
         solo.clickOnButton("Login");
-        //solo.clickOnButton("Profile");
-        //solo.clickOnButton("Allow only while using the app");
-        //solo.clickOnButton("Login");
 
         solo.clickOnView(solo.getView(R.id.bentoView));
         solo.assertCurrentActivity("Wrong Activity", Menu.class);
@@ -91,7 +89,6 @@ public class OrderhistoryTest {
         solo.clickOnView(solo.getView(R.id.historyMenu));
         solo.assertCurrentActivity("Wrong Activity", OrderHistoryActivity.class);
 
-        //Switch to ViewProfile activity ***********************
         solo.clickOnView(solo.getView(R.id.view_contact_button));
         solo.assertCurrentActivity("Wrong Activity", ViewProfile.class);
 

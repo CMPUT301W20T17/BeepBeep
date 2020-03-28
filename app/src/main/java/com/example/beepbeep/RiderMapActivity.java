@@ -96,7 +96,6 @@ import java.util.UUID;
 
 
 
-
 public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCallback, TaskLoadedCallback{
     //march 19th, 2020 changed from extends fragmentactivity to appcompatactivity due to incompatibility with png files.
 
