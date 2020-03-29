@@ -25,8 +25,9 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/but_conf"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="38dp"
         android:weightSum="1"
         android:layout_below="@+id/temp">
 
@@ -65,22 +66,13 @@
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/confirm_"
-        android:layout_width="160dp"
-        android:layout_height="35dp"
-        android:layout_marginTop="4dp"
-        android:layout_below="@+id/temp"
-        android:layout_alignParentEnd="true"
-        android:background="@drawable/custom_edit_text"
-        android:text="CONFIRM" />
 
     <LinearLayout
         android:id="@+id/invis_linear"
         android:layout_width="match_parent"
         android:layout_height="400dp"
         android:visibility="visible"
-        android:layout_below="@+id/direction_"
+        android:layout_below="@+id/but_conf"
         >
 
         <ListView

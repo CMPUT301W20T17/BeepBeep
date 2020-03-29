@@ -266,6 +266,7 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                                                 if (task.isSuccessful()) {
                                                     DocumentSnapshot document = task.getResult();
                                                     if (document.exists()) {
+
                                                         GeoPoint pickupgeo = (GeoPoint) document.get("PickUpPoint");
                                                         float[] disResults = new float[1];
                                                         Location.distanceBetween(pickup.latitude, pickup.longitude, pickupgeo.getLatitude(), pickupgeo.getLongitude(), disResults);
