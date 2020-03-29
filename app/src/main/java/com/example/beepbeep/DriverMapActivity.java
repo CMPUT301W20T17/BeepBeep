@@ -305,6 +305,7 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                                                                                     //get rider
                                                                                     String rider = document.get("RiderID").toString();
                                                                                     qulifiedId.add("User: " + rider);
+                                                                                    adapter.notifyDataSetChanged();
                                                                                 }
                                                                             }
                                                                         }
@@ -317,11 +318,11 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                                     }
 
                                 }
-//                                qulifiedId.clear();
-//                                qulifiedPickUp.clear();
-//                                qulifiedDestination.clear();
-//                                qulifiedPrice.clear();
-                                adapter.notifyDataSetChanged();
+                                qulifiedId.clear();
+                                qulifiedPickUp.clear();
+                                qulifiedDestination.clear();
+                                qulifiedPrice.clear();
+//                                adapter.notifyDataSetChanged();
 
                             }
                         });
