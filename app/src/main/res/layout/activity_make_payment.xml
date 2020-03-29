@@ -17,7 +17,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.6" />
+        app:layout_constraintVertical_bias="0.53" />
 
     <Button
         android:id="@+id/MakePayment_confirmButton"
@@ -57,7 +57,7 @@
         android:id="@+id/MakePayment_BasePrice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="310dp"
+        android:layout_marginTop="260dp"
         android:layout_marginBottom="15dp"
         android:text="@string/price_x"
         android:textSize="25dp"
