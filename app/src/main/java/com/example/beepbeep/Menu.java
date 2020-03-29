@@ -18,11 +18,11 @@ import androidx.cardview.widget.CardView;
 
 public class Menu extends AppCompatActivity {
     CardView profileMenu;
-    CardView mapMenu;
+    CardView walletMenu;
     CardView payMenu;
     CardView scanMenu;
     CardView historyMenu;
-    CardView logoutMenu;
+    CardView settingsMenu;
 
     //initialize all the CardView objects stored inside GridView
     @Override
@@ -32,11 +32,11 @@ public class Menu extends AppCompatActivity {
         //set content to activity_menu.xml
 
         profileMenu = findViewById(R.id.profileMenu);
-        mapMenu = findViewById(R.id.mapMenu);
+        walletMenu = findViewById(R.id.walletMenu);
         payMenu = findViewById(R.id.payMenu);
         scanMenu = findViewById(R.id.scanMenu);
         historyMenu = findViewById(R.id.historyMenu);
-        logoutMenu = findViewById(R.id.logoutMenu);
+        settingsMenu = findViewById(R.id.settingsMenu);
         //link all the CardView objects with their id in the xml.
 
         SharedPreferences sharedPref = this.getSharedPreferences("identity", Context.MODE_PRIVATE);
@@ -51,7 +51,7 @@ public class Menu extends AppCompatActivity {
             }
         });
 
-        mapMenu.setOnClickListener(new View.OnClickListener() {
+        walletMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent a = new Intent(Menu.this, Wallet.class);
@@ -84,7 +84,7 @@ public class Menu extends AppCompatActivity {
             }
         });
 
-        logoutMenu.setOnClickListener(new View.OnClickListener() {
+        settingsMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 SignOut.now(Menu.this);
