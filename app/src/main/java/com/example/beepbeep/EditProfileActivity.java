@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,17 +15,28 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.UUID;
 
 /*
  Title: Edit  profile
@@ -39,8 +51,12 @@ import com.google.firebase.storage.StorageReference;
 
 public class EditProfileActivity extends AppCompatActivity {
 
+    private static final String TAG = "EditProfileActivity";
     FirebaseFirestore db;
     private ImageView imageView;
+    private Uri filePath;
+    FirebaseStorage storage;
+    StorageReference storageReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +65,8 @@ public class EditProfileActivity extends AppCompatActivity {
         Button saveButton = findViewById(R.id.save_button);
         Button cancelButton = findViewById(R.id.cancel_button);
         imageView = findViewById(R.id.profile_view_photo);
+        storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReference();
 
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,7 +106,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 EditText emailEditText = findViewById(R.id.email_editText);
                 final String phoneEdit = phoneEditText.getText().toString();
                 final String emailEdit = emailEditText.getText().toString();
-
+                uploadImage();
 
                 //check if the input is valid
                 boolean phoneValid = Signup.validPhone(phoneEdit);
@@ -134,8 +152,7 @@ public class EditProfileActivity extends AppCompatActivity {
             }
         });
     }
-
-
+    
 /*
  Title: upload/select image for profile picture
  Author: Jonathan Martins, Hasangi Thathsarani
@@ -164,6 +181,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
                 } else if (options[item].equals("Choose from Gallery")) {
                     Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    pickPhoto.setType("image/*");
                     startActivityForResult(pickPhoto, 1);//one can be replaced with any action code
 
                 } else if (options[item].equals("Cancel")) {
@@ -173,7 +191,6 @@ public class EditProfileActivity extends AppCompatActivity {
         });
         builder.show();
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -185,29 +202,46 @@ public class EditProfileActivity extends AppCompatActivity {
                         Bitmap selectedImage = (Bitmap) data.getExtras().get("data");
                         imageView.setImageBitmap(selectedImage);
                     }
-
                     break;
                 case 1:
-                    if (resultCode == RESULT_OK && data != null) {
-                        Uri selectedImage = data.getData();
-                        String[] filePathColumn = {MediaStore.Images.Media.DATA};
-                        if (selectedImage != null) {
-                            Cursor cursor = getContentResolver().query(selectedImage,
-                                    filePathColumn, null, null, null);
-                            if (cursor != null) {
-                                cursor.moveToFirst();
-
-                                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                                String picturePath = cursor.getString(columnIndex);
-                                imageView.setImageBitmap(BitmapFactory.decodeFile(picturePath));
-                                cursor.close();
-                            }
+                    if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                        filePath = data.getData();
+                        try{
+                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),filePath);
+                            imageView.setImageBitmap(bitmap);
+                    } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
-
                     }
                     break;
             }
         }
     }
 
+    private void uploadImage(){
+        if(filePath != null) {
+            StorageReference ref = storageReference.child("profileImages/" + UUID.randomUUID().toString());
+            ref.putFile(filePath)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Toast.makeText(EditProfileActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(EditProfileActivity.this, "Failed", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                            Toast.makeText(EditProfileActivity.this,"In Progress", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
+    }
 }
