@@ -140,6 +140,8 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
     private MarkerOptions opickup;
     private MarkerOptions odestination;
 
+    AutocompleteSupportFragment autocompletePickup;
+
 
     private String uniqueID;
     Button getDirection;
@@ -191,6 +193,8 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                 .findFragmentById(R.id.map_);
         mapFragment.getMapAsync(this);
         mapView = mapFragment.getView();
+        autocompletePickup = (AutocompleteSupportFragment)
+                getSupportFragmentManager().findFragmentById(R.id.location);
 
         // Construct a PlacesClient
         if (!Places.isInitialized()) {
@@ -505,14 +509,9 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
     //     delete the marker after remove the place name auto
     private void getAutocompletePickup() {
         //search the location by autocomplete
-        AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
-                getSupportFragmentManager().findFragmentById(R.id.location);
-        assert autocompleteFragment != null;
-
-
-        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID,Place.Field.LAT_LNG,Place.Field.NAME));
-        autocompleteFragment.setHint("Enter location to search requests");
-        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+        autocompletePickup.setPlaceFields(Arrays.asList(Place.Field.ID,Place.Field.LAT_LNG,Place.Field.NAME));
+        autocompletePickup.setHint("Enter location to search requests");
+        autocompletePickup.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(@NonNull final Place place) {
                 if (place.getLatLng() != null) {
@@ -520,14 +519,11 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
 
                     pickupName = place.getName();
                 }
-//                Toast.makeText(getApplicationContext(), String.valueOf(pickup), Toast.LENGTH_SHORT).show();
-
                 opickup = new MarkerOptions();
                 opickup.position(pickup);
                 opickup.title(pickupName);
                 opickup.zIndex(1.0f);
-
-//                mMap.clear();
+                opickup.icon(getBitmapFromVector(getApplicationContext(),R.drawable.ic_custom_map_marker));
                 mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
                     @Override
                     public void onMapLoaded() {
@@ -542,11 +538,32 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                     }
                 });
             }
-
             @Override
             public void onError(@NonNull Status status) {
                 Log.i("PickUp", "An error occurred: " + status);
 
+            }
+        });
+        View clearButton = autocompletePickup.getView().findViewById(R.id.places_autocomplete_clear_button);
+        clearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pickup = null;
+                pickupName = null;
+                opickup = null;
+                autocompletePickup.setText("");
+                if (mpickup != null) {
+                    mpickup.remove();
+                    mMap.clear();
+                }
+                if (odestination != null){
+                    mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                        @Override
+                        public void onMapLoaded() {
+                            mdestination = mMap.addMarker(odestination);
+                        }
+                    });
+                }
             }
         });
     }
@@ -672,16 +689,18 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                destination = latLng;
-                destinationName = getAddress(latLng.latitude,latLng.longitude);
-                odestination = new MarkerOptions()
+                pickup = latLng;
+                pickupName = getAddress(latLng.latitude,latLng.longitude);
+                opickup = new MarkerOptions()
                         .position(new LatLng(latLng.latitude,latLng.longitude))
                         .title(destinationName)
-                        .zIndex(1.0f);
-                if (mdestination != null){
-                    mdestination.remove();
+                        .zIndex(1.0f)
+                        .icon(getBitmapFromVector(getApplicationContext(), R.drawable.ic_custom_map_marker));
+                if (mpickup != null){
+                    mpickup.remove();
                 }
-                mdestination = mMap.addMarker(odestination);
+                autocompletePickup.setText(pickupName);
+                mpickup = mMap.addMarker(opickup);
             }
         });
 
@@ -754,6 +773,9 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                             // Set the map's camera position to the current location of the device.
                             mLastKnownLocation = (Location) task.getResult();
                             assert mLastKnownLocation != null;
+                            pickup =  new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
+                            pickupName = getAddress(pickup.latitude,pickup.longitude);
+                            autocompletePickup.setText(pickupName);
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(mLastKnownLocation.getLatitude(),
                                             mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));

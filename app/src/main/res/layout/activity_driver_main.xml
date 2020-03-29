@@ -71,7 +71,7 @@
         android:id="@+id/invis_linear"
         android:layout_width="match_parent"
         android:layout_height="400dp"
-        android:visibility="visible"
+        android:visibility="invisible"
         android:layout_below="@+id/but_conf"
         >
 

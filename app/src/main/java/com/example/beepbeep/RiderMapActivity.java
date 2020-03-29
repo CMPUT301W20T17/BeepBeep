@@ -674,6 +674,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                         if (task.isSuccessful()) {
                             // Set the map's camera position to the current location of the device.
                             mLastKnownLocation = (Location) task.getResult();
+                            assert mLastKnownLocation != null;
                             pickup =  new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
                             pickupName = getAddress(pickup.latitude,pickup.longitude);
                             autocompletePickup.setText(pickupName);
