@@ -90,7 +90,7 @@ public class OrderHistoryActivity extends AppCompatActivity{
                         //cloned.addAll(orders);
 
                         if (orders != null && !orders.isEmpty()){
-                            for (int i = 0; i < orders.size(); i++){
+                            for (int i = orders.size() - 1; i >= 0; i--){
                                 db = FirebaseFirestore.getInstance();
                                 String name = orders.get(i);
                                 DocumentReference doc = db.collection("Requests").document(name);

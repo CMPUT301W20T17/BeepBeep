@@ -69,7 +69,8 @@ class OrderRecordManager {
                     DocumentSnapshot document = task.getResult();
                     List<String> orders = (List<String>) document.get("order");
                     if(orders != null && !orders.isEmpty()){
-                        for(String orderID : orders){
+                        for(int i = orders.size() - 1; i >= 0; i--){
+                            String orderID = orders.get(i);
                             DocumentReference orderInfo = db.collection("Requests").document(orderID);
                             orderInfo.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
