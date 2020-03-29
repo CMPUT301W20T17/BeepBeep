@@ -10,13 +10,14 @@
         android:id="@+id/MakePayment_amountInput"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
         android:ems="10"
+        android:importantForAutofill="no"
         android:inputType="numberDecimal"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/MakePayment_prompt"
-        android:importantForAutofill="no" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.53" />
 
     <Button
         android:id="@+id/MakePayment_confirmButton"
@@ -33,8 +34,10 @@
         android:id="@+id/MakePayment_prompt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginBottom="15dp"
         android:text="@string/tip"
+        android:textSize="20dp"
+        app:layout_constraintBottom_toTopOf="@+id/MakePayment_amountInput"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/MakePayment_BasePrice" />
@@ -54,9 +57,13 @@
         android:id="@+id/MakePayment_BasePrice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="260dp"
+        android:layout_marginBottom="15dp"
         android:text="@string/price_x"
+        android:textSize="25dp"
+        app:layout_constraintBottom_toTopOf="@+id/MakePayment_prompt"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

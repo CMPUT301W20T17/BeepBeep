@@ -140,7 +140,7 @@ public class Wallet extends AppCompatActivity {
                 if(task.isSuccessful()){
                     DocumentSnapshot document = task.getResult();
                     if(document.exists()){
-                        balanceDisplay.setText(Objects.requireNonNull(document.get("balance")).toString());
+                        balanceDisplay.setText("$" + Objects.requireNonNull(document.get("balance")).toString());
                     }else{
                         showDialog("Something is wrong, you need to login again!");
                         SignOut.now(Wallet.this);

@@ -10,8 +10,11 @@
         android:id="@+id/Wallet_BalanceText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="68dp"
+        android:layout_marginTop="240dp"
+        android:layout_marginBottom="15dp"
         android:text="@string/balance"
+        android:textSize="25dp"
+        app:layout_constraintBottom_toTopOf="@+id/Wallet_BalanceDisplay"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
@@ -21,16 +24,20 @@
         android:id="@+id/Wallet_BalanceDisplay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginBottom="15dp"
         android:text="@string/please_wait"
+        android:textSize="20dp"
+        app:layout_constraintBottom_toTopOf="@+id/Wallet_amountEntry"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/Wallet_BalanceText" />
 
     <Button
         android:id="@+id/Wallet_AddBalanceButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="150dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/custom_button"
         android:text="@string/add_money"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -39,32 +46,34 @@
 
     <Button
         android:id="@+id/Wallet_MakePaymentButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="90dp"
+        android:layout_width="150dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="40dp"
+        android:background="@drawable/custom_button"
         android:text="@string/make_payment"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/Wallet_ReveivePaymentButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/Wallet_AddBalanceButton" />
 
     <Button
         android:id="@+id/Wallet_ReveivePaymentButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
+        android:layout_width="150dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="40dp"
+        android:background="@drawable/custom_button"
         android:text="@string/receive_payment"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Wallet_MakePaymentButton" />
+        app:layout_constraintStart_toEndOf="@+id/Wallet_MakePaymentButton"
+        app:layout_constraintTop_toBottomOf="@+id/Wallet_AddBalanceButton" />
 
     <EditText
         android:id="@+id/Wallet_amountEntry"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="90dp"
         android:ems="10"
         android:inputType="numberDecimal"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Wallet_BalanceDisplay" />
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
