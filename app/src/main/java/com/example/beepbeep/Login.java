@@ -182,6 +182,7 @@ public class Login extends AppCompatActivity {
                                     if (ContextCompat.checkSelfPermission(Login.this,
                                             Manifest.permission.ACCESS_FINE_LOCATION)
                                             != PackageManager.PERMISSION_GRANTED) {
+
                                     } else {
                                         String role = Objects.requireNonNull(document.get("role")).toString();
                                         if(role.equals("Driver")){

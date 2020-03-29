@@ -65,13 +65,35 @@
 
     </LinearLayout>
 
-    <ScrollView
-        android:id="@+id/scrollView"
-        android:layout_below="@+id/direction_"
-        android:layout_width="match_parent"
-        android:layout_height="400dp">
+    <Button
+        android:id="@+id/confirm_"
+        android:layout_width="160dp"
+        android:layout_height="35dp"
+        android:layout_marginTop="4dp"
+        android:layout_below="@+id/temp"
+        android:layout_alignParentEnd="true"
+        android:background="@drawable/custom_edit_text"
+        android:text="CONFIRM" />
 
-    </ScrollView>
+    <LinearLayout
+        android:id="@+id/invis_linear"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:visibility="visible"
+        android:layout_below="@+id/direction_"
+        >
+
+        <ListView
+            android:id="@+id/qulifiedRequest"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="asdasdasdasd"
+            android:background="#808080"/>
+
+    </LinearLayout>
+
+
+
 
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
