@@ -424,31 +424,6 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
 
     }
 
-    private String getAddress(double LAT, double LONG) {
-        String address = "";
-        Geocoder geocoder = new Geocoder(DriverMapActivity.this, Locale.getDefault());
-        try {
-            //get address in list
-            List<Address> addresses = geocoder.getFromLocation(LAT, LONG, 1);
-            //if there is address
-            if (addresses != null) {
-                //get the returned addresses
-                Address returnedAddress = addresses.get(0);
-                StringBuilder strReturnedAddress = new StringBuilder("");
-                //set the returned address in string
-                for (int i = 0; i <= returnedAddress.getMaxAddressLineIndex(); i++) {
-                    strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n");
-                }
-                address = strReturnedAddress.toString();
-            } else {
-                Log.w("My Current loction address", "No Address returned!");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return address;
-    }
-
     class MyAdapter extends ArrayAdapter<String> {
         Context context;
         ArrayList<String> listviewID;
