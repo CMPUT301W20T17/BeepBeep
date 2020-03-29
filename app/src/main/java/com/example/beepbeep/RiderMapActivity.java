@@ -230,7 +230,6 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         confirm_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 if (opickup != null && odestination != null) {
                     //get shared preference and user now
                     final SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
