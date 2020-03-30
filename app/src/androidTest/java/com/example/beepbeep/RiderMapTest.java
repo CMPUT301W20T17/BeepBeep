@@ -8,12 +8,10 @@ package com.example.beepbeep;
 
 import android.app.Activity;
 import android.widget.EditText;
-
 import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
@@ -24,11 +22,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import java.util.List;
 
 import static com.google.common.collect.Iterables.size;
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 @RunWith(AndroidJUnit4.class)
 public class RiderMapTest {
@@ -52,7 +50,6 @@ public class RiderMapTest {
      *
      * @throws Exception
      */
-
     @Test
     public void start() throws Exception {
         Activity activity = rule.getActivity();
@@ -80,7 +77,6 @@ public class RiderMapTest {
      *
      * @throws Exception
      */
-
     @Test
     public void testCancelButton () throws Exception{
         solo.enterText((EditText) solo.getView(R.id.Login_inputUsername), "DoNotDelete");
@@ -88,24 +84,27 @@ public class RiderMapTest {
         solo.clickOnButton("Login");
         solo.assertCurrentActivity("Wrong Activity",RiderMapActivity.class);
 
-        /*//test empty destination
-        solo.clickOnText("Enter the pickup location");
-        solo.typeText(0, "Hub Mall");
-        solo.clickOnText("Hub Mall"); */
-
         //test empty destination
         solo.clickOnText("Enter the destination");
         solo.typeText(0, "West Edmonton Mall");
-        solo.clickOnText("West Edmonton Mall");
+        solo.clickOnText("170 Street Northwest");
 
         //test after press the first confirm button
         solo.clickOnText("CONFIRM");
 
-        //assertTrue(solo.waitForText("Start: 9002 112 St NW, Edmonton, AB T6G 2C5, Canada", 1, 2000));
         assertTrue(solo.waitForText("End: 8770 170 St NW, Edmonton, AB T5T 3J7, Canada", 1, 2000));
-        //assertTrue(solo.waitForText("Price: 20", 1, 2000));
+        solo.clickOnText("Confirm");
 
         solo.clickOnText("CANCEL");
+
+        //Go to order history and see there is no order containing address of west edmonton mall
+        solo.clickOnView(solo.getView(R.id.bentoView));
+        solo.assertCurrentActivity("Wrong Activity", Menu.class);
+
+        solo.clickOnView(solo.getView(R.id.historyMenu));
+        solo.assertCurrentActivity("Wrong Activity", OrderHistoryActivity.class);
+
+        //assertFalse(solo.waitForText("8770 170 St NW, Edmonton, AB T5T 3J7, Canada", 1, 6000));
 
     }
 
