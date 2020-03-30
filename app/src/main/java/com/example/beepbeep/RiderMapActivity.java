@@ -312,6 +312,10 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                             Intent a = new Intent(RiderMapActivity.this, MakePayment.class);
                             a.putExtra("Price", price);
                             startActivity(a);
+                            Intent b = new Intent(RiderMapActivity.this,RiderRatingActivity.class);
+                            String driver_name = (doc.get("DriverID")).toString();
+                            b.putExtra("driver_name", driver_name);
+                            startActivity(b);
                         }
                     }
                 });

@@ -27,7 +27,6 @@ public class RiderRatingActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         final String driverName = intent.getStringExtra("driver_name");
-
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         ImageView driverPhoto = findViewById(R.id.driver_photo);
         Button skipButton = findViewById(R.id.skip_button);
