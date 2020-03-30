@@ -60,12 +60,12 @@ import static com.google.zxing.integration.android.IntentIntegrator.REQUEST_CODE
 public class EditProfileActivity extends AppCompatActivity {
 
     private static final String TAG = "EditProfileActivity";
-    String email;
     FirebaseFirestore db;
     private ImageView imageView;
     private Uri filePath;
     FirebaseStorage storage;
     StorageReference storageReference;
+    String profileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,7 +113,7 @@ public class EditProfileActivity extends AppCompatActivity {
         });
 
         Intent intent = getIntent();
-        final String profileName = intent.getStringExtra("profile_name");
+        profileName = intent.getStringExtra("profile_name");
         db = FirebaseFirestore.getInstance();
 
         //when finished edit, set email and phone to the data stored in fireStore
@@ -125,13 +125,13 @@ public class EditProfileActivity extends AppCompatActivity {
                     EditText phoneEditText = findViewById(R.id.phone_editText);
                     EditText emailEditText = findViewById(R.id.email_editText);
                     DocumentSnapshot doc = task.getResult();
-                    email = (doc.get("email")).toString();
+                    String email = (doc.get("email")).toString();
                     String phone = (doc.get("phone")).toString();
                     emailEditText.setText(email);
                     phoneEditText.setText(phone);
                     //retrieves the profile image from the database so that the editprofile imageview contains the photo.
                     FirebaseStorage storage = FirebaseStorage.getInstance();
-                    StorageReference storageReference = storage.getReference().child("profileImages/"+ email);
+                    StorageReference storageReference = storage.getReference().child("profileImages/"+ profileName);
                     try{
                         final File file = File.createTempFile("image","jpg");
                         storageReference.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
@@ -272,7 +272,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private void uploadImage(){
         if(filePath != null) {
             //ref is the path that follows firestorage.
-            StorageReference ref = storageReference.child("profileImages/" + email);
+            StorageReference ref = storageReference.child("profileImages/" + profileName);
             //putfile allows you to put the picture into the path of the ref.
             ref.putFile(filePath)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {

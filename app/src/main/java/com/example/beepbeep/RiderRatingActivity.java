@@ -47,7 +47,7 @@ public class RiderRatingActivity extends AppCompatActivity {
 
         //need the email for whoevers picture is needed
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageReference = storage.getReference().child("profileImages/" + email);
+        StorageReference storageReference = storage.getReference().child("profileImages/" + driverName);
         try {
             final File file = File.createTempFile("image", "jpg");
             storageReference.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {

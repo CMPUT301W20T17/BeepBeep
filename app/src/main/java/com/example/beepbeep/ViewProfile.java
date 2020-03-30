@@ -63,7 +63,7 @@ public class ViewProfile extends AppCompatActivity {
 
         //Use SharedPreferences to get the name of user that currently logging in
         final SharedPreferences sharedPref = ViewProfile.this.getSharedPreferences("identity", Context.MODE_PRIVATE);
-        String loginName = sharedPref.getString("username","");
+        final String loginName = sharedPref.getString("username","");
 
         final ImageView editButton = findViewById(R.id.edit_profile_button);
 
@@ -95,9 +95,9 @@ public class ViewProfile extends AppCompatActivity {
                     String email = (doc.get("email")).toString();
                     String phone = (doc.get("phone")).toString();
                     String role = (doc.get("role")).toString();
-// Retrieve the image from the database, the credit is located on the bottom where this happens again.
+        // Retrieve the image from the database, the credit is located on the bottom where this happens again.
                     FirebaseStorage storage = FirebaseStorage.getInstance();
-                    StorageReference storageReference = storage.getReference().child("profileImages/"+ email);
+                    StorageReference storageReference = storage.getReference().child("profileImages/"+ loginName);
                     try{
                         final File file = File.createTempFile("image","jpg");
                         storageReference.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
@@ -184,7 +184,7 @@ public class ViewProfile extends AppCompatActivity {
 
         //Use SharedPreferences to get the name of user that currently logging in
         final SharedPreferences sharedPref = ViewProfile.this.getSharedPreferences("identity", Context.MODE_PRIVATE);
-        String loginName = sharedPref.getString("username","");
+        final String loginName = sharedPref.getString("username","");
 
         // Set the edit button to be visible if user is viewing his/her own profile
         final ImageView editButton = findViewById(R.id.edit_profile_button);
@@ -214,7 +214,7 @@ public class ViewProfile extends AppCompatActivity {
 */
                     final ImageView profilePicture = findViewById(R.id.profile_view_photo);
                     FirebaseStorage storage = FirebaseStorage.getInstance();
-                    StorageReference storageReference = storage.getReference().child("profileImages/" + email);
+                    StorageReference storageReference = storage.getReference().child("profileImages/" + loginName);
                     try {
                         final File file = File.createTempFile("image", "jpg");
                         storageReference.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
