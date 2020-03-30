@@ -3,28 +3,48 @@ package com.example.beepbeep;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.UUID;
+
+import static com.google.zxing.integration.android.IntentIntegrator.REQUEST_CODE;
 
 /*
  Title: Edit  profile
@@ -39,8 +59,13 @@ import com.google.firebase.storage.StorageReference;
 
 public class EditProfileActivity extends AppCompatActivity {
 
+    private static final String TAG = "EditProfileActivity";
+    String email;
     FirebaseFirestore db;
     private ImageView imageView;
+    private Uri filePath;
+    FirebaseStorage storage;
+    StorageReference storageReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,11 +74,41 @@ public class EditProfileActivity extends AppCompatActivity {
         Button saveButton = findViewById(R.id.save_button);
         Button cancelButton = findViewById(R.id.cancel_button);
         imageView = findViewById(R.id.profile_view_photo);
-
+        storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReference();
+        //When Image is clicked make sure all permissions are satisfied and warn and prompt user for permission if it was previously disabled.
+        /*
+            Title: Checking Permission for read external storage
+            Author: Jonathan Martins, Android Coding
+            Date: 3/30/2020
+            Last edited: 3/30/2020
+            Availability: https://www.youtube.com/watch?v=AyhkpvQwFsI&t=606s
+         */
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selectImage(EditProfileActivity.this);
+                if (ContextCompat.checkSelfPermission(EditProfileActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(EditProfileActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                        //Create AlertDialog
+                        AlertDialog.Builder builder = new AlertDialog.Builder(EditProfileActivity.this);
+                        builder.setTitle("Grant those permission");
+                        builder.setMessage("Read storage");
+                        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ActivityCompat.requestPermissions(EditProfileActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CODE);
+                            }
+                        });
+                        builder.setNegativeButton("Cancel", null);
+                        AlertDialog alertDialog = builder.create();
+                        alertDialog.show();
+                    } else {
+                        ActivityCompat.requestPermissions(EditProfileActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CODE);
+                    }
+                }else {
+                    //When permission are already granted
+                    selectImage(EditProfileActivity.this);
+                }
             }
         });
 
@@ -70,10 +125,25 @@ public class EditProfileActivity extends AppCompatActivity {
                     EditText phoneEditText = findViewById(R.id.phone_editText);
                     EditText emailEditText = findViewById(R.id.email_editText);
                     DocumentSnapshot doc = task.getResult();
-                    String email = (doc.get("email")).toString();
+                    email = (doc.get("email")).toString();
                     String phone = (doc.get("phone")).toString();
                     emailEditText.setText(email);
                     phoneEditText.setText(phone);
+                    //retrieves the profile image from the database so that the editprofile imageview contains the photo.
+                    FirebaseStorage storage = FirebaseStorage.getInstance();
+                    StorageReference storageReference = storage.getReference().child("profileImages/"+ email);
+                    try{
+                        final File file = File.createTempFile("image","jpg");
+                        storageReference.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                                Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                                imageView.setImageBitmap(bitmap);
+                            }
+                        });
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
@@ -88,7 +158,6 @@ public class EditProfileActivity extends AppCompatActivity {
                 EditText emailEditText = findViewById(R.id.email_editText);
                 final String phoneEdit = phoneEditText.getText().toString();
                 final String emailEdit = emailEditText.getText().toString();
-
 
                 //check if the input is valid
                 boolean phoneValid = Signup.validPhone(phoneEdit);
@@ -135,9 +204,8 @@ public class EditProfileActivity extends AppCompatActivity {
         });
     }
 
-
 /*
- Title: upload/select image for profile picture
+ Title: select image for profile picture
  Author: Jonathan Martins, Hasangi Thathsarani
  Date: 2020/03/25
  Last edited: 2020/03/25
@@ -148,22 +216,17 @@ public class EditProfileActivity extends AppCompatActivity {
      */
 
     private void selectImage(Context context) {
-        final CharSequence[] options = {"Take Photo", "Choose from Gallery", "Cancel"};
-
+        final CharSequence[] options = {"Choose from Gallery", "Cancel"};
+        //create alertdialog to ask whether user wants to choose their profile picture from their gallery or cancel
+        //Currently in version 1.0, in version 2.0 implementing take picture.
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Choose your profile picture");
-
         builder.setItems(options, new DialogInterface.OnClickListener() {
-
             @Override
             public void onClick(DialogInterface dialog, int item) {
-
-                if (options[item].equals("Take Photo")) {
-                    Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                    startActivityForResult(takePicture, 0);
-
-                } else if (options[item].equals("Choose from Gallery")) {
+                if (options[item].equals("Choose from Gallery")) {
                     Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    pickPhoto.setType("image/*");
                     startActivityForResult(pickPhoto, 1);//one can be replaced with any action code
 
                 } else if (options[item].equals("Cancel")) {
@@ -174,40 +237,57 @@ public class EditProfileActivity extends AppCompatActivity {
         builder.show();
     }
 
-
+    //What happens when user clicks one of the options
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != RESULT_CANCELED) {
-            switch (requestCode) {
-                case 0:
-                    if (resultCode == RESULT_OK && data != null) {
-                        Bitmap selectedImage = (Bitmap) data.getExtras().get("data");
-                        imageView.setImageBitmap(selectedImage);
-                    }
-
-                    break;
-                case 1:
-                    if (resultCode == RESULT_OK && data != null) {
-                        Uri selectedImage = data.getData();
-                        String[] filePathColumn = {MediaStore.Images.Media.DATA};
-                        if (selectedImage != null) {
-                            Cursor cursor = getContentResolver().query(selectedImage,
-                                    filePathColumn, null, null, null);
-                            if (cursor != null) {
-                                cursor.moveToFirst();
-
-                                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                                String picturePath = cursor.getString(columnIndex);
-                                imageView.setImageBitmap(BitmapFactory.decodeFile(picturePath));
-                                cursor.close();
-                            }
-                        }
-
-                    }
-                    break;
+            if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                filePath = data.getData();
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+                    imageView.setImageBitmap(bitmap);
+                    uploadImage();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
+/*
+ Title: upload/select image for profile picture
+ Author: Jonathan Martins, EDMT Dev
+ Date: 2020/03/28
+ Last edited: 2020/03/30
+ Availability: https://www.youtube.com/watch?v=h62bcMwahTU&t=823s
+*/
+    private void uploadImage(){
+        if(filePath != null) {
+            //ref is the path that follows firestorage.
+            StorageReference ref = storageReference.child("profileImages/" + email);
+            //putfile allows you to put the picture into the path of the ref.
+            ref.putFile(filePath)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Toast.makeText(EditProfileActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
 
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(EditProfileActivity.this, "Failed", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                            Toast.makeText(EditProfileActivity.this,"In Progress", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
+    }
 }
