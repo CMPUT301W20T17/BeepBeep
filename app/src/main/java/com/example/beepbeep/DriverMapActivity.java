@@ -89,6 +89,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCallback, TaskLoadedCallback {
@@ -149,6 +150,7 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
     FloatingActionButton bentoMenu;
 
 
+    int count;
     //Request to driver related variables
     private ListView qulifiedListView;
     ArrayList<String> qulifiedListData = new ArrayList<String>();
@@ -231,12 +233,9 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         confirm_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Toast toast=Toast. makeText(getApplicationContext(),"Hello Javatpoint",Toast. LENGTH_SHORT);
-//                toast. show();
-
-
                 final LinearLayout changeLayout = DriverMapActivity.this.findViewById(R.id.invis_linear);
                 changeLayout.setVisibility(View.VISIBLE);
+
                 //get shared preference and UserName
                 final SharedPreferences sharedPref = DriverMapActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
                 final String username = sharedPref.getString("username", "");
@@ -253,15 +252,13 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                 final List<String> requestNameList = new ArrayList<>();
                                 if (task.isSuccessful()) {
-                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                    for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                                         String id = document.getId();
                                         requestNameList.add(id);
                                     }
                                 }
-
-
                                 if (requestNameList != null) {
-                                    adapter.notifyDataSetChanged();
+                                    count = 0;
                                     for (int i = 0; i < requestNameList.size(); i++) {
                                         final String requestName = requestNameList.get(i);
                                         final DocumentReference doc = db.collection("Requests").document(requestName);
@@ -270,48 +267,19 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                                 if (task.isSuccessful()) {
                                                     DocumentSnapshot document = task.getResult();
+                                                    assert document != null;
                                                     if (document.exists()) {
                                                         GeoPoint pickupgeo = (GeoPoint) document.get("PickUpPoint");
                                                         float[] disResults = new float[1];
+                                                        assert pickupgeo != null;
                                                         Location.distanceBetween(pickup.latitude, pickup.longitude, pickupgeo.getLatitude(), pickupgeo.getLongitude(), disResults);
                                                         int some = (int) (disResults[0] / 1000);
                                                         if (some < 5) {
-                                                            qulifiedListData.add(requestName);
-                                                            db.collection("Requests").document(requestName).get()
-                                                                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                                        @Override
-                                                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                                            if (task.isSuccessful()) {
-                                                                                DocumentSnapshot document = task.getResult();
-                                                                                if (document.exists()) {
-                                                                                    //get address of destination location
-                                                                                    final GeoPoint destination = document.getGeoPoint("Destination");
-                                                                                    final double desti_lat = destination.getLatitude();
-                                                                                    final double desti_long = destination.getLongitude();
-                                                                                    String destination_address = getAddress(desti_lat, desti_long);
-                                                                                    qulifiedDestination.add("Destination: " + destination_address);
-
-                                                                                    //get address of pickup location
-                                                                                    final GeoPoint pickup = document.getGeoPoint("PickUpPoint");
-                                                                                    final double pick_lat = pickup.getLatitude();
-                                                                                    final double pick_long = pickup.getLongitude();
-                                                                                    String pickup_address = getAddress(pick_lat, pick_long);
-                                                                                    qulifiedPickUp.add("PickUp: " + pickup_address);
-
-                                                                                    //get price
-                                                                                    String price = document.get("Price").toString();
-                                                                                    qulifiedPrice.add("Price: " + price);
-
-                                                                                    //get rider
-                                                                                    String rider = document.get("RiderID").toString();
-                                                                                    qulifiedId.add("User: " + rider);
-                                                                                    adapter.notifyDataSetChanged();
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    });
+                                                            setQulifiedData(requestName, adapter);
+                                                        }else{
+                                                            count += 1;
                                                         }
-                                                        else {
+                                                        if(count == requestNameList.size() && changeLayout.getVisibility() == View.VISIBLE){
                                                             changeLayout.setVisibility(View.INVISIBLE);
                                                             Toast toast=Toast.makeText(getApplicationContext(),"There is no request appear during 5km round.",Toast. LENGTH_SHORT);
                                                             toast.show();
@@ -321,29 +289,29 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                                             }
                                         });
                                     }
-
+                                    adapter.notifyDataSetChanged();
                                 }
-//                                if (qulifiedId.size() == 0){
-//                                    Toast.makeText(DriverMapActivity.this, "No requests found", Toast.LENGTH_SHORT).show();
-//                                }
                                 qulifiedId.clear();
                                 qulifiedPickUp.clear();
                                 qulifiedDestination.clear();
                                 qulifiedPrice.clear();
-
-//                                adapter.notifyDataSetChanged();
-
                             }
                         });
-//                Toast.makeText(DriverMapActivity.this, "size: " + qulifiedId.size(), Toast.LENGTH_SHORT).show();
+//                if (qulifiedListData.size() == 0){
+//                    changeLayout.setVisibility(View.INVISIBLE);
+//                    Toast toast=Toast.makeText(getApplicationContext(),"There is no request appear during 5km round.",Toast. LENGTH_SHORT);
+//                    toast.show();
+//                }
                 qulifiedListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                         String theRequestID = qulifiedListData.get(i);
                         opendialog(theRequestID,username);
 
+
                     }
                 });
+
 //                adapter.notifyDataSetChanged();
                 //start collecting information of ride
 //                qulifiedId.clear();
@@ -413,6 +381,46 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
             }
         }); */
 
+    }
+
+    public void setQulifiedData(final String requestName, final MyAdapter adapter) {
+        qulifiedListData.add(requestName);
+        db.collection("Requests").document(requestName).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            assert document != null;
+                            if (document.exists()) {
+                                //get address of destination location
+                                final GeoPoint destination = document.getGeoPoint("Destination");
+                                assert destination != null;
+                                final double desti_lat = destination.getLatitude();
+                                final double desti_long = destination.getLongitude();
+                                String destination_address = getAddress(desti_lat, desti_long);
+                                qulifiedDestination.add("Destination: " + destination_address);
+
+                                //get address of pickup location
+                                final GeoPoint pickup = document.getGeoPoint("PickUpPoint");
+                                assert pickup != null;
+                                final double pick_lat = pickup.getLatitude();
+                                final double pick_long = pickup.getLongitude();
+                                String pickup_address = getAddress(pick_lat, pick_long);
+                                qulifiedPickUp.add("PickUp: " + pickup_address);
+
+                                //get price
+                                String price = Objects.requireNonNull(document.get("Price")).toString();
+                                qulifiedPrice.add("Price: " + price);
+
+                                //get rider
+                                String rider = Objects.requireNonNull(document.get("RiderID")).toString();
+                                qulifiedId.add("User: " + rider);
+                                adapter.notifyDataSetChanged();
+                            }
+                        }
+                    }
+                });
     }
 
     class MyAdapter extends ArrayAdapter<String> {
@@ -545,15 +553,15 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                 autocompletePickup.setText("");
                 if (mpickup != null) {
                     mpickup.remove();
-                    mMap.clear();
                 }
                 if (odestination != null){
-                    mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-                        @Override
-                        public void onMapLoaded() {
-                            mdestination = mMap.addMarker(odestination);
-                        }
-                    });
+                    mdestination.remove();
+                    mMap.clear();
+                }
+                LinearLayout linearLayout = DriverMapActivity.this.findViewById(R.id.invis_linear);
+                if (linearLayout.getVisibility() == View.VISIBLE){
+                    linearLayout.setVisibility(View.INVISIBLE);
+                    qulifiedListData.clear();
                 }
             }
         });
