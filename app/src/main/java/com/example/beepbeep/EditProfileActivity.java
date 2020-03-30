@@ -52,6 +52,7 @@ import java.util.UUID;
 public class EditProfileActivity extends AppCompatActivity {
 
     private static final String TAG = "EditProfileActivity";
+    String email;
     FirebaseFirestore db;
     private ImageView imageView;
     private Uri filePath;
@@ -88,7 +89,7 @@ public class EditProfileActivity extends AppCompatActivity {
                     EditText phoneEditText = findViewById(R.id.phone_editText);
                     EditText emailEditText = findViewById(R.id.email_editText);
                     DocumentSnapshot doc = task.getResult();
-                    String email = (doc.get("email")).toString();
+                    email = (doc.get("email")).toString();
                     String phone = (doc.get("phone")).toString();
                     emailEditText.setText(email);
                     phoneEditText.setText(phone);
@@ -152,7 +153,7 @@ public class EditProfileActivity extends AppCompatActivity {
             }
         });
     }
-    
+
 /*
  Title: upload/select image for profile picture
  Author: Jonathan Martins, Hasangi Thathsarani
@@ -222,7 +223,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private void uploadImage(){
         if(filePath != null) {
-            StorageReference ref = storageReference.child("profileImages/" + UUID.randomUUID().toString());
+            StorageReference ref = storageReference.child("profileImages/" + email);
             ref.putFile(filePath)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
@@ -244,4 +245,5 @@ public class EditProfileActivity extends AppCompatActivity {
                     });
         }
     }
+
 }

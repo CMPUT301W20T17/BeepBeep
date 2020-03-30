@@ -19,10 +19,17 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+import java.io.File;
+import java.io.IOException;
 
 /*
  Title: View  profile
@@ -80,11 +87,28 @@ public class ViewProfile extends AppCompatActivity {
                     TextView emailTextView = findViewById(R.id.profile_view_email);
                     TextView roleTextView = findViewById(R.id.profile_view_role);
                     TextView ratingTextView = findViewById(R.id.profile_view_rating);
+                    final ImageView profilePicture = findViewById(R.id.profile_view_photo);
 
                     DocumentSnapshot doc = task.getResult();
                     String email = (doc.get("email")).toString();
                     String phone = (doc.get("phone")).toString();
                     String role = (doc.get("role")).toString();
+// THIS PART IS NEEDED BY GROUP 2 FOR RETRIEVING THE IMAGE
+                    FirebaseStorage storage = FirebaseStorage.getInstance();
+                    StorageReference storageReference = storage.getReference().child("profileImages/"+ email);
+                    try{
+                        final File file = File.createTempFile("image","jpg");
+                        storageReference.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                                Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                                profilePicture.setImageBitmap(bitmap);
+                            }
+                        });
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
 
                     //if the current role is diver, then display the rating
                     if (role.equals("Driver")){
@@ -153,7 +177,6 @@ public class ViewProfile extends AppCompatActivity {
                     String phone = (doc.get("phone")).toString();
                     TextView phoneTextView = findViewById(R.id.profile_view_phone);
                     TextView emailTextView = findViewById(R.id.profile_view_email);
-
                     emailTextView.setText(email);
                     phoneTextView.setText(phone);
                 }
