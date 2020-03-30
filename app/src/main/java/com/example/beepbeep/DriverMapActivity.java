@@ -241,7 +241,6 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                 final SharedPreferences sharedPref = DriverMapActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
                 final String username = sharedPref.getString("username", "");
 
-                //TODO ???
                 //connect to firestone
                 db = FirebaseFirestore.getInstance();
                 db.collection("Requests")
@@ -320,18 +319,14 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                                     }
 
                                 }
-//                                if (qulifiedId.size() == 0){
-//                                    Toast.makeText(DriverMapActivity.this, "No requests found", Toast.LENGTH_SHORT).show();
-//                                }
+
                                 qulifiedId.clear();
                                 qulifiedPickUp.clear();
                                 qulifiedDestination.clear();
                                 qulifiedPrice.clear();
-//                                adapter.notifyDataSetChanged();
 
                             }
                         });
-//                Toast.makeText(DriverMapActivity.this, "size: " + qulifiedId.size(), Toast.LENGTH_SHORT).show();
                 qulifiedListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {

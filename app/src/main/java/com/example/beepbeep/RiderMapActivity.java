@@ -242,13 +242,18 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                     //prepare the data in specific type
                     Date startTime = Calendar.getInstance().getTime(); //start time
                     String startTime2 = startTime.toString();
-                    //get lat and long
+                    //set lat and long
                     double pickupLat = pickup.latitude; //pickup geolocation
                     double pickupLng = pickup.longitude;
                     GeoPoint pickupGeo = new GeoPoint(pickupLat, pickupLng);
                     double destinLat = destination.latitude; //destination geolocation
                     double destinLng = destination.longitude;
                     GeoPoint destinaitonGeo = new GeoPoint(destinLat, destinLng);
+                    //set price
+                    float[] result = new float[1];
+                    Location.distanceBetween(pickupLat,pickupLng,destinLat,destinLng,result);
+                    int price = (int)(5+(result[0]/1000)*2);
+
 
                     //set the storing data
                     docData.put("Type", "inactive");
@@ -256,7 +261,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                     docData.put("DriverID", "");
                     docData.put("StartTime", startTime2);
                     docData.put("FinishTime", "");
-                    docData.put("Price", 20);
+                    docData.put("Price", price);
                     docData.put("PickUpPoint", pickupGeo);
                     docData.put("Destination", destinaitonGeo);
 
