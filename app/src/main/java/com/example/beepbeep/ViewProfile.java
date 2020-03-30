@@ -136,6 +136,24 @@ public class ViewProfile extends AppCompatActivity {
                 }
             }
         });
+        //when user clicks logout button, prompt user for confirmation
+        Button logout = findViewById(R.id.logout_button);
+        logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(ViewProfile.this);
+                builder.setTitle("Are you sure you want to logout?");
+                builder.setNegativeButton("YES", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        SignOut.now(ViewProfile.this);
+                    }
+                });
+                builder.setPositiveButton("NO",null);
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+            }
+        });
 
         //when user click edit button, go to edit profile activity
         editButton.setOnClickListener(new View.OnClickListener() {
