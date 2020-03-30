@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -13,10 +15,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+import java.io.File;
 
 public class RiderRatingActivity extends AppCompatActivity {
 
@@ -27,16 +36,34 @@ public class RiderRatingActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         final String driverName = intent.getStringExtra("driver_name");
-
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
-        ImageView driverPhoto = findViewById(R.id.driver_photo);
+        final ImageView driverPhoto = findViewById(R.id.driver_photo);
         Button skipButton = findViewById(R.id.skip_button);
         ImageButton thumbsUp = findViewById(R.id.thumbs_up_pic);
         ImageButton thumbsDown = findViewById(R.id.thumbs_down_pic);
         TextView driverNameText = findViewById(R.id.name_driver_text);
         driverNameText.setText(driverName);
 
-        //Missing the part to set up the driver photo
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageReference = storage.getReference().child("profileImages/" + driverName);
+        try {
+            final File file = File.createTempFile("image", "jpg");
+            storageReference.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                    Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                    driverPhoto.setImageBitmap(bitmap);
+                }
+            })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            driverPhoto.setImageResource(R.drawable.ic_launcher_foreground);
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         skipButton.setOnClickListener(new View.OnClickListener() {
             @Override

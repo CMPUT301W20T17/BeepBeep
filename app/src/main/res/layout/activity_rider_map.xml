@@ -30,19 +30,34 @@
                 <TextView
                     android:id="@+id/scroll_user"
                     android:layout_width="match_parent"
-                    android:layout_height= "wrap_content"/>
+                    android:layout_height= "wrap_content"
+                    android:text="User: "
+                    android:textSize="20sp"
+                    />
+                <TextView
+                    android:id="@+id/scroll_driver"
+                    android:layout_width="match_parent"
+                    android:layout_height= "wrap_content"
+                    android:text="Driver: FINDing...\n"
+                    android:textSize="20sp"/>
                 <TextView
                     android:id="@+id/scroll_start"
                     android:layout_width="match_parent"
-                    android:layout_height= "wrap_content"/>
+                    android:layout_height= "wrap_content"
+                    android:text="PickUpPoint: "
+                    android:textSize="20sp"/>
                 <TextView
                     android:id="@+id/scroll_end"
                     android:layout_width="match_parent"
-                    android:layout_height= "wrap_content"/>
+                    android:layout_height= "wrap_content"
+                    android:text="Destination: "
+                    android:textSize="20sp"/>
                 <TextView
                     android:id="@+id/scroll_price"
                     android:layout_width="match_parent"
-                    android:layout_height= "wrap_content"/>
+                    android:layout_height= "wrap_content"
+                    android:text="Price: "
+                    android:textSize="20sp"/>
             </LinearLayout>
         </ScrollView>
         <Button
