@@ -45,7 +45,6 @@ public class RiderRatingActivity extends AppCompatActivity {
         TextView driverNameText = findViewById(R.id.name_driver_text);
         driverNameText.setText(driverName);
 
-        //need the email for whoevers picture is needed
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageReference = storage.getReference().child("profileImages/" + driverName);
         try {
