@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
@@ -26,6 +27,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
@@ -104,7 +106,13 @@ public class ViewProfile extends AppCompatActivity {
                                 Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
                                 profilePicture.setImageBitmap(bitmap);
                             }
-                        });
+                        })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        profilePicture.setImageResource(R.drawable.ic_launcher_foreground);
+                                    }
+                                });
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -206,19 +214,26 @@ public class ViewProfile extends AppCompatActivity {
 */
                     final ImageView profilePicture = findViewById(R.id.profile_view_photo);
                     FirebaseStorage storage = FirebaseStorage.getInstance();
-                    StorageReference storageReference = storage.getReference().child("profileImages/"+ email);
-                    try{
-                        final File file = File.createTempFile("image","jpg");
+                    StorageReference storageReference = storage.getReference().child("profileImages/" + email);
+                    try {
+                        final File file = File.createTempFile("image", "jpg");
                         storageReference.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                             @Override
                             public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                                 Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
                                 profilePicture.setImageBitmap(bitmap);
                             }
-                        });
-                    } catch (IOException e) {
+                        })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        profilePicture.setImageResource(R.drawable.ic_launcher_foreground);
+                                    }
+                                });
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
+
                 }
             }
         });

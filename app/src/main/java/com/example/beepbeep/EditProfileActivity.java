@@ -140,7 +140,13 @@ public class EditProfileActivity extends AppCompatActivity {
                                 Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
                                 imageView.setImageBitmap(bitmap);
                             }
-                        });
+                        })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        imageView.setImageResource(R.drawable.ic_launcher_foreground);
+                                    }
+                                });
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
