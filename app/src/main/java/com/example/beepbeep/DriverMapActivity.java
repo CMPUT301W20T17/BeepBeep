@@ -270,7 +270,6 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                                                 if (task.isSuccessful()) {
                                                     DocumentSnapshot document = task.getResult();
                                                     if (document.exists()) {
-
                                                         GeoPoint pickupgeo = (GeoPoint) document.get("PickUpPoint");
                                                         float[] disResults = new float[1];
                                                         Location.distanceBetween(pickup.latitude, pickup.longitude, pickupgeo.getLatitude(), pickupgeo.getLongitude(), disResults);
@@ -311,10 +310,16 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                                                                         }
                                                                     });
                                                         }
+                                                        else {
+                                                            changeLayout.setVisibility(View.INVISIBLE);
+                                                            Toast toast=Toast.makeText(getApplicationContext(),"There is no request appear during 5km round.",Toast. LENGTH_SHORT);
+                                                            toast.show();
+                                                        }
                                                     }
                                                 }
                                             }
                                         });
+                                        break;
                                     }
 
                                 }
@@ -322,6 +327,7 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                                 qulifiedPickUp.clear();
                                 qulifiedDestination.clear();
                                 qulifiedPrice.clear();
+
 //                                adapter.notifyDataSetChanged();
 
                             }
