@@ -29,6 +29,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -54,9 +55,9 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private static final String TAG = "EditProfileActivity";
     String email;
-    String currentPhotoPath;
     FirebaseFirestore db;
     private ImageView imageView;
+    private Uri filePath;
     FirebaseStorage storage;
     StorageReference storageReference;
 
@@ -68,6 +69,7 @@ public class EditProfileActivity extends AppCompatActivity {
         Button cancelButton = findViewById(R.id.cancel_button);
         imageView = findViewById(R.id.profile_view_photo);
         storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReference();
 
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,6 +95,20 @@ public class EditProfileActivity extends AppCompatActivity {
                     String phone = (doc.get("phone")).toString();
                     emailEditText.setText(email);
                     phoneEditText.setText(phone);
+                    FirebaseStorage storage = FirebaseStorage.getInstance();
+                    StorageReference storageReference = storage.getReference().child("profileImages/"+ email);
+                    try{
+                        final File file = File.createTempFile("image","jpg");
+                        storageReference.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                                Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                                imageView.setImageBitmap(bitmap);
+                            }
+                        });
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
@@ -174,12 +190,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
             @Override
             public void onClick(DialogInterface dialog, int item) {
-
-                if (options[item].equals("Take Photo")) {
-                    Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                    startActivityForResult(takePicture, 0);
-
-                } else if (options[item].equals("Choose from Gallery")) {
+                if (options[item].equals("Choose from Gallery")) {
                     Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                     pickPhoto.setType("image/*");
                     startActivityForResult(pickPhoto, 1);//one can be replaced with any action code
@@ -196,43 +207,30 @@ public class EditProfileActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != RESULT_CANCELED) {
-            switch (requestCode) {
-                case 0:
                     if (resultCode == RESULT_OK && data != null && data.getData() != null) {
-                        Uri filePath = data.getData();
+                        filePath = data.getData();
                         try{
                             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),filePath);
                             imageView.setImageBitmap(bitmap);
-                            uploadImage(filePath);
+                            uploadImage();
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
-                    break;
-                case 1:
-                    if (resultCode == RESULT_OK && data != null && data.getData() != null) {
-                        Uri filePath = data.getData();
-                        try{
-                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),filePath);
-                            imageView.setImageBitmap(bitmap);
-                            uploadImage(filePath);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    break;
             }
         }
-    }
 
-    private void uploadImage(Uri contentUri){
-        if(contentUri != null) {
+    private void uploadImage(){
+        if(filePath != null) {
             StorageReference ref = storageReference.child("profileImages/" + email);
-            ref.putFile(contentUri)
+            ref.putFile(filePath)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             Toast.makeText(EditProfileActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
+
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {

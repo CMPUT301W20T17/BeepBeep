@@ -179,6 +179,21 @@ public class ViewProfile extends AppCompatActivity {
                     TextView emailTextView = findViewById(R.id.profile_view_email);
                     emailTextView.setText(email);
                     phoneTextView.setText(phone);
+                    final ImageView profilePicture = findViewById(R.id.profile_view_photo);
+                    FirebaseStorage storage = FirebaseStorage.getInstance();
+                    StorageReference storageReference = storage.getReference().child("profileImages/"+ email);
+                    try{
+                        final File file = File.createTempFile("image","jpg");
+                        storageReference.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                                Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                                profilePicture.setImageBitmap(bitmap);
+                            }
+                        });
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
