@@ -77,6 +77,7 @@ public class RiderMapTest {
      *
      * @throws Exception
      */
+    
     @Test
     public void testCancelButton () throws Exception{
         solo.enterText((EditText) solo.getView(R.id.Login_inputUsername), "DoNotDelete");
@@ -111,7 +112,7 @@ public class RiderMapTest {
     }
 
     @Test
-    public void testConfirmButton () throws Exception{
+    public void testConfirmCompleteButton () throws Exception{
         solo.enterText((EditText) solo.getView(R.id.Login_inputUsername), "DoNotDelete");
         solo.enterText((EditText) solo.getView(R.id.Login_inputPassword), "1234qwer");
         solo.clickOnButton("Login");
@@ -125,18 +126,20 @@ public class RiderMapTest {
         //test empty destination
         solo.clickOnText("Enter the destination");
         solo.typeText(0, "West Edmonton Mall");
-        solo.clickOnText("West Edmonton Mall");
+        solo.clickOnText("170 Street Northwest");
 
         //test after press the first confirm button
         solo.clickOnText("CONFIRM");
+
+        solo.clickOnText("Confirm");
 
         //assertTrue(solo.waitForText("Start: 9002 112 St NW, Edmonton, AB T6G 2C5, Canada", 1, 2000));
         assertTrue(solo.waitForText("End: 8770 170 St NW, Edmonton, AB T5T 3J7, Canada", 1, 2000));
         //assertTrue(solo.waitForText("Price: 20", 1, 2000));
 
-        solo.clickOnText("CONFIRM");
 
         //go to fires store and check the order if is added
+        /*
         FirebaseFirestore db;
         db = FirebaseFirestore.getInstance();
         DocumentReference userInfo = db.collection("Accounts").document("DoNotDelete");
@@ -167,14 +170,47 @@ public class RiderMapTest {
                 }
 
             }
-        });
+        }); */
 
         //use order history to check if the data upload
 
+        //Go to order history and see there is no order containing address of west edmonton mall
+        solo.clickOnView(solo.getView(R.id.bentoView));
+        solo.assertCurrentActivity("Wrong Activity", Menu.class);
+
+        solo.clickOnView(solo.getView(R.id.historyMenu));
+        solo.assertCurrentActivity("Wrong Activity", OrderHistoryActivity.class);
+
+        solo.clickOnView(solo.getView(R.id.history_order_refreshButton));
+
+        //type before driver pick need to change the type
+        assertTrue("the address was not found", solo.searchText("8770 170 St NW, Edmonton, AB T5T 3J7, Canada", true));
+        assertTrue("type error", solo.searchText("active", true));
+
+        solo.goBack();
+        solo.goBack();
+
+        solo.clickOnText("COMPLETE");
+
+        solo.clickOnText("Confirm");
+
+        //Go to order history and see there is no order containing address of west edmonton mall
+        solo.clickOnView(solo.getView(R.id.bentoView));
+        solo.assertCurrentActivity("Wrong Activity", Menu.class);
+
+        solo.clickOnView(solo.getView(R.id.historyMenu));
+        solo.assertCurrentActivity("Wrong Activity", OrderHistoryActivity.class);
+
+        solo.clickOnView(solo.getView(R.id.history_order_refreshButton));
+
+        //type before driver pick need to change the type need to change the type
+        assertTrue("the address was not found", solo.searchText("8770 170 St NW, Edmonton, AB T5T 3J7, Canada", true));
+        assertTrue("type error", solo.searchText("active", true));
 
 
 
     }
+
 
 
 }
