@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
@@ -26,6 +27,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
@@ -61,7 +63,7 @@ public class ViewProfile extends AppCompatActivity {
 
         //Use SharedPreferences to get the name of user that currently logging in
         final SharedPreferences sharedPref = ViewProfile.this.getSharedPreferences("identity", Context.MODE_PRIVATE);
-        String loginName = sharedPref.getString("username","");
+        final String loginName = sharedPref.getString("username","");
 
         final ImageView editButton = findViewById(R.id.edit_profile_button);
 
@@ -93,9 +95,9 @@ public class ViewProfile extends AppCompatActivity {
                     String email = (doc.get("email")).toString();
                     String phone = (doc.get("phone")).toString();
                     String role = (doc.get("role")).toString();
-// Retrieve the image from the database, the credit is located on the bottom where this happens again.
+        // Retrieve the image from the database, the credit is located on the bottom where this happens again.
                     FirebaseStorage storage = FirebaseStorage.getInstance();
-                    StorageReference storageReference = storage.getReference().child("profileImages/"+ email);
+                    StorageReference storageReference = storage.getReference().child("profileImages/"+ loginName);
                     try{
                         final File file = File.createTempFile("image","jpg");
                         storageReference.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
@@ -104,7 +106,13 @@ public class ViewProfile extends AppCompatActivity {
                                 Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
                                 profilePicture.setImageBitmap(bitmap);
                             }
-                        });
+                        })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        profilePicture.setImageResource(R.drawable.ic_launcher_foreground);
+                                    }
+                                });
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -136,6 +144,24 @@ public class ViewProfile extends AppCompatActivity {
                 }
             }
         });
+        //when user clicks logout button, prompt user for confirmation
+        Button logout = findViewById(R.id.logout_button);
+        logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(ViewProfile.this);
+                builder.setTitle("Are you sure you want to logout?");
+                builder.setNegativeButton("YES", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        SignOut.now(ViewProfile.this);
+                    }
+                });
+                builder.setPositiveButton("NO",null);
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+            }
+        });
 
         //when user click edit button, go to edit profile activity
         editButton.setOnClickListener(new View.OnClickListener() {
@@ -158,7 +184,7 @@ public class ViewProfile extends AppCompatActivity {
 
         //Use SharedPreferences to get the name of user that currently logging in
         final SharedPreferences sharedPref = ViewProfile.this.getSharedPreferences("identity", Context.MODE_PRIVATE);
-        String loginName = sharedPref.getString("username","");
+        final String loginName = sharedPref.getString("username","");
 
         // Set the edit button to be visible if user is viewing his/her own profile
         final ImageView editButton = findViewById(R.id.edit_profile_button);
@@ -188,17 +214,23 @@ public class ViewProfile extends AppCompatActivity {
 */
                     final ImageView profilePicture = findViewById(R.id.profile_view_photo);
                     FirebaseStorage storage = FirebaseStorage.getInstance();
-                    StorageReference storageReference = storage.getReference().child("profileImages/"+ email);
-                    try{
-                        final File file = File.createTempFile("image","jpg");
+                    StorageReference storageReference = storage.getReference().child("profileImages/" + loginName);
+                    try {
+                        final File file = File.createTempFile("image", "jpg");
                         storageReference.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                             @Override
                             public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                                 Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
                                 profilePicture.setImageBitmap(bitmap);
                             }
-                        });
-                    } catch (IOException e) {
+                        })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        profilePicture.setImageResource(R.drawable.ic_launcher_foreground);
+                                    }
+                                });
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
