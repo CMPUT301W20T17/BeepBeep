@@ -233,7 +233,6 @@ public class ViewProfile extends AppCompatActivity {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-
                 }
             }
         });
