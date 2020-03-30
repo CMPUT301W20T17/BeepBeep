@@ -261,6 +261,7 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
 
 
                                 if (requestNameList != null) {
+                                    adapter.notifyDataSetChanged();
                                     for (int i = 0; i < requestNameList.size(); i++) {
                                         final String requestName = requestNameList.get(i);
                                         final DocumentReference doc = db.collection("Requests").document(requestName);
@@ -315,9 +316,13 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                                                 }
                                             }
                                         });
+
                                     }
 
                                 }
+//                                if (qulifiedId.size() == 0){
+//                                    Toast.makeText(DriverMapActivity.this, "No requests found", Toast.LENGTH_SHORT).show();
+//                                }
                                 qulifiedId.clear();
                                 qulifiedPickUp.clear();
                                 qulifiedDestination.clear();
@@ -330,18 +335,8 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                 qulifiedListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                        if (i == 0) {
-                            Toast.makeText(DriverMapActivity.this, "THE FIRST", Toast.LENGTH_SHORT).show();
-                        }
-                        if (i == 1) {
-                            Toast.makeText(DriverMapActivity.this, "THE 2", Toast.LENGTH_SHORT).show();
-                        }
-                        if (i == 2) {
-                            Toast.makeText(DriverMapActivity.this, "THE 3", Toast.LENGTH_SHORT).show();
-                        }
-                        if (i == 2) {
-                            Toast.makeText(DriverMapActivity.this, "THE 4", Toast.LENGTH_SHORT).show();
-                        }
+                        String theRequestID = qulifiedListData.get(i);
+                        opendialog(theRequestID,username);
 
                     }
                 });
@@ -467,6 +462,16 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         }
     }
 
+    public void opendialog(String ID, String username){
+        driverConfirmDialog driverConfirmDialog = new driverConfirmDialog();
+
+        Bundle args = new Bundle();
+        String[] theBundle = {ID,username};
+        args.putStringArray("key",theBundle);
+        driverConfirmDialog.setArguments(args);
+
+        driverConfirmDialog.show(getSupportFragmentManager(),"driver confirm show");
+    }
 
     @Override
     public void onTaskDone(Object... values) {
