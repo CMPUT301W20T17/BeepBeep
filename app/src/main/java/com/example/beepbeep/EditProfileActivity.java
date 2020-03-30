@@ -129,6 +129,7 @@ public class EditProfileActivity extends AppCompatActivity {
                     String phone = (doc.get("phone")).toString();
                     emailEditText.setText(email);
                     phoneEditText.setText(phone);
+                    //retrieves the profile image from the database so that the editprofile imageview contains the photo.
                     FirebaseStorage storage = FirebaseStorage.getInstance();
                     StorageReference storageReference = storage.getReference().child("profileImages/"+ email);
                     try{

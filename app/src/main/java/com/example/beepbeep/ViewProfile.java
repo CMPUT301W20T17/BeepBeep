@@ -93,7 +93,7 @@ public class ViewProfile extends AppCompatActivity {
                     String email = (doc.get("email")).toString();
                     String phone = (doc.get("phone")).toString();
                     String role = (doc.get("role")).toString();
-// THIS PART IS NEEDED BY GROUP 2 FOR RETRIEVING THE IMAGE
+// Retrieve the image from the database, the credit is located on the bottom where this happens again.
                     FirebaseStorage storage = FirebaseStorage.getInstance();
                     StorageReference storageReference = storage.getReference().child("profileImages/"+ email);
                     try{
@@ -179,6 +179,13 @@ public class ViewProfile extends AppCompatActivity {
                     TextView emailTextView = findViewById(R.id.profile_view_email);
                     emailTextView.setText(email);
                     phoneTextView.setText(phone);
+/*
+ Title: Retrieve image for profile picture
+ Author: Jonathan Martins, Gadgets and Technical field Android Tech
+ Date: 2020/03/28
+ Last edited: 2020/03/30
+ Availability: https://www.youtube.com/watch?v=sGnazb9RjNs
+*/
                     final ImageView profilePicture = findViewById(R.id.profile_view_photo);
                     FirebaseStorage storage = FirebaseStorage.getInstance();
                     StorageReference storageReference = storage.getReference().child("profileImages/"+ email);
