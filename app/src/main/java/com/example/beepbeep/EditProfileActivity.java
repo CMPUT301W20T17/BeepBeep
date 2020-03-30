@@ -34,6 +34,7 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.UUID;
@@ -53,9 +54,9 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private static final String TAG = "EditProfileActivity";
     String email;
+    String currentPhotoPath;
     FirebaseFirestore db;
     private ImageView imageView;
-    private Uri filePath;
     FirebaseStorage storage;
     StorageReference storageReference;
 
@@ -67,7 +68,6 @@ public class EditProfileActivity extends AppCompatActivity {
         Button cancelButton = findViewById(R.id.cancel_button);
         imageView = findViewById(R.id.profile_view_photo);
         storage = FirebaseStorage.getInstance();
-        storageReference = storage.getReference();
 
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,7 +107,6 @@ public class EditProfileActivity extends AppCompatActivity {
                 EditText emailEditText = findViewById(R.id.email_editText);
                 final String phoneEdit = phoneEditText.getText().toString();
                 final String emailEdit = emailEditText.getText().toString();
-                uploadImage();
 
                 //check if the input is valid
                 boolean phoneValid = Signup.validPhone(phoneEdit);
@@ -199,19 +198,24 @@ public class EditProfileActivity extends AppCompatActivity {
         if (resultCode != RESULT_CANCELED) {
             switch (requestCode) {
                 case 0:
-                    if (resultCode == RESULT_OK && data != null) {
-                        Bitmap selectedImage = (Bitmap) data.getExtras().get("data");
-                        imageView.setImageBitmap(selectedImage);
+                    if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                        Uri filePath = data.getData();
+                        try{
+                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),filePath);
+                            imageView.setImageBitmap(bitmap);
+                            uploadImage(filePath);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                     break;
                 case 1:
                     if (resultCode == RESULT_OK && data != null && data.getData() != null) {
-                        filePath = data.getData();
+                        Uri filePath = data.getData();
                         try{
                             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),filePath);
                             imageView.setImageBitmap(bitmap);
-                    } catch (FileNotFoundException e) {
-                            e.printStackTrace();
+                            uploadImage(filePath);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -221,10 +225,10 @@ public class EditProfileActivity extends AppCompatActivity {
         }
     }
 
-    private void uploadImage(){
-        if(filePath != null) {
+    private void uploadImage(Uri contentUri){
+        if(contentUri != null) {
             StorageReference ref = storageReference.child("profileImages/" + email);
-            ref.putFile(filePath)
+            ref.putFile(contentUri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
