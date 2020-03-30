@@ -414,20 +414,6 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
             }
         }); */
 
-        //show direction
-        getDirection = findViewById(R.id.direction_);
-        getDirection.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if ((odestination != null) && (opickup != null)) {
-                    new FetchURL(DriverMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
-                }
-            }
-        });
-//        if ((odestination!=null)&&(opickup!= null)){
-//            new FetchURL(RiderMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
-//        }
-
     }
 
     class MyAdapter extends ArrayAdapter<String> {
@@ -503,11 +489,6 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         return "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + "&key=" + getString(R.string.google_maps_key);
     }
 
-
-    //TODO:delete the marker after remove the place name auto
-    //     change the marker to the round point
-    //     auto set the current location as the pick up location at beginning
-    //     delete the marker after remove the place name auto
     private void getAutocompletePickup() {
         //search the location by autocomplete
         autocompletePickup.setPlaceFields(Arrays.asList(Place.Field.ID,Place.Field.LAT_LNG,Place.Field.NAME));

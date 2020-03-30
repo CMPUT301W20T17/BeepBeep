@@ -32,21 +32,7 @@
         android:layout_below="@+id/temp">
 
         <androidx.legacy.widget.Space
-            android:layout_width="7dp"
-            android:layout_height="match_parent">
-        </androidx.legacy.widget.Space>
-
-        <Button
-            android:id="@+id/direction_"
-            android:layout_width="160dp"
-            android:layout_height="35dp"
-            android:layout_weight="0.5"
-            android:layout_marginTop="0dp"
-            android:background="@drawable/custom_edit_text"
-            android:text="Direction" />
-
-        <androidx.legacy.widget.Space
-            android:layout_width="4dp"
+            android:layout_width="242dp"
             android:layout_height="match_parent">
         </androidx.legacy.widget.Space>
 
@@ -71,6 +57,7 @@
         android:id="@+id/invis_linear"
         android:layout_width="match_parent"
         android:layout_height="400dp"
+        android:layout_margin="5dp"
         android:visibility="invisible"
         android:layout_below="@+id/but_conf"
         >
