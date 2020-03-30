@@ -106,7 +106,7 @@ public class RiderMapTest {
 
         solo.clickOnView(solo.getView(R.id.history_order_refreshButton));
 
-        assertFalse("the address was found", solo.searchText("8770 170 St NW, Edmonton, AB T5T 3J7, Canadaa", true));
+        assertFalse("the address was found", solo.searchText("8770 170 St NW, Edmonton, AB T5T 3J7, Canada", true));
 
     }
 
