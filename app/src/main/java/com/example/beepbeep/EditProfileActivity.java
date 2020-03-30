@@ -3,12 +3,16 @@ package com.example.beepbeep;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -40,6 +44,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.UUID;
 
+import static com.google.zxing.integration.android.IntentIntegrator.REQUEST_CODE;
+
 /*
  Title: Edit  profile
  Author: Junqi Zou, Lyuyang Wang
@@ -70,11 +76,39 @@ public class EditProfileActivity extends AppCompatActivity {
         imageView = findViewById(R.id.profile_view_photo);
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
-
+        //When Image is clicked make sure all permissions are satisfied and warn and prompt user for permission if it was previously disabled.
+        /*
+            Title: Checking Permission for read external storage
+            Author: Jonathan Martins, Android Coding
+            Date: 3/30/2020
+            Last edited: 3/30/2020
+            Availability: https://www.youtube.com/watch?v=AyhkpvQwFsI&t=606s
+         */
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selectImage(EditProfileActivity.this);
+                if (ContextCompat.checkSelfPermission(EditProfileActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(EditProfileActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                        //Create AlertDialog
+                        AlertDialog.Builder builder = new AlertDialog.Builder(EditProfileActivity.this);
+                        builder.setTitle("Grant those permission");
+                        builder.setMessage("Read storage");
+                        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ActivityCompat.requestPermissions(EditProfileActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CODE);
+                            }
+                        });
+                        builder.setNegativeButton("Cancel", null);
+                        AlertDialog alertDialog = builder.create();
+                        alertDialog.show();
+                    } else {
+                        ActivityCompat.requestPermissions(EditProfileActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CODE);
+                    }
+                }else {
+                    //When permission are already granted
+                    selectImage(EditProfileActivity.this);
+                }
             }
         });
 
@@ -170,7 +204,7 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
 /*
- Title: upload/select image for profile picture
+ Title: select image for profile picture
  Author: Jonathan Martins, Hasangi Thathsarani
  Date: 2020/03/25
  Last edited: 2020/03/25
@@ -181,13 +215,12 @@ public class EditProfileActivity extends AppCompatActivity {
      */
 
     private void selectImage(Context context) {
-        final CharSequence[] options = {"Take Photo", "Choose from Gallery", "Cancel"};
-
+        final CharSequence[] options = {"Choose from Gallery", "Cancel"};
+        //create alertdialog to ask whether user wants to choose their profile picture from their gallery or cancel
+        //Currently in version 1.0, in version 2.0 implementing take picture.
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Choose your profile picture");
-
         builder.setItems(options, new DialogInterface.OnClickListener() {
-
             @Override
             public void onClick(DialogInterface dialog, int item) {
                 if (options[item].equals("Choose from Gallery")) {
@@ -203,28 +236,37 @@ public class EditProfileActivity extends AppCompatActivity {
         builder.show();
     }
 
+    //What happens when user clicks one of the options
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != RESULT_CANCELED) {
-                    if (resultCode == RESULT_OK && data != null && data.getData() != null) {
-                        filePath = data.getData();
-                        try{
-                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),filePath);
-                            imageView.setImageBitmap(bitmap);
-                            uploadImage();
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
+            if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                filePath = data.getData();
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+                    imageView.setImageBitmap(bitmap);
+                    uploadImage();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
-
+    }
+/*
+ Title: upload/select image for profile picture
+ Author: Jonathan Martins, EDMT Dev
+ Date: 2020/03/28
+ Last edited: 2020/03/30
+ Availability: https://www.youtube.com/watch?v=h62bcMwahTU&t=823s
+*/
     private void uploadImage(){
         if(filePath != null) {
+            //ref is the path that follows firestorage.
             StorageReference ref = storageReference.child("profileImages/" + email);
+            //putfile allows you to put the picture into the path of the ref.
             ref.putFile(filePath)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
@@ -247,5 +289,4 @@ public class EditProfileActivity extends AppCompatActivity {
                     });
         }
     }
-
 }
