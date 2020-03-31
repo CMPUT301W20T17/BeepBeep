@@ -256,7 +256,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 
 
                     //set the storing data
-                    docData.put("Type", "inactive");
+                    docData.put("Type", "");
                     docData.put("RiderID", username);
                     docData.put("DriverID", "");
                     docData.put("StartTime", startTime2);
