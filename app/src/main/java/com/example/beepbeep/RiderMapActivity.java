@@ -4,6 +4,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -11,6 +12,7 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -59,7 +61,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
 
 
@@ -189,8 +193,6 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         //setup the bentomenu on the activity screen
         bentoMenu = findViewById(R.id.bentoView);
 
-        SharedPreferences sharedPref = this.getSharedPreferences("identity", Context.MODE_PRIVATE);
-        final String username = sharedPref.getString("username", "");
         bentoMenu.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
@@ -221,6 +223,8 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         //active the autocomplete place selection for pickup location
         getAutocompletePickup();
 
+        SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", Context.MODE_PRIVATE);
+        Boolean darkmode = sharedPref.getBoolean("darkmode", false);
 
 
         //set the Button confirm, and send the request information to firestore
@@ -230,64 +234,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         confirm_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (opickup != null && odestination != null) {
-                    //get shared preference and user now
-                    final SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
-                    final String username = sharedPref.getString("username", "");
-                    //connect to firestore and get unique ID
-                    db = FirebaseFirestore.getInstance();
-
-                    Map<String, Object> docData = new HashMap<>();
-
-                    //prepare the data in specific type
-                    Date startTime = Calendar.getInstance().getTime(); //start time
-                    String startTime2 = startTime.toString();
-                    //get lat and long
-                    double pickupLat = pickup.latitude; //pickup geolocation
-                    double pickupLng = pickup.longitude;
-                    GeoPoint pickupGeo = new GeoPoint(pickupLat, pickupLng);
-                    double destinLat = destination.latitude; //destination geolocation
-                    double destinLng = destination.longitude;
-                    GeoPoint destinaitonGeo = new GeoPoint(destinLat, destinLng);
-
-                    //set the storing data
-                    docData.put("Type", "inactive");
-                    docData.put("RiderID", username);
-                    docData.put("DriverID", "");
-                    docData.put("StartTime", startTime2);
-                    docData.put("FinishTime", "");
-                    docData.put("Price", 20);
-                    docData.put("PickUpPoint", pickupGeo);
-                    docData.put("Destination", destinaitonGeo);
-
-                    //connect to firestore and store the data
-                    db.collection("Requests").document(uniqueID)
-                            .set(docData)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Log.d(TAG, "DocumentSnapshot successfully written!");
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.w(TAG, "Error writing document", e);
-                                }
-                            });
-
-                    //pass the unique ID into the fragment
-                    Bundle bundle = new Bundle();
-                    bundle.putString("IDkey", uniqueID);
-                    request_fragment request_frag = new request_fragment();
-                    request_frag.setArguments(bundle);
-                    request_frag.show(getSupportFragmentManager(), "SHOW_REQUEST");
-                }
-                else{
-                    Toast errorToast = Toast.makeText(getApplicationContext(),"Please enter the pickup location or destination.", Toast.LENGTH_SHORT);
-                    errorToast.show();
-                }
-
+                newRequest();
             }
         });
 
@@ -307,6 +254,10 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                             Intent a = new Intent(RiderMapActivity.this, MakePayment.class);
                             a.putExtra("Price", price);
                             startActivity(a);
+                            Intent b = new Intent(RiderMapActivity.this,RiderRatingActivity.class);
+                            String driver_name = (doc.get("DriverID")).toString();
+                            b.putExtra("driver_name", driver_name);
+                            startActivity(b);
                         }
                     }
                 });
@@ -581,7 +532,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         mMap = googleMap;
 
         boolean success = googleMap.setMapStyle(new MapStyleOptions(getResources()
-                .getString(R.string.style_json)));
+                .getString(R.string.standard)));
         if (!success) {
             Log.e(TAG, "Style parsing failed.");
         }
@@ -674,6 +625,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                         if (task.isSuccessful()) {
                             // Set the map's camera position to the current location of the device.
                             mLastKnownLocation = (Location) task.getResult();
+                            assert mLastKnownLocation != null;
                             pickup =  new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
                             pickupName = getAddress(pickup.latitude,pickup.longitude);
                             autocompletePickup.setText(pickupName);
@@ -692,4 +644,92 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         }
     }
 
+    void newRequest(){
+        if (opickup != null && odestination != null) {
+                    //get shared preference and user now
+                    final SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
+                    final String username = sharedPref.getString("username", "");
+                    //connect to firestore and get unique ID
+                    db = FirebaseFirestore.getInstance();
+
+                    Map<String, Object> docData = new HashMap<>();
+
+                    //prepare the data in specific type
+                    Date startTime = Calendar.getInstance().getTime(); //start time
+                    String startTime2 = startTime.toString();
+                    //set lat and long
+                    double pickupLat = pickup.latitude; //pickup geolocation
+                    double pickupLng = pickup.longitude;
+                    GeoPoint pickupGeo = new GeoPoint(pickupLat, pickupLng);
+                    double destinLat = destination.latitude; //destination geolocation
+                    double destinLng = destination.longitude;
+                    GeoPoint destinaitonGeo = new GeoPoint(destinLat, destinLng);
+                    //set price
+                    float[] result = new float[1];
+                    Location.distanceBetween(pickupLat,pickupLng,destinLat,destinLng,result);
+                    int price = (int)(5+(result[0]/1000)*2);
+
+
+                    //set the storing data
+                    docData.put("Type", "inactive");
+                    docData.put("RiderID", username);
+                    docData.put("DriverID", "");
+                    docData.put("StartTime", startTime2);
+                    docData.put("FinishTime", "");
+                    docData.put("Price", price);
+                    docData.put("PickUpPoint", pickupGeo);
+                    docData.put("Destination", destinaitonGeo);
+
+                    //connect to firestore and store the data
+                    db.collection("Requests").document(uniqueID)
+                            .set(docData)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "DocumentSnapshot successfully written!");
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w(TAG, "Error writing document", e);
+                                }
+                            });
+
+                    //pass the unique ID into the fragment
+                    Bundle bundle = new Bundle();
+                    bundle.putString("IDkey", uniqueID);
+                    request_fragment request_frag = new request_fragment();
+                    request_frag.setArguments(bundle);
+                    request_frag.show(getSupportFragmentManager(), "SHOW_REQUEST");
+                }
+                else{
+                    Toast errorToast = Toast.makeText(getApplicationContext(),"Please enter the pickup location or destination.", Toast.LENGTH_SHORT);
+                    errorToast.show();
+                }
+
+        final DocumentReference docRef = db.collection("Requests").document(uniqueID);
+        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot snapshot,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    String DriverID = snapshot.get("DriverID").toString();
+                    if(!DriverID.equals("")) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
+                        builder.setTitle("Request Notification")
+                                .setMessage("Your request has been accept.")
+                                .setPositiveButton("OK", null);
+                    }
+                } else {
+                    Log.d(TAG, "Current data: null");
+                }
+            }
+        });
+    }
 }
