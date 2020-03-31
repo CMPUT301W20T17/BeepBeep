@@ -78,7 +78,9 @@ import com.google.firebase.firestore.CollectionReference;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -220,15 +222,6 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         //set data list and adapter
         qulifiedListView = findViewById(R.id.qulifiedRequest);
 
-//        qulifiedId.add("User:Loading..");
-//        qulifiedPickUp.add("PickUp:Loading..");
-//        qulifiedDestination.add("Destination:Loading..");
-//        qulifiedPrice.add("Price:Loading..");
-
-
-
-
-
 
         final MyAdapter adapter = new MyAdapter(DriverMapActivity.this, qulifiedId, qulifiedPickUp, qulifiedDestination, qulifiedPrice);
         qulifiedListView.setAdapter(adapter);
@@ -239,88 +232,95 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         confirm_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final LinearLayout changeLayout = DriverMapActivity.this.findViewById(R.id.invis_linear);
-                changeLayout.setVisibility(View.VISIBLE);
+                if (pickupName != null) {
+                    final LinearLayout changeLayout = DriverMapActivity.this.findViewById(R.id.invis_linear);
+                    changeLayout.setVisibility(View.VISIBLE);
 
-                //get shared preference and UserName
-                final SharedPreferences sharedPref = DriverMapActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
-                final String username = sharedPref.getString("username", "");
+                    //get shared preference and UserName
+                    final SharedPreferences sharedPref = DriverMapActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
+                    final String username = sharedPref.getString("username", "");
 
-                //connect to firestone
-                db = FirebaseFirestore.getInstance();
-                db.collection("Requests")
-                        .whereEqualTo("Type", "inactive")
-                        .whereEqualTo("DriverID", "")
-                        .get()
-                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                final List<String> requestNameList = new ArrayList<>();
-                                if (task.isSuccessful()) {
-                                    for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                                        String id = document.getId();
-                                        requestNameList.add(id);
+                    //connect to firestone
+                    db = FirebaseFirestore.getInstance();
+                    db.collection("Requests")
+                            .whereEqualTo("Type", "inactive")
+                            .whereEqualTo("DriverID", "")
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    final List<String> requestNameList = new ArrayList<>();
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                                            String id = document.getId();
+                                            requestNameList.add(id);
+                                        }
                                     }
-                                }
-                                if (requestNameList != null) {
-                                    count = 0;
-                                    for (int i = 0; i < requestNameList.size(); i++) {
-                                        final String requestName = requestNameList.get(i);
-                                        final DocumentReference doc = db.collection("Requests").document(requestName);
-                                        doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                if (task.isSuccessful()) {
-                                                    DocumentSnapshot document = task.getResult();
-                                                    assert document != null;
-                                                    if (document.exists()) {
-                                                        GeoPoint pickupgeo = (GeoPoint) document.get("PickUpPoint");
-                                                        float[] disResults = new float[1];
-                                                        assert pickupgeo != null;
-                                                        Location.distanceBetween(pickup.latitude, pickup.longitude, pickupgeo.getLatitude(), pickupgeo.getLongitude(), disResults);
-                                                        int some = (int) (disResults[0] / 1000);
-                                                        if (some < 5) {
-                                                            setQulifiedData(requestName, adapter);
-                                                        }else{
-                                                            count += 1;
-                                                        }
-                                                        if(count == requestNameList.size() && changeLayout.getVisibility() == View.VISIBLE){
-                                                            changeLayout.setVisibility(View.INVISIBLE);
-                                                            Toast toast=Toast.makeText(getApplicationContext(),"There is no request appear during 5km round.",Toast. LENGTH_SHORT);
-                                                            toast.show();
+                                    if (requestNameList != null) {
+                                        count = 0;
+                                        for (int i = 0; i < requestNameList.size(); i++) {
+                                            final String requestName = requestNameList.get(i);
+                                            final DocumentReference doc = db.collection("Requests").document(requestName);
+                                            doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                    if (task.isSuccessful()) {
+                                                        DocumentSnapshot document = task.getResult();
+                                                        assert document != null;
+                                                        if (document.exists()) {
+                                                            GeoPoint pickupgeo = (GeoPoint) document.get("PickUpPoint");
+                                                            float[] disResults = new float[1];
+                                                            assert pickupgeo != null;
+                                                            Location.distanceBetween(pickup.latitude, pickup.longitude, pickupgeo.getLatitude(), pickupgeo.getLongitude(), disResults);
+                                                            int some = (int) (disResults[0] / 1000);
+                                                            if (some < 5) {
+                                                                setQulifiedData(requestName, adapter);
+                                                            } else {
+                                                                count += 1;
+                                                            }
+                                                            if (count == requestNameList.size() && changeLayout.getVisibility() == View.VISIBLE) {
+                                                                changeLayout.setVisibility(View.INVISIBLE);
+                                                                Toast toast = Toast.makeText(getApplicationContext(), "There is no request appear during 5km round.", Toast.LENGTH_SHORT);
+                                                                toast.show();
+                                                            }
                                                         }
                                                     }
                                                 }
-                                            }
-                                        });
+                                            });
+                                        }
+                                        adapter.notifyDataSetChanged();
+                                        if (requestNameList.size() == 0) {
+                                            changeLayout.setVisibility(View.INVISIBLE);
+                                            Toast toast = Toast.makeText(getApplicationContext(), "There is no request appear during 5km round.", Toast.LENGTH_SHORT);
+                                            toast.show();
+                                        }
                                     }
-                                    adapter.notifyDataSetChanged();
-                                    if (requestNameList.size() == 0){
-                                        changeLayout.setVisibility(View.INVISIBLE);
-                                        Toast toast=Toast.makeText(getApplicationContext(),"There is no request appear during 5km round.",Toast. LENGTH_SHORT);
-                                        toast.show();
-                                    }
+                                    qulifiedId.clear();
+                                    qulifiedPickUp.clear();
+                                    qulifiedDestination.clear();
+                                    qulifiedPrice.clear();
+
                                 }
-                                qulifiedId.clear();
-                                qulifiedPickUp.clear();
-                                qulifiedDestination.clear();
-                                qulifiedPrice.clear();
-
-                            }
-                        });
-                qulifiedListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                        String theRequestID = qulifiedListData.get(i);
-                        opendialog(theRequestID, username);
-                    }
-                });
-
+                            });
+                    qulifiedListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                            String theRequestID = qulifiedListData.get(i);
+                            uniqueID = theRequestID;
+                            opendialog(theRequestID, username);
+                        }
+                    });
+                }else{
+                    Toast errorToast = Toast.makeText(getApplicationContext(),"Please enter the location to search requests.", Toast.LENGTH_SHORT);
+                    errorToast.show();
+                }
             }
         });
 
-        //Set the complete button, switch to the make payment activity since it's the rider want to complete
+        //TODO: TO START BUTTON
 
+
+        //Set the complete button, switch to the make payment activity since it's the rider want to complete
         Button completeButton;
         completeButton = findViewById(R.id.driver_btn_complete);
         completeButton.setOnClickListener(new View.OnClickListener() {
@@ -556,6 +556,68 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                     }
                 });
         builder.create().show();
+        final DocumentReference docRef = db.collection("Requests").document(uniqueID);
+        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+                if(documentSnapshot != null && documentSnapshot.exists()){
+                    final String type = documentSnapshot.get("Type").toString();
+                    if(type.equals("Deleted")){
+                        AlertDialog.Builder builder = new AlertDialog.Builder(DriverMapActivity.this);
+                        builder.setTitle("Important Message")
+                                .setMessage("Your request was canceled by rider.")
+                                .setPositiveButton("Fine", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        db.collection("Requests").document(uniqueID)
+                                                .delete()
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                                                    }
+                                                })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Log.w(TAG, "Error deleting document", e);
+                                                    }
+                                                });
+                                    }
+                                });
+                        builder.create().show();
+                        RelativeLayout changeLayout = DriverMapActivity.this.findViewById(R.id.after_confirm);
+                        LinearLayout butconf = DriverMapActivity.this.findViewById(R.id.but_conf);
+                        LinearLayout tempview = DriverMapActivity.this.findViewById(R.id.temp);
+                        changeLayout.setVisibility(View.INVISIBLE);
+                        butconf.setVisibility(View.VISIBLE);
+                        tempview.setVisibility(View.VISIBLE);
+                        //TODO: remove direction first time not work
+                        //      the cancel dialog pop up sevral times
+                        pickup = null;
+                        pickupName = null;
+                        opickup = null;
+                        if (odestination != null) {
+                            destinationLat = null;
+                            destinationName = null;
+                            odestination = null;
+                        }
+                        autocompletePickup.setText("");
+                        if (mpickup != null) {
+                            mpickup.remove();
+                        }
+                        if (mdestination != null){
+                            mdestination.remove();
+                            mMap.clear();
+                        }
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -750,9 +812,9 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
             Log.e(TAG, "Style parsing failed.");
         }
 
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
-            public void onMapClick(LatLng latLng) {
+            public void onMapLongClick(LatLng latLng) {
                 pickup = latLng;
                 pickupName = getAddress(latLng.latitude,latLng.longitude);
                 opickup = new MarkerOptions()

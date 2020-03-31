@@ -38,7 +38,7 @@
                     android:id="@+id/scroll_driver"
                     android:layout_width="match_parent"
                     android:layout_height= "wrap_content"
-                    android:text="Driver: FINDing...\n"
+                    android:text="Driver: \n"
                     android:textSize="20sp"/>
                 <TextView
                     android:id="@+id/scroll_start"
