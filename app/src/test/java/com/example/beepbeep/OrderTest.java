@@ -6,8 +6,6 @@ import com.google.firebase.firestore.GeoPoint;
 
 import org.junit.Test;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
