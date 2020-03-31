@@ -728,19 +728,10 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
-                                        db.collection("Request").document(uniqueID).get()
-                                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                        if(task.isSuccessful()){
-                                                            DocumentSnapshot doc = task.getResult();
-                                                            String myDriver = (doc.get("DriverID")).toString();
-                                                            TextView drivertext = findViewById(R.id.scroll_driver);
-                                                            myDriver = "Driver: " + myDriver;
-                                                            drivertext.setText(myDriver);
-                                                        }
-                                                    }
-                                                });
+                                        TextView drivertext = findViewById(R.id.scroll_driver);
+                                        String mydriver;
+                                        mydriver = "Driver: " + DriverID + "\n";
+                                        drivertext.setText(mydriver);
                                     }
                                 });
                     }
