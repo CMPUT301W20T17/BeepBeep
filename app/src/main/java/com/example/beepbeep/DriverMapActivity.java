@@ -78,7 +78,9 @@ import com.google.firebase.firestore.CollectionReference;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -220,15 +222,6 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         //set data list and adapter
         qulifiedListView = findViewById(R.id.qulifiedRequest);
 
-//        qulifiedId.add("User:Loading..");
-//        qulifiedPickUp.add("PickUp:Loading..");
-//        qulifiedDestination.add("Destination:Loading..");
-//        qulifiedPrice.add("Price:Loading..");
-
-
-
-
-
 
         final MyAdapter adapter = new MyAdapter(DriverMapActivity.this, qulifiedId, qulifiedPickUp, qulifiedDestination, qulifiedPrice);
         qulifiedListView.setAdapter(adapter);
@@ -313,12 +306,52 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                         @Override
                         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                             String theRequestID = qulifiedListData.get(i);
+                            uniqueID = theRequestID;
                             opendialog(theRequestID, username);
                         }
                     });
                 }else{
                     Toast errorToast = Toast.makeText(getApplicationContext(),"Please enter the location to search requests.", Toast.LENGTH_SHORT);
                     errorToast.show();
+                }
+            }
+        });
+
+        //TODO
+        final DocumentReference docRef = db.collection("Requests").document(uniqueID);
+        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+                if(documentSnapshot != null && documentSnapshot.exists()){
+                    final String type = documentSnapshot.get("Type").toString();
+                    if(type.equals("Deleted")){
+                        AlertDialog.Builder builder = new AlertDialog.Builder(DriverMapActivity.this);
+                        builder.setTitle("Important Message")
+                                .setMessage("Your request was canceled by rider.")
+                                .setPositiveButton("Fine", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        db.collection("Requests").document(uniqueID)
+                                                .delete()
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                                                    }
+                                                })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Log.w(TAG, "Error deleting document", e);
+                                                    }
+                                                });
+                                    }
+                                });
+                    }
                 }
             }
         });
