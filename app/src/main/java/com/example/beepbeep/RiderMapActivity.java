@@ -674,7 +674,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                     //set the storing data
                     docData.put("Type", "inactive");
                     docData.put("RiderID", username);
-                    docData.put("DriverID", "");
+                    docData.put("DriverIDDriverID", "");
                     docData.put("StartTime", startTime2);
                     docData.put("FinishTime", "");
                     docData.put("Price", price);
@@ -720,7 +720,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 }
 
                 if (snapshot != null && snapshot.exists()) {
-                    String DriverID = snapshot.get("DriverID").toString();
+                    final String DriverID = snapshot.get("DriverID").toString();
                     if(!DriverID.equals("")) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
                         builder.setTitle("Request Notification")
@@ -728,21 +728,13 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
-                                        db.collection("Request").document(uniqueID).get()
-                                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                        if(task.isSuccessful()){
-                                                            DocumentSnapshot doc = task.getResult();
-                                                            String myDriver = (doc.get("DriverID")).toString();
-                                                            TextView drivertext = findViewById(R.id.scroll_driver);
-                                                            myDriver = "Driver: " + myDriver;
-                                                            drivertext.setText(myDriver);
-                                                        }
-                                                    }
-                                                });
+                                        TextView drivertext = findViewById(R.id.scroll_driver);
+                                        String myDriver;
+                                        myDriver = "Driver: " + DriverID;
+                                        drivertext.setText(myDriver);
                                     }
-                                });
+                                })
+                        .create().show();
                     }
                 } else {
                     Log.d(TAG, "Current data: null");
