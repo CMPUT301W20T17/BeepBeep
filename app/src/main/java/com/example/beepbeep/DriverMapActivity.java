@@ -2,17 +2,22 @@ package com.example.beepbeep;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,6 +40,7 @@ import android.widget.Toast;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -243,7 +249,7 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                 //connect to firestone
                 db = FirebaseFirestore.getInstance();
                 db.collection("Requests")
-                        .whereEqualTo("Type", "active")
+                        .whereEqualTo("Type", "inactive")
                         .whereEqualTo("DriverID", "")
                         .get()
                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -455,15 +461,109 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         }
     }
 
-    public void opendialog(String ID, String username){
-        driverConfirmDialog driverConfirmDialog = new driverConfirmDialog();
+    public void opendialog(final String requestID, final String username){
 
-        Bundle args = new Bundle();
-        String[] theBundle = {ID,username};
-        args.putStringArray("key",theBundle);
-        driverConfirmDialog.setArguments(args);
+        final String[] directDestination = new String[1];
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        driverConfirmDialog.show(getSupportFragmentManager(),"driver confirm show");
+        final LinearLayout tempview = DriverMapActivity.this.findViewById(R.id.temp);
+        final LinearLayout butconf = DriverMapActivity.this.findViewById(R.id.but_conf);
+        final LinearLayout changeLayout = DriverMapActivity.this.findViewById(R.id.invis_linear);
+        final RelativeLayout afterconfirm = DriverMapActivity.this.findViewById(R.id.after_confirm);
+        //TODO:
+        final TextView user = DriverMapActivity.this.findViewById(R.id.driver_scroll_user);
+        final TextView driver = DriverMapActivity.this.findViewById(R.id.driver_scroll_driver);
+        final TextView start = DriverMapActivity.this.findViewById(R.id.driver_scroll_start);
+        final TextView end = DriverMapActivity.this.findViewById(R.id.driver_scroll_end);
+        final TextView prices = DriverMapActivity.this.findViewById(R.id.driver_scroll_price);
+        AlertDialog.Builder builder = new AlertDialog.Builder(DriverMapActivity.this);
+        builder.setTitle("Request Confirm")
+                .setMessage("Accept this request?")
+                .setPositiveButton("Sure", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        changeLayout.setVisibility(View.INVISIBLE);
+                        Map<String, Object> docData = new HashMap<>();
+                        docData.put("DriverID",username);
+                        docData.put("Type","active");
+
+                        db.collection("Requests")
+                                .document(requestID)
+                                .update(docData);
+
+                        //set the new view on driver_request
+                        tempview.setVisibility(View.INVISIBLE);
+                        butconf.setVisibility(View.INVISIBLE);
+                        afterconfirm.setVisibility(View.VISIBLE);db.collection("Requests")
+                                .document(requestID)
+                                .get()
+                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if (task.isSuccessful()){
+                                            DocumentSnapshot document = task.getResult();
+                                            if(document.exists()){
+//                                                Toast. makeText(getActivity(),"Hello Javatpoint",Toast. LENGTH_SHORT).show();
+                                                //get address of destination location
+                                                final GeoPoint destination = document.getGeoPoint("Destination");
+                                                final double desti_lat = destination.getLatitude();
+                                                final double desti_long = destination.getLongitude();
+                                                String destination_address = getAddress(desti_lat, desti_long);
+                                                directDestination[0] = destination_address;
+
+                                                //get address of pickup location
+                                                final GeoPoint pickup = document.getGeoPoint("PickUpPoint");
+                                                final double pick_lat = pickup.getLatitude();
+                                                final double pick_long = pickup.getLongitude();
+                                                String pickup_address = getAddress(pick_lat,pick_long);
+
+                                                //get price
+                                                String price = document.get("Price").toString();
+
+                                                //get rider
+                                                String rider = document.get("RiderID").toString();
+
+                                                //set view of the fragment
+                                                String riderString = "User: " + rider;
+                                                String pickupString = "PickUpPoint: "+pickup_address;
+                                                String destinationString = "Destination: "+destination_address;
+                                                String priceString = "Price: "+price;
+                                                String driverString = "Driver: " + username + "\n";
+
+                                                //set String type
+                                                SpannableString ss1 = new SpannableString(pickupString);
+                                                StyleSpan boldSpan = new StyleSpan(Typeface.BOLD);
+                                                ss1.setSpan(boldSpan,0,12, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                                SpannableString ss2 = new SpannableString(destinationString);
+                                                ss2.setSpan(boldSpan,0,12, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                                SpannableString ss3 = new SpannableString(priceString);
+                                                ss3.setSpan(boldSpan,0,6, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                                                user.setText(riderString);
+                                                driver.setText(driverString);
+                                                start.setText(ss1);
+                                                end.setText(ss2);
+                                                prices.setText(ss3);
+                                            }
+                                        }
+
+                                    }
+                                });
+
+
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+
+        //TODO: use directDestination[0] to get direction
+
+
+        builder.create().show();
     }
 
     @Override
