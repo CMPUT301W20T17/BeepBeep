@@ -740,6 +740,14 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                         String myDriver;
                                         myDriver = "Driver: " + DriverID;
                                         drivertext.setText(myDriver);
+                                        drivertext.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                Intent profile = new Intent(RiderMapActivity.this,ViewProfile.class);
+                                                profile.putExtra("profile_name", DriverID);
+                                                startActivity(profile);
+                                            }
+                                        });
                                     }
                                 })
                         .create().show();
