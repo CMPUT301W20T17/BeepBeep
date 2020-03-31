@@ -538,9 +538,9 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         }
 
 
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
-            public void onMapClick(LatLng latLng) {
+            public void onMapLongClick(LatLng latLng) {
                 destination = latLng;
                 destinationName = getAddress(latLng.latitude,latLng.longitude);
                 odestination = new MarkerOptions()
