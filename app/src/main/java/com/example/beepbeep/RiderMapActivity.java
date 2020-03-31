@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -175,6 +176,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     private AutocompleteSupportFragment autocompletePickup;
     private AutocompleteSupportFragment autocompleteDestination;
 
+    private Dialog mDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -757,13 +759,27 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                             }
                                         });
                                     }
-                                })
-                        .create().show();
+                                }).create();
+                        if (mDialog != null) {
+                            mDialog.dismiss();
+                        }
+                        mDialog = builder.show();
                     }
                 } else {
                     Log.d(TAG, "Current data: null");
                 }
             }
         });
+    }
+    private void showDialog(String title, String message) {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setMessage(message);
+        // Dismiss any old dialog.
+        if (mDialog != null) {
+            mDialog.dismiss();
+        }
+        // Show the new dialog.
+        mDialog = dialogBuilder.show();
     }
 }
