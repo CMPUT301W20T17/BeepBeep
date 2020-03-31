@@ -135,7 +135,7 @@ public class request_fragment extends DialogFragment {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         //update the type
                         Map<String,Object> update_type= new HashMap<>();
-                        update_type.put("Type","active");
+                        update_type.put("Type","inactive");
                         RequestIdInf.set(update_type, SetOptions.merge());
 
                         //change layout from the first show to the second show
@@ -183,8 +183,6 @@ public class request_fragment extends DialogFragment {
                         //add request ID into order history
                         final DocumentReference Accountref = db.collection("Accounts").document(username);
                         Accountref.update("order", FieldValue.arrayUnion(uniqueID));
-
-
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

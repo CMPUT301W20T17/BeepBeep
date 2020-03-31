@@ -4,6 +4,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -11,6 +12,7 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -718,15 +720,16 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 
                 if (snapshot != null && snapshot.exists()) {
                     String DriverID = snapshot.get("DriverID").toString();
-                    if(!DriverID.equals("")){
-                        // TODO display driver ID
+                    if(!DriverID.equals("")) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
+                        builder.setTitle("Request Notification")
+                                .setMessage("Your request has been accept.")
+                                .setPositiveButton("OK", null);
                     }
                 } else {
                     Log.d(TAG, "Current data: null");
                 }
             }
         });
-
     }
-
 }
