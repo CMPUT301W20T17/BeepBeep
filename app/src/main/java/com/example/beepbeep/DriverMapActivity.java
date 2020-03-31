@@ -317,6 +317,8 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
             }
         });
 
+        //TODO: TO START BUTTON
+
 
         //Set the complete button, switch to the make payment activity since it's the rider want to complete
         Button completeButton;
@@ -588,53 +590,34 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                                     }
                                 });
                         builder.create().show();
-                        LinearLayout changeLayout = DriverMapActivity.this.findViewById(R.id.invis_linear);
+                        RelativeLayout changeLayout = DriverMapActivity.this.findViewById(R.id.after_confirm);
+                        LinearLayout butconf = DriverMapActivity.this.findViewById(R.id.but_conf);
+                        LinearLayout tempview = DriverMapActivity.this.findViewById(R.id.temp);
                         changeLayout.setVisibility(View.INVISIBLE);
+                        butconf.setVisibility(View.VISIBLE);
+                        tempview.setVisibility(View.VISIBLE);
+                        //TODO: remove direction first time not work
+                        //      the cancel dialog pop up sevral times
+                        pickup = null;
+                        pickupName = null;
+                        opickup = null;
+                        if (odestination != null) {
+                            destinationLat = null;
+                            destinationName = null;
+                            odestination = null;
+                        }
+                        autocompletePickup.setText("");
+                        if (mpickup != null) {
+                            mpickup.remove();
+                        }
+                        if (mdestination != null){
+                            mdestination.remove();
+                            mMap.clear();
+                        }
                     }
                 }
             }
         });
-
-        //TODO!!!!!!!!!!!!!!!!!!!!!
-//        final DocumentReference docRef = db.collection("Requests").document(uniqueID);
-//        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-//            @Override
-//            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-//                if (e != null) {
-//                    Log.w(TAG, "Listen failed.", e);
-//                    return;
-//                }
-//                if(documentSnapshot != null && documentSnapshot.exists()){
-//                    final String type = documentSnapshot.get("Type").toString();
-//                    if(type.equals("Deleted")){
-//                        AlertDialog.Builder builder = new AlertDialog.Builder(DriverMapActivity.this);
-//                        builder.setTitle("Important Message")
-//                                .setMessage("Your request was canceled by rider.")
-//                                .setPositiveButton("Fine", new DialogInterface.OnClickListener() {
-//                                    @Override
-//                                    public void onClick(DialogInterface dialogInterface, int i) {
-//                                        db.collection("Requests").document(uniqueID)
-//                                                .delete()
-//                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                                                    @Override
-//                                                    public void onSuccess(Void aVoid) {
-//                                                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
-//                                                    }
-//                                                })
-//                                                .addOnFailureListener(new OnFailureListener() {
-//                                                    @Override
-//                                                    public void onFailure(@NonNull Exception e) {
-//                                                        Log.w(TAG, "Error deleting document", e);
-//                                                    }
-//                                                });
-//                                    }
-//                                });
-//                        LinearLayout changeLayout = DriverMapActivity.this.findViewById(R.id.invis_linear);
-//                        changeLayout.setVisibility(View.INVISIBLE);
-//                    }
-//                }
-//            }
-//        });
     }
 
     @Override

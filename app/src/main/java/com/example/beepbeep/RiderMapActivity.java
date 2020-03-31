@@ -176,7 +176,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     private AutocompleteSupportFragment autocompletePickup;
     private AutocompleteSupportFragment autocompleteDestination;
 
-    private Dialog mDialog;
+    private Dialog mDialog = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -736,6 +736,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 if (snapshot != null && snapshot.exists()) {
                     final String DriverID = snapshot.get("DriverID").toString();
                     if(!DriverID.equals("")) {
+                        //TODO: Dialog pop up several times.
                         AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
                         builder.setTitle("Request Notification")
                                 .setMessage("Your request has been accept.")
@@ -760,26 +761,12 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                         });
                                     }
                                 }).create();
-                        if (mDialog != null) {
-                            mDialog.dismiss();
-                        }
-                        mDialog = builder.show();
+                        builder.show();
                     }
                 } else {
                     Log.d(TAG, "Current data: null");
                 }
             }
         });
-    }
-    private void showDialog(String title, String message) {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this)
-                .setTitle(title)
-                .setMessage(message);
-        // Dismiss any old dialog.
-        if (mDialog != null) {
-            mDialog.dismiss();
-        }
-        // Show the new dialog.
-        mDialog = dialogBuilder.show();
     }
 }
