@@ -1,3 +1,4 @@
+
 <?xml version="1.0" encoding="utf-8"?>
 <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -13,8 +14,8 @@
     <!-- Column 1 -->
     <androidx.cardview.widget.CardView
         android:id="@+id/profileMenu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/_110sdp"
+        android:layout_height="@dimen/_140sdp"
         android:layout_row="0"
         android:layout_column="0"
         android:layout_margin="15dp"
@@ -51,8 +52,8 @@
     <!-- Column 2 -->
     <androidx.cardview.widget.CardView
         android:id="@+id/walletMenu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/_110sdp"
+        android:layout_height="@dimen/_140sdp"
         android:layout_row="0"
         android:layout_column="1"
         android:layout_margin="15dp"
@@ -93,8 +94,8 @@
     <!-- Column 1 -->
     <androidx.cardview.widget.CardView
         android:id="@+id/payMenu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/_110sdp"
+        android:layout_height="@dimen/_140sdp"
         android:layout_row="1"
         android:layout_column="0"
         android:layout_margin="15dp"
@@ -135,8 +136,8 @@
     <!-- Column 2 -->
     <androidx.cardview.widget.CardView
         android:id="@+id/scanMenu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/_110sdp"
+        android:layout_height="@dimen/_140sdp"
         android:layout_row="1"
         android:layout_column="1"
         android:layout_margin="15dp"
@@ -175,8 +176,8 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/historyMenu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/_110sdp"
+        android:layout_height="@dimen/_140sdp"
         android:layout_row="2"
         android:layout_column="0"
         android:layout_margin="15dp"
@@ -214,8 +215,8 @@
     <!-- Column 2 -->
     <androidx.cardview.widget.CardView
         android:id="@+id/settingsMenu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/_110sdp"
+        android:layout_height="@dimen/_140sdp"
         android:layout_row="2"
         android:layout_column="1"
         android:layout_margin="15dp"
@@ -251,6 +252,5 @@
     </androidx.cardview.widget.CardView>
 
 </GridLayout>
-
 
 
