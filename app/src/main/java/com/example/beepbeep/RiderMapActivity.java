@@ -741,7 +741,8 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                         ss.setSpan(fcsBlue,7, 7+len_driver,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                                         drivertext.setText(mydriver);
                                     }
-                                });
+                                })
+                        .create().show();
                     }
                 } else {
                     Log.d(TAG, "Current data: null");
