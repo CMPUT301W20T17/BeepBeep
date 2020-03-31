@@ -151,9 +151,9 @@ public class request_fragment extends DialogFragment {
                         TextView scrollPrice = getActivity().findViewById(R.id.scroll_price);
                         scrollPrice.setText("Price: " + price);
                         TextView scrollUser = getActivity().findViewById(R.id.scroll_user);
-                        scrollUser.setText("User: " + riderID + "\n");
-                        TextView scrollD = getActivity().findViewById(R.id.scroll_driver);
-                        scrollUser.setText("Driver: Finding.."  + "\n");
+                        scrollUser.setText("User: " + riderID);
+                        TextView scrollDriver = getActivity().findViewById(R.id.scroll_driver);
+                        scrollDriver.setText("Driver: Finding.."  + "\n");
                         //set button
                         Button btnCancelRequest = getActivity().findViewById(R.id.btn_cancel_request);
                         btnCancelRequest.setOnClickListener(new View.OnClickListener() {
