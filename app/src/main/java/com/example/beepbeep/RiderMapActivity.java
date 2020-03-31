@@ -724,7 +724,8 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                         AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
                         builder.setTitle("Request Notification")
                                 .setMessage("Your request has been accept.")
-                                .setPositiveButton("OK", null);
+                                .setPositiveButton("OK", null)
+                                .create().show();
                     }
                 } else {
                     Log.d(TAG, "Current data: null");
