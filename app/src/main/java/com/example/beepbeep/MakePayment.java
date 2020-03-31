@@ -129,6 +129,8 @@ public class MakePayment extends AppCompatActivity {
                                     try {
                                         bitmap = qrgEncoder.encodeAsBitmap();
                                         QRCodeDisplay.setImageBitmap(bitmap);
+                                        confirmButton.setVisibility(View.INVISIBLE);
+                                        basePrice.setVisibility(View.INVISIBLE);
                                     } catch (WriterException e) {
                                         Log.v(TAG, e.toString());
                                     }

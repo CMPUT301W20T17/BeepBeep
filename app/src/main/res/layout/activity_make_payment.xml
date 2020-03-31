@@ -46,11 +46,11 @@
         android:id="@+id/MakePayment_QRbuckCode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
         android:contentDescription="@string/qrbuck"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/MakePayment_confirmButton"
+        app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/custom_button" />
 
     <TextView

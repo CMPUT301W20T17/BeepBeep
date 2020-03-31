@@ -84,12 +84,12 @@ public class Menu extends AppCompatActivity {
             }
         });
 
-//        settingsMenu.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                SignOut.now(Menu.this);
-//            }
-//        });
-
+        settingsMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent a = new Intent(Menu.this, Setting.class);
+                startActivity(a);
+            }
+        });
     }
 }

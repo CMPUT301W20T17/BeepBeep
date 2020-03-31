@@ -26,4 +26,6 @@
     <string name="please_wait">Please Wait ...</string>
     <string name="tip">Tip:</string>
     <string name="price_x">Price: $x</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
 </resources>

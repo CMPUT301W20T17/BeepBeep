@@ -59,7 +59,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
 
 
@@ -230,69 +232,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         confirm_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (opickup != null && odestination != null) {
-                    //get shared preference and user now
-                    final SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
-                    final String username = sharedPref.getString("username", "");
-                    //connect to firestore and get unique ID
-                    db = FirebaseFirestore.getInstance();
-
-                    Map<String, Object> docData = new HashMap<>();
-
-                    //prepare the data in specific type
-                    Date startTime = Calendar.getInstance().getTime(); //start time
-                    String startTime2 = startTime.toString();
-                    //set lat and long
-                    double pickupLat = pickup.latitude; //pickup geolocation
-                    double pickupLng = pickup.longitude;
-                    GeoPoint pickupGeo = new GeoPoint(pickupLat, pickupLng);
-                    double destinLat = destination.latitude; //destination geolocation
-                    double destinLng = destination.longitude;
-                    GeoPoint destinaitonGeo = new GeoPoint(destinLat, destinLng);
-                    //set price
-                    float[] result = new float[1];
-                    Location.distanceBetween(pickupLat,pickupLng,destinLat,destinLng,result);
-                    int price = (int)(5+(result[0]/1000)*2);
-
-
-                    //set the storing data
-                    docData.put("Type", "inactive");
-                    docData.put("RiderID", username);
-                    docData.put("DriverID", "");
-                    docData.put("StartTime", startTime2);
-                    docData.put("FinishTime", "");
-                    docData.put("Price", price);
-                    docData.put("PickUpPoint", pickupGeo);
-                    docData.put("Destination", destinaitonGeo);
-
-                    //connect to firestore and store the data
-                    db.collection("Requests").document(uniqueID)
-                            .set(docData)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Log.d(TAG, "DocumentSnapshot successfully written!");
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.w(TAG, "Error writing document", e);
-                                }
-                            });
-
-                    //pass the unique ID into the fragment
-                    Bundle bundle = new Bundle();
-                    bundle.putString("IDkey", uniqueID);
-                    request_fragment request_frag = new request_fragment();
-                    request_frag.setArguments(bundle);
-                    request_frag.show(getSupportFragmentManager(), "SHOW_REQUEST");
-                }
-                else{
-                    Toast errorToast = Toast.makeText(getApplicationContext(),"Please enter the pickup location or destination.", Toast.LENGTH_SHORT);
-                    errorToast.show();
-                }
-
+                newRequest();
             }
         });
 
@@ -700,6 +640,93 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         } catch(SecurityException e)  {
             Log.e("Exception: %s", e.getMessage());
         }
+    }
+
+    void newRequest(){
+        if (opickup != null && odestination != null) {
+                    //get shared preference and user now
+                    final SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
+                    final String username = sharedPref.getString("username", "");
+                    //connect to firestore and get unique ID
+                    db = FirebaseFirestore.getInstance();
+
+                    Map<String, Object> docData = new HashMap<>();
+
+                    //prepare the data in specific type
+                    Date startTime = Calendar.getInstance().getTime(); //start time
+                    String startTime2 = startTime.toString();
+                    //set lat and long
+                    double pickupLat = pickup.latitude; //pickup geolocation
+                    double pickupLng = pickup.longitude;
+                    GeoPoint pickupGeo = new GeoPoint(pickupLat, pickupLng);
+                    double destinLat = destination.latitude; //destination geolocation
+                    double destinLng = destination.longitude;
+                    GeoPoint destinaitonGeo = new GeoPoint(destinLat, destinLng);
+                    //set price
+                    float[] result = new float[1];
+                    Location.distanceBetween(pickupLat,pickupLng,destinLat,destinLng,result);
+                    int price = (int)(5+(result[0]/1000)*2);
+
+
+                    //set the storing data
+                    docData.put("Type", "inactive");
+                    docData.put("RiderID", username);
+                    docData.put("DriverID", "");
+                    docData.put("StartTime", startTime2);
+                    docData.put("FinishTime", "");
+                    docData.put("Price", price);
+                    docData.put("PickUpPoint", pickupGeo);
+                    docData.put("Destination", destinaitonGeo);
+
+                    //connect to firestore and store the data
+                    db.collection("Requests").document(uniqueID)
+                            .set(docData)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "DocumentSnapshot successfully written!");
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w(TAG, "Error writing document", e);
+                                }
+                            });
+
+                    //pass the unique ID into the fragment
+                    Bundle bundle = new Bundle();
+                    bundle.putString("IDkey", uniqueID);
+                    request_fragment request_frag = new request_fragment();
+                    request_frag.setArguments(bundle);
+                    request_frag.show(getSupportFragmentManager(), "SHOW_REQUEST");
+                }
+                else{
+                    Toast errorToast = Toast.makeText(getApplicationContext(),"Please enter the pickup location or destination.", Toast.LENGTH_SHORT);
+                    errorToast.show();
+                }
+
+        final DocumentReference docRef = db.collection("Requests").document(uniqueID);
+        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot snapshot,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    String DriverID = snapshot.get("DriverID").toString();
+                    if(!DriverID.equals("")){
+                        // TODO display driver ID
+                    }
+                } else {
+                    Log.d(TAG, "Current data: null");
+                }
+            }
+        });
+
     }
 
 }
