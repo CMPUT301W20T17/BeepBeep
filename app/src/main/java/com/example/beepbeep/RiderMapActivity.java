@@ -24,6 +24,8 @@ import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.SpannableString;
@@ -74,6 +76,7 @@ import com.google.firebase.firestore.GeoPoint;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -177,6 +180,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     private AutocompleteSupportFragment autocompleteDestination;
 
     private Dialog mDialog = null;
+    private ArrayList<Order> orderDataList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -232,44 +236,89 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 
         SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", Context.MODE_PRIVATE);
         Boolean darkmode = sharedPref.getBoolean("darkmode", false);
+        final String loginName = sharedPref.getString("username","");
+
+        //Update current record ******************************might not be useful when no internet access
+        OrderRecordManager orm = new OrderRecordManager(this);
+        orderDataList= orm.getRecord();
 
 
         //set the Button confirm, and send the request information to firestore
         uniqueID = UUID.randomUUID().toString();
         Button confirm_button;
         confirm_button = findViewById(R.id.confirm);
-        confirm_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                newRequest();
-            }
-        });
 
-        //Set the complete button, switch to the make payment activity since it's the rider want to complete
         Button completeButton;
         completeButton = findViewById(R.id.btn_complete);
-        completeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DocumentReference order = db.collection("Requests").document(uniqueID);
-                order.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.isSuccessful()){
-                            DocumentSnapshot doc = task.getResult();
-                            String price = (doc.get("Price")).toString();
-                            Intent a = new Intent(RiderMapActivity.this, MakePayment.class);
-                            a.putExtra("Price", price);
-                            startActivity(a);
-                            Intent b = new Intent(RiderMapActivity.this,RiderRatingActivity.class);
-                            String driver_name = (doc.get("DriverID")).toString();
-                            b.putExtra("driver_name", driver_name);
-                            startActivity(b);
+
+
+        //Set the complete button, switch to the make payment activity since it's the rider want to complete
+
+
+
+        if (hasNetworkAccess()){
+            //has current activity
+            if (orderDataList.size() >= 1){
+                Order order = orderDataList.get(0);
+                if (!order.getType().equals("complete")) {
+                    db = FirebaseFirestore.getInstance();
+                    DocumentReference userInfo = db.collection("Accounts").document(loginName);
+                    userInfo.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot document = task.getResult();
+                                List<String> orders = (List<String>) document.get("order");
+                                int index = orders.size() - 1;
+                                String latestOrderNum = orders.get(index);
+                                //shows in the rider map
+                                //pass the unique ID into the fragment
+                                Bundle bundle = new Bundle();
+                                bundle.putString("IDkey", latestOrderNum);
+                                request_fragment request_frag = new request_fragment();
+                                request_frag.setArguments(bundle);
+                                request_frag.show(getSupportFragmentManager(), "SHOW_REQUEST");
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
-        });
+
+            confirm_button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    newRequest();
+                }
+            });
+
+            //Set the complete button, switch to the make payment activity since it's the rider want to complete
+            completeButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    DocumentReference order = db.collection("Requests").document(uniqueID);
+                    order.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if(task.isSuccessful()){
+                                DocumentSnapshot doc = task.getResult();
+                                String price = (doc.get("Price")).toString();
+                                Intent a = new Intent(RiderMapActivity.this, MakePayment.class);
+                                a.putExtra("Price", price);
+                                startActivity(a);
+                                Intent b = new Intent(RiderMapActivity.this,RiderRatingActivity.class);
+                                String driver_name = (doc.get("DriverID")).toString();
+                                b.putExtra("driver_name", driver_name);
+                                startActivity(b);
+                            }
+                        }
+                    });
+                }
+            });
+        }
+        else{
+            //check if we have current avitivity
+            //if has, show the current activity, else show prompt
+        }
     }
 
 
@@ -767,5 +816,17 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 }
             }
         });
+    }
+
+    /**
+     * check if device have network access
+     * @return true if device have network access
+     */
+    private boolean hasNetworkAccess(){
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(this.CONNECTIVITY_SERVICE);
+        assert connectivityManager != null;
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }
