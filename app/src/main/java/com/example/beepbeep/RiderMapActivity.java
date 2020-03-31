@@ -18,12 +18,16 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -730,7 +734,11 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                     public void onClick(DialogInterface dialogInterface, int i) {
                                         TextView drivertext = findViewById(R.id.scroll_driver);
                                         String mydriver;
+                                        int len_driver = DriverID.length();
                                         mydriver = "Driver: " + DriverID + "\n";
+                                        SpannableString ss = new SpannableString(mydriver);
+                                        ForegroundColorSpan fcsBlue = new ForegroundColorSpan(Color.BLUE);
+                                        ss.setSpan(fcsBlue,7, 7+len_driver,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                                         drivertext.setText(mydriver);
                                     }
                                 });
