@@ -27,28 +27,23 @@
     <LinearLayout
         android:id="@+id/but_conf"
         android:layout_width="match_parent"
-        android:layout_height="38dp"
-        android:weightSum="1"
-        android:layout_below="@+id/temp">
-
-        <androidx.legacy.widget.Space
-            android:layout_width="242dp"
-            android:layout_height="match_parent">
-        </androidx.legacy.widget.Space>
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginVertical="30dp"
+        android:layout_marginStart="7dp"
+        android:layout_marginTop="7dp"
+        android:layout_marginEnd="7dp"
+        android:layout_marginBottom="7dp"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/confirm_"
-            android:layout_width="160dp"
-            android:layout_height="35dp"
-            android:layout_weight="0.5"
-            android:layout_marginTop="0dp"
-            android:background="@drawable/custom_edit_text"
+            android:layout_width="220dp"
+            android:layout_height="40dp"
+            android:background="@drawable/custom_yes_button"
+            android:visibility="visible"
             android:text="CONFIRM" />
-
-        <androidx.legacy.widget.Space
-            android:layout_width="7dp"
-            android:layout_height="match_parent">
-        </androidx.legacy.widget.Space>
 
     </LinearLayout>
 
@@ -130,11 +125,16 @@
             android:layout_below="@+id/driver_scroll_table"
             android:layout_alignParentEnd="true"
             android:text="COMPLETE"/>
+        <Button
+            android:id="@+id/ToStartBtn"
+            android:layout_width="160dp"
+            android:layout_height="35dp"
+            android:background="@drawable/custom_button"
+            android:layout_below="@+id/driver_scroll_table"
+            android:layout_alignParentStart="true"
+            android:text="TO START"/>
 
     </RelativeLayout>
-
-
-
 
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

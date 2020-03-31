@@ -135,7 +135,7 @@ public class request_fragment extends DialogFragment {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         //update the type
                         Map<String,Object> update_type= new HashMap<>();
-                        update_type.put("Type","active");
+                        update_type.put("Type","inactive");
                         RequestIdInf.set(update_type, SetOptions.merge());
 
                         //change layout from the first show to the second show
@@ -151,7 +151,9 @@ public class request_fragment extends DialogFragment {
                         TextView scrollPrice = getActivity().findViewById(R.id.scroll_price);
                         scrollPrice.setText("Price: " + price);
                         TextView scrollUser = getActivity().findViewById(R.id.scroll_user);
-                        scrollUser.setText("User: " + riderID + "\n");
+                        scrollUser.setText("User: " + riderID);
+                        TextView scrollDriver = getActivity().findViewById(R.id.scroll_driver);
+                        scrollDriver.setText("Driver: Finding.."  + "\n");
                         //set button
                         Button btnCancelRequest = getActivity().findViewById(R.id.btn_cancel_request);
                         btnCancelRequest.setOnClickListener(new View.OnClickListener() {
@@ -159,32 +161,53 @@ public class request_fragment extends DialogFragment {
                             public void onClick(View view) {
                                 theFirstLayout.setVisibility(View.VISIBLE);
                                 theSecondLayout.setVisibility(View.INVISIBLE);
-                                //delete the order history
-                                final DocumentReference Accountref = db.collection("Accounts").document(username);
-                                Accountref.update("order", FieldValue.arrayRemove(uniqueID));
-                                //delete the requestID
-                                db.collection("Requests").document(uniqueID)
-                                        .delete()
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                Log.d(TAG, "DocumentSnapshot successfully deleted!");
-                                            }
-                                        })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                Log.w(TAG, "Error deleting document", e);
-                                            }
-                                        });
+
+                                final String[] typenow = new String[1];
+                                final DocumentReference doc = db.collection("Requests").document(uniqueID);
+                                doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if (task.isSuccessful()){
+                                            DocumentSnapshot doc = task.getResult();
+                                            typenow[0] = (doc.get("Type")).toString();
+                                        }
+                                    }
+                                });
+
+                                if(typenow[0] == "inactive"){
+                                    //delete the order history
+                                    final DocumentReference Accountref = db.collection("Accounts").document(username);
+                                    Accountref.update("order", FieldValue.arrayRemove(uniqueID));
+                                    //delete the requestID
+                                    db.collection("Requests").document(uniqueID)
+                                            .delete()
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Log.w(TAG, "Error deleting document", e);
+                                                }
+                                            });
+                                }else{
+                                    final DocumentReference Accountref = db.collection("Accounts").document(username);
+                                    Accountref.update("order", FieldValue.arrayRemove(uniqueID));
+                                    Map<String, Object> docData = new HashMap<>();
+                                    docData.put("DriverID","");
+                                    docData.put("Type","Deleted");
+                                    db.collection("Requests").document(uniqueID).update(docData);
+                                }
+
                             }
                         });
 
                         //add request ID into order history
                         final DocumentReference Accountref = db.collection("Accounts").document(username);
                         Accountref.update("order", FieldValue.arrayUnion(uniqueID));
-
-
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

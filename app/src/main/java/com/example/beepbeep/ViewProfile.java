@@ -66,13 +66,29 @@ public class ViewProfile extends AppCompatActivity {
         final String loginName = sharedPref.getString("username","");
 
         final ImageView editButton = findViewById(R.id.edit_profile_button);
+        //when user clicks logout button, prompt user for confirmation
+        Button logout = findViewById(R.id.logout_button);
+        logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(ViewProfile.this);
+                builder.setTitle("Are you sure you want to logout?");
+                builder.setNegativeButton("YES", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        SignOut.now(ViewProfile.this);
+                    }
+                });
+                builder.setPositiveButton("NO",null);
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+            }
+        });
 
         // If the user is viewing his/her own profile, set the edit button to be visible
         if(loginName.equals(profileName)){
             editButton.setVisibility(View.VISIBLE);
-        }
-        else{
-            editButton.setVisibility(View.INVISIBLE);
+            logout.setVisibility(View.VISIBLE);
         }
 
         //Read data from FireStore and fill the TextView
@@ -144,24 +160,6 @@ public class ViewProfile extends AppCompatActivity {
                 }
             }
         });
-        //when user clicks logout button, prompt user for confirmation
-        Button logout = findViewById(R.id.logout_button);
-        logout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(ViewProfile.this);
-                builder.setTitle("Are you sure you want to logout?");
-                builder.setNegativeButton("YES", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        SignOut.now(ViewProfile.this);
-                    }
-                });
-                builder.setPositiveButton("NO",null);
-                AlertDialog alertDialog = builder.create();
-                alertDialog.show();
-            }
-        });
 
         //when user click edit button, go to edit profile activity
         editButton.setOnClickListener(new View.OnClickListener() {
@@ -187,9 +185,27 @@ public class ViewProfile extends AppCompatActivity {
         final String loginName = sharedPref.getString("username","");
 
         // Set the edit button to be visible if user is viewing his/her own profile
+        Button logout = findViewById(R.id.logout_button);
+        logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(ViewProfile.this);
+                builder.setTitle("Are you sure you want to logout?");
+                builder.setNegativeButton("YES", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        SignOut.now(ViewProfile.this);
+                    }
+                });
+                builder.setPositiveButton("NO",null);
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+            }
+        });
         final ImageView editButton = findViewById(R.id.edit_profile_button);
         if(loginName.equals(profileName)){
             editButton.setVisibility(View.VISIBLE);
+            logout.setVisibility(View.VISIBLE);
         }
 
         //Reload the email and phone from FireStore because they might be changed

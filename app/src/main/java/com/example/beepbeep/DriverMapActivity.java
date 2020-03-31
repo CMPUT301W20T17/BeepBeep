@@ -2,17 +2,22 @@ package com.example.beepbeep;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,6 +40,7 @@ import android.widget.Toast;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -72,7 +78,9 @@ import com.google.firebase.firestore.CollectionReference;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -128,7 +136,7 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
 
     //set two geo point
     private LatLng pickup;
-    private LatLng destination;
+    private LatLng destinationLat;
 
     private String pickupName;
     private String destinationName;
@@ -214,15 +222,6 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         //set data list and adapter
         qulifiedListView = findViewById(R.id.qulifiedRequest);
 
-//        qulifiedId.add("User:Loading..");
-//        qulifiedPickUp.add("PickUp:Loading..");
-//        qulifiedDestination.add("Destination:Loading..");
-//        qulifiedPrice.add("Price:Loading..");
-
-
-
-
-
 
         final MyAdapter adapter = new MyAdapter(DriverMapActivity.this, qulifiedId, qulifiedPickUp, qulifiedDestination, qulifiedPrice);
         qulifiedListView.setAdapter(adapter);
@@ -233,130 +232,97 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         confirm_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final LinearLayout changeLayout = DriverMapActivity.this.findViewById(R.id.invis_linear);
-                changeLayout.setVisibility(View.VISIBLE);
+                if (pickupName != null) {
+                    final LinearLayout changeLayout = DriverMapActivity.this.findViewById(R.id.invis_linear);
+                    changeLayout.setVisibility(View.VISIBLE);
 
-                //get shared preference and UserName
-                final SharedPreferences sharedPref = DriverMapActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
-                final String username = sharedPref.getString("username", "");
+                    //get shared preference and UserName
+                    final SharedPreferences sharedPref = DriverMapActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
+                    final String username = sharedPref.getString("username", "");
 
-                //connect to firestone
-                db = FirebaseFirestore.getInstance();
-                db.collection("Requests")
-                        .whereEqualTo("Type", "active")
-                        .whereEqualTo("DriverID", "")
-                        .get()
-                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                final List<String> requestNameList = new ArrayList<>();
-                                if (task.isSuccessful()) {
-                                    for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                                        String id = document.getId();
-                                        requestNameList.add(id);
+                    //connect to firestone
+                    db = FirebaseFirestore.getInstance();
+                    db.collection("Requests")
+                            .whereEqualTo("Type", "inactive")
+                            .whereEqualTo("DriverID", "")
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    final List<String> requestNameList = new ArrayList<>();
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                                            String id = document.getId();
+                                            requestNameList.add(id);
+                                        }
                                     }
-                                }
-                                if (requestNameList != null) {
-                                    count = 0;
-                                    for (int i = 0; i < requestNameList.size(); i++) {
-                                        final String requestName = requestNameList.get(i);
-                                        final DocumentReference doc = db.collection("Requests").document(requestName);
-                                        doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                if (task.isSuccessful()) {
-                                                    DocumentSnapshot document = task.getResult();
-                                                    assert document != null;
-                                                    if (document.exists()) {
-                                                        GeoPoint pickupgeo = (GeoPoint) document.get("PickUpPoint");
-                                                        float[] disResults = new float[1];
-                                                        assert pickupgeo != null;
-                                                        Location.distanceBetween(pickup.latitude, pickup.longitude, pickupgeo.getLatitude(), pickupgeo.getLongitude(), disResults);
-                                                        int some = (int) (disResults[0] / 1000);
-                                                        if (some < 5) {
-                                                            setQulifiedData(requestName, adapter);
-                                                        }else{
-                                                            count += 1;
-                                                        }
-                                                        if(count == requestNameList.size() && changeLayout.getVisibility() == View.VISIBLE){
-                                                            changeLayout.setVisibility(View.INVISIBLE);
-                                                            Toast toast=Toast.makeText(getApplicationContext(),"There is no request appear during 5km round.",Toast. LENGTH_SHORT);
-                                                            toast.show();
+                                    if (requestNameList != null) {
+                                        count = 0;
+                                        for (int i = 0; i < requestNameList.size(); i++) {
+                                            final String requestName = requestNameList.get(i);
+                                            final DocumentReference doc = db.collection("Requests").document(requestName);
+                                            doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                    if (task.isSuccessful()) {
+                                                        DocumentSnapshot document = task.getResult();
+                                                        assert document != null;
+                                                        if (document.exists()) {
+                                                            GeoPoint pickupgeo = (GeoPoint) document.get("PickUpPoint");
+                                                            float[] disResults = new float[1];
+                                                            assert pickupgeo != null;
+                                                            Location.distanceBetween(pickup.latitude, pickup.longitude, pickupgeo.getLatitude(), pickupgeo.getLongitude(), disResults);
+                                                            int some = (int) (disResults[0] / 1000);
+                                                            if (some < 5) {
+                                                                setQulifiedData(requestName, adapter);
+                                                            } else {
+                                                                count += 1;
+                                                            }
+                                                            if (count == requestNameList.size() && changeLayout.getVisibility() == View.VISIBLE) {
+                                                                changeLayout.setVisibility(View.INVISIBLE);
+                                                                Toast toast = Toast.makeText(getApplicationContext(), "There is no request appear during 5km round.", Toast.LENGTH_SHORT);
+                                                                toast.show();
+                                                            }
                                                         }
                                                     }
                                                 }
-                                            }
-                                        });
+                                            });
+                                        }
+                                        adapter.notifyDataSetChanged();
+                                        if (requestNameList.size() == 0) {
+                                            changeLayout.setVisibility(View.INVISIBLE);
+                                            Toast toast = Toast.makeText(getApplicationContext(), "There is no request appear during 5km round.", Toast.LENGTH_SHORT);
+                                            toast.show();
+                                        }
                                     }
-                                    adapter.notifyDataSetChanged();
+                                    qulifiedId.clear();
+                                    qulifiedPickUp.clear();
+                                    qulifiedDestination.clear();
+                                    qulifiedPrice.clear();
+
                                 }
-                                qulifiedId.clear();
-                                qulifiedPickUp.clear();
-                                qulifiedDestination.clear();
-                                qulifiedPrice.clear();
-
-                            }
-                        });
-                qulifiedListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                        String theRequestID = qulifiedListData.get(i);
-                        opendialog(theRequestID,username);
-
-
-                    }
-                });
-
-//                adapter.notifyDataSetChanged();
-                //start collecting information of ride
-//                qulifiedId.clear();
-//                qulifiedPickUp.clear();
-//                qulifiedDestination.clear();
-//                qulifiedPrice.clear();
-//                for (int i = 0; i< qulifiedListData.size(); i++){
-//                    db.collection("Requests").document(qulifiedListData.get(i)).get()
-//                            .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//                                @Override
-//                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                                    if(task.isSuccessful()){
-//                                        DocumentSnapshot document = task.getResult();
-//                                        if (document.exists()){
-//                                            //get address of destination location
-//                                            final GeoPoint destination = document.getGeoPoint("Destination");
-//                                            final double desti_lat = destination.getLatitude();
-//                                            final double desti_long = destination.getLongitude();
-//                                            String destination_address = getAddress(desti_lat,desti_long);
-//                                            qulifiedDestination.add("Destination: "+ destination_address);
-//
-//                                            //get address of pickup location
-//                                            final GeoPoint pickup = document.getGeoPoint("PickUpPoint");
-//                                            final double pick_lat = pickup.getLatitude();
-//                                            final double pick_long = pickup.getLongitude();
-//                                            String pickup_address = getAddress(pick_lat,pick_long);
-//                                            qulifiedPickUp.add("PickUp: " + pickup_address);
-//
-//                                            //get price
-//                                            String price = document.get("Price").toString();
-//                                            qulifiedPrice.add("Price: "+price);
-//
-//                                            //get rider
-//                                            String rider = document.get("RiderID").toString();
-//                                            qulifiedId.add("User: "+ rider);
-//
-//                                        }
-//                                    }
-//                                }
-//                            });
-//                }
-//                adapter.notifyDataSetChanged();
-
+                            });
+                    qulifiedListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                            String theRequestID = qulifiedListData.get(i);
+                            uniqueID = theRequestID;
+                            opendialog(theRequestID, username);
+                        }
+                    });
+                }else{
+                    Toast errorToast = Toast.makeText(getApplicationContext(),"Please enter the location to search requests.", Toast.LENGTH_SHORT);
+                    errorToast.show();
+                }
             }
         });
 
+        //TODO: TO START BUTTON
+
+
         //Set the complete button, switch to the make payment activity since it's the rider want to complete
-        /*
         Button completeButton;
-        completeButton = findViewById(R.id.btn_complete);
+        completeButton = findViewById(R.id.driver_btn_complete);
         completeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -374,8 +340,45 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                     }
                 });
             }
-        }); */
+        });
 
+    }
+
+    public void setGetDirection(){
+        odestination = new MarkerOptions();
+        odestination.position(destinationLat);
+        odestination.title(destinationName);
+        odestination.zIndex(1.0f);
+        mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+            @Override
+            public void onMapLoaded() {
+                if (mdestination != null) {
+                    mdestination.remove();
+                }
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(destinationLat, 11));
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(destinationLat, 12.0f));
+                mdestination = mMap.addMarker(odestination);
+            }
+        });
+        if (odestination != null && opickup != null) {
+            new FetchURL(DriverMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
+        }
+        else if (opickup == null && odestination != null && pickup != null){
+            opickup = new MarkerOptions();
+            opickup.position(pickup);
+            opickup.title(pickupName);
+            opickup.zIndex(1.0f);
+            opickup.icon(getBitmapFromVector(getApplicationContext(), R.drawable.ic_custom_map_marker));
+            mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                @Override
+                public void onMapLoaded() {
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pickup, 11));
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(pickup, 15.0f));
+                    mpickup = mMap.addMarker(opickup);
+                }
+            });
+            new FetchURL(DriverMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
+        }
     }
 
     public void setQulifiedData(final String requestName, final MyAdapter adapter) {
@@ -455,15 +458,166 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         }
     }
 
-    public void opendialog(String ID, String username){
-        driverConfirmDialog driverConfirmDialog = new driverConfirmDialog();
+    public void opendialog(final String requestID, final String username){
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        Bundle args = new Bundle();
-        String[] theBundle = {ID,username};
-        args.putStringArray("key",theBundle);
-        driverConfirmDialog.setArguments(args);
+        final LinearLayout tempview = DriverMapActivity.this.findViewById(R.id.temp);
+        final LinearLayout butconf = DriverMapActivity.this.findViewById(R.id.but_conf);
+        final LinearLayout changeLayout = DriverMapActivity.this.findViewById(R.id.invis_linear);
+        final RelativeLayout afterconfirm = DriverMapActivity.this.findViewById(R.id.after_confirm);
+        //TODO:
+        final TextView user = DriverMapActivity.this.findViewById(R.id.driver_scroll_user);
+        final TextView driver = DriverMapActivity.this.findViewById(R.id.driver_scroll_driver);
+        final TextView start = DriverMapActivity.this.findViewById(R.id.driver_scroll_start);
+        final TextView end = DriverMapActivity.this.findViewById(R.id.driver_scroll_end);
+        final TextView prices = DriverMapActivity.this.findViewById(R.id.driver_scroll_price);
+        AlertDialog.Builder builder = new AlertDialog.Builder(DriverMapActivity.this);
+        builder.setTitle("Request Confirm")
+                .setMessage("Accept this request?")
+                .setPositiveButton("Sure", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        changeLayout.setVisibility(View.INVISIBLE);
+                        Map<String, Object> docData = new HashMap<>();
+                        docData.put("DriverID",username);
+                        docData.put("Type","active");
 
-        driverConfirmDialog.show(getSupportFragmentManager(),"driver confirm show");
+                        db.collection("Requests")
+                                .document(requestID)
+                                .update(docData);
+
+                        //set the new view on driver_request
+                        tempview.setVisibility(View.INVISIBLE);
+                        butconf.setVisibility(View.INVISIBLE);
+                        afterconfirm.setVisibility(View.VISIBLE);
+                        db.collection("Requests")
+                                .document(requestID)
+                                .get()
+                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if (task.isSuccessful()){
+                                            DocumentSnapshot document = task.getResult();
+                                            if(document.exists()){
+//                                                Toast. makeText(getActivity(),"Hello Javatpoint",Toast. LENGTH_SHORT).show();
+                                                //get address of destination location
+                                                final GeoPoint destination = document.getGeoPoint("Destination");
+                                                final double desti_lat = destination.getLatitude();
+                                                final double desti_long = destination.getLongitude();
+                                                String destination_address = getAddress(desti_lat, desti_long);
+                                                destinationName = destination_address;
+                                                destinationLat = new LatLng(destination.getLatitude(), destination.getLongitude());
+                                                setGetDirection();
+
+                                                //get address of pickup location
+                                                final GeoPoint pickup = document.getGeoPoint("PickUpPoint");
+                                                final double pick_lat = pickup.getLatitude();
+                                                final double pick_long = pickup.getLongitude();
+                                                String pickup_address = getAddress(pick_lat,pick_long);
+
+                                                //get price
+                                                String price = document.get("Price").toString();
+
+                                                //get rider
+                                                String rider = document.get("RiderID").toString();
+
+                                                //set view of the fragment
+                                                String riderString = "User: " + rider;
+                                                String pickupString = "PickUpPoint: "+pickup_address;
+                                                String destinationString = "Destination: "+destination_address;
+                                                String priceString = "Price: "+price;
+                                                String driverString = "Driver: " + username + "\n";
+
+                                                //set String type
+                                                SpannableString ss1 = new SpannableString(pickupString);
+                                                StyleSpan boldSpan = new StyleSpan(Typeface.BOLD);
+                                                ss1.setSpan(boldSpan,0,12, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                                SpannableString ss2 = new SpannableString(destinationString);
+                                                ss2.setSpan(boldSpan,0,12, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                                SpannableString ss3 = new SpannableString(priceString);
+                                                ss3.setSpan(boldSpan,0,6, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                                                user.setText(riderString);
+                                                driver.setText(driverString);
+                                                start.setText(ss1);
+                                                end.setText(ss2);
+                                                prices.setText(ss3);
+                                            }
+                                        }
+
+                                    }
+                                });
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+        builder.create().show();
+        final DocumentReference docRef = db.collection("Requests").document(uniqueID);
+        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+                if(documentSnapshot != null && documentSnapshot.exists()){
+                    final String type = documentSnapshot.get("Type").toString();
+                    if(type.equals("Deleted")){
+                        AlertDialog.Builder builder = new AlertDialog.Builder(DriverMapActivity.this);
+                        builder.setTitle("Important Message")
+                                .setMessage("Your request was canceled by rider.")
+                                .setPositiveButton("Fine", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        db.collection("Requests").document(uniqueID)
+                                                .delete()
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                                                    }
+                                                })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Log.w(TAG, "Error deleting document", e);
+                                                    }
+                                                });
+                                    }
+                                });
+                        builder.create().show();
+                        RelativeLayout changeLayout = DriverMapActivity.this.findViewById(R.id.after_confirm);
+                        LinearLayout butconf = DriverMapActivity.this.findViewById(R.id.but_conf);
+                        LinearLayout tempview = DriverMapActivity.this.findViewById(R.id.temp);
+                        changeLayout.setVisibility(View.INVISIBLE);
+                        butconf.setVisibility(View.VISIBLE);
+                        tempview.setVisibility(View.VISIBLE);
+                        //TODO: remove direction first time not work
+                        //      the cancel dialog pop up sevral times
+                        pickup = null;
+                        pickupName = null;
+                        opickup = null;
+                        if (odestination != null) {
+                            destinationLat = null;
+                            destinationName = null;
+                            odestination = null;
+                        }
+                        autocompletePickup.setText("");
+                        if (mpickup != null) {
+                            mpickup.remove();
+                        }
+                        if (mdestination != null){
+                            mdestination.remove();
+                            mMap.clear();
+                        }
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -523,8 +677,6 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                     public void onMapLoaded() {
                         if (mpickup != null) {
                             mpickup.remove();
-                        } else if (pickupName == null) {
-                            mpickup.remove();
                         }
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pickup, 11));
                         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(pickup, 12.0f));
@@ -545,11 +697,16 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                 pickup = null;
                 pickupName = null;
                 opickup = null;
+                if (odestination != null) {
+                    destinationLat = null;
+                    destinationName = null;
+                    odestination = null;
+                }
                 autocompletePickup.setText("");
                 if (mpickup != null) {
                     mpickup.remove();
                 }
-                if (odestination != null){
+                if (mdestination != null){
                     mdestination.remove();
                     mMap.clear();
                 }
@@ -622,31 +779,6 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         return address;
     }
 
-    private void setGetDirection(){
-        if (odestination != null && opickup != null) {
-            new FetchURL(DriverMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
-        }
-        else if (opickup == null && odestination != null && pickup != null){
-            opickup = new MarkerOptions();
-            opickup.position(pickup);
-            opickup.title(pickupName);
-            opickup.zIndex(1.0f);
-            opickup.icon(getBitmapFromVector(getApplicationContext(), R.drawable.ic_custom_map_marker));
-            mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-                @Override
-                public void onMapLoaded() {
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pickup, 11));
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(pickup, 15.0f));
-                    mpickup = mMap.addMarker(opickup);
-                }
-            });
-            new FetchURL(DriverMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
-        }
-        else{
-            Log.i(TAG, "Please enter the pick up location and destination.");
-        }
-    }
-
     private BitmapDescriptor getBitmapFromVector(@NonNull Context context, @DrawableRes int vectorResourceId){
         Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResourceId);
         if (vectorDrawable == null) {
@@ -680,9 +812,9 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
             Log.e(TAG, "Style parsing failed.");
         }
 
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
-            public void onMapClick(LatLng latLng) {
+            public void onMapLongClick(LatLng latLng) {
                 pickup = latLng;
                 pickupName = getAddress(latLng.latitude,latLng.longitude);
                 opickup = new MarkerOptions()
@@ -697,6 +829,8 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                 mpickup = mMap.addMarker(opickup);
             }
         });
+
+
 
         // Prompt the user for permission.
         getLocationPermission();

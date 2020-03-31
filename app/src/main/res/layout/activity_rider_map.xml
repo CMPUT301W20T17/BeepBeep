@@ -38,7 +38,7 @@
                     android:id="@+id/scroll_driver"
                     android:layout_width="match_parent"
                     android:layout_height= "wrap_content"
-                    android:text="Driver: FINDing...\n"
+                    android:text="Driver: \n"
                     android:textSize="20sp"/>
                 <TextView
                     android:id="@+id/scroll_start"
@@ -119,34 +119,29 @@
         </LinearLayout>
 
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="38dp"
-            android:layout_below="@+id/destinationView"
-            android:weightSum="1">
-
-            <androidx.legacy.widget.Space
-                android:layout_width="242dp"
-                android:layout_height="match_parent">
-            </androidx.legacy.widget.Space>
-
-            <Button
-                android:id="@+id/confirm"
-                android:layout_width="160dp"
-                android:layout_height="35dp"
-                android:layout_marginTop="2dp"
-                android:layout_weight="0.5"
-                android:background="@drawable/custom_edit_text"
-                android:text="CONFIRM" />
-
-            <androidx.legacy.widget.Space
-                android:layout_width="7dp"
-                android:layout_height="match_parent">
-            </androidx.legacy.widget.Space>
-
-        </LinearLayout>
-
     </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginVertical="30dp"
+        android:layout_marginStart="7dp"
+        android:layout_marginTop="7dp"
+        android:layout_marginEnd="7dp"
+        android:layout_marginBottom="7dp"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/confirm"
+            android:layout_width="220dp"
+            android:layout_height="40dp"
+            android:background="@drawable/custom_yes_button"
+            android:text="CONFIRM"
+            android:visibility="visible"/>
+
+    </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/bentoView"
