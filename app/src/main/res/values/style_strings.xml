@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="standard">
+      []
+  </string>
   <string name="style_json">
   [
     {

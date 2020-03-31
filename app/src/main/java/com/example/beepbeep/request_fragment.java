@@ -4,9 +4,13 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -89,12 +93,26 @@ public class request_fragment extends DialogFragment {
                         final double pick_long = pickup.getLongitude();
                         pickup_address = getAddress(pick_lat,pick_long);
 
-
                         //get price
                         price = document.get("Price").toString();
-                        show_start.setText("Start: "+pickup_address);
-                        show_end.setText("End: "+destination_address);
-                        show_price.setText("Price: "+price);
+
+                        //set view of the fragment
+                        String pickupString = "PickUpPoint: "+pickup_address;
+                        String destinationString = "Destination: "+destination_address;
+                        String priceString = "Estimate Price: "+price;
+
+                        //set String type
+                        SpannableString ss1 = new SpannableString(pickupString);
+                        StyleSpan boldSpan = new StyleSpan(Typeface.BOLD);
+                        ss1.setSpan(boldSpan,0,12, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        SpannableString ss2 = new SpannableString(destinationString);
+                        ss2.setSpan(boldSpan,0,12, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        SpannableString ss3 = new SpannableString(priceString);
+                        ss3.setSpan(boldSpan,0,15, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                        show_start.setText(ss1);
+                        show_end.setText(ss2);
+                        show_price.setText(ss3);
 
                     }
                     else{

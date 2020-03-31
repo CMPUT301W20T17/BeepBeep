@@ -8,25 +8,23 @@
         android:id="@+id/show_pickup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Start:"
+        android:text="Loading..."
         android:padding="10dp"
-        android:textSize="15sp"/>
+        android:textSize="20sp"/>
 
     <TextView
         android:id="@+id/show_destination"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="End:"
         android:padding="10dp"
-        android:textSize="15sp"/>
+        android:textSize="20sp"/>
 
     <TextView
         android:id="@+id/show_price"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Price:"
         android:padding="10dp"
-        android:textSize="15sp"/>
+        android:textSize="20sp"/>
 
 
 
