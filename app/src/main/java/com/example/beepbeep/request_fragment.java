@@ -151,7 +151,7 @@ public class request_fragment extends DialogFragment {
                         TextView scrollPrice = getActivity().findViewById(R.id.scroll_price);
                         scrollPrice.setText("Price: " + price);
                         TextView scrollUser = getActivity().findViewById(R.id.scroll_user);
-                        scrollUser.setText("User: " + riderID + "\n");
+                        scrollUser.setText("User: " + riderID);
                         TextView scrollD = getActivity().findViewById(R.id.scroll_driver);
                         scrollUser.setText("Driver: Finding.."  + "\n");
                         //set button
