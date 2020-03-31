@@ -9,6 +9,14 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+/*
+Title: send email activity
+Author: Jonathan Martins, Tech1st
+Date: 2020/03/31
+Last edited: 2020/03/31
+Availability: https://www.youtube.com/watch?v=1Wxedj6Q31s
+*/
+
 public class EmailUser extends AppCompatActivity {
     EditText editTextsubject, editTextmessage;
     TextView editTextto;

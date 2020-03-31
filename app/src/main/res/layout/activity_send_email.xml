@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--Title: send email activity
+ Author: Jonathan Martins, Tech1st
+ Date: 2020/03/31
+ Last edited: 2020/03/31
+ Availability: https://www.youtube.com/watch?v=1Wxedj6Q31s-->
+
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:layout_height="match_parent">

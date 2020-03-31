@@ -80,11 +80,13 @@ public class ViewProfile extends AppCompatActivity {
         Button callButton = findViewById(R.id.call_button);
         //when user clicks logout button, prompt user for confirmation
         Button logout = findViewById(R.id.logout_button);
-        // If the user is viewing his/her own profile, set the edit button to be visible
+        // If the user is viewing his/her own profile, set the edit and logout button to be visible
         if (loginName.equals(profileName)) {
             editButton.setVisibility(View.VISIBLE);
             logout.setVisibility(View.VISIBLE);
-        } else {
+        }
+        //If the user is viewing/someone else's profile, set the emailButton and call Button to visible.
+        else {
             emailButton.setVisibility(View.VISIBLE);
             callButton.setVisibility(View.VISIBLE);
         }
