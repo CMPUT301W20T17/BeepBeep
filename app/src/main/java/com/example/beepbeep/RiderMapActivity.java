@@ -28,6 +28,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
@@ -724,8 +725,24 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                         AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
                         builder.setTitle("Request Notification")
                                 .setMessage("Your request has been accept.")
-                                .setPositiveButton("OK", null)
-                                .create().show();
+                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        db.collection("Request").document(uniqueID).get()
+                                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                        if(task.isSuccessful()){
+                                                            DocumentSnapshot doc = task.getResult();
+                                                            String myDriver = (doc.get("DriverID")).toString();
+                                                            TextView drivertext = findViewById(R.id.scroll_driver);
+                                                            myDriver = "Driver: " + myDriver;
+                                                            drivertext.setText(myDriver);
+                                                        }
+                                                    }
+                                                });
+                                    }
+                                });
                     }
                 } else {
                     Log.d(TAG, "Current data: null");
