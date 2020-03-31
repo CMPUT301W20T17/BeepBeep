@@ -137,14 +137,14 @@
 
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-    android:id="@+id/bentoView_"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_alignParentEnd="true"
-    android:layout_alignParentBottom="true"
-    android:layout_marginEnd="22dp"
-    android:layout_marginBottom="23dp"
-    android:clickable="true"
-    app:srcCompat="@mipmap/bentomenuicon" />
+        android:id="@+id/bentoView_"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="20dp"
+        android:clickable="true"
+        app:srcCompat="@mipmap/bentomenuicon" />
 
 </RelativeLayout>
