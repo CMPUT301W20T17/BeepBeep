@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,16 +19,21 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
@@ -170,6 +176,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     private AutocompleteSupportFragment autocompletePickup;
     private AutocompleteSupportFragment autocompleteDestination;
 
+    private Dialog mDialog = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -538,9 +545,9 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         }
 
 
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
-            public void onMapClick(LatLng latLng) {
+            public void onMapLongClick(LatLng latLng) {
                 destination = latLng;
                 destinationName = getAddress(latLng.latitude,latLng.longitude);
                 odestination = new MarkerOptions()
@@ -668,39 +675,47 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                     Location.distanceBetween(pickupLat,pickupLng,destinLat,destinLng,result);
                     int price = (int)(5+(result[0]/1000)*2);
 
+                    if (result[0] >= 500) {
+                        //set the storing data
+                        docData.put("Type", "inactive");
+                        docData.put("RiderID", username);
+                        docData.put("DriverID", "");
+                        docData.put("StartTime", startTime2);
+                        docData.put("FinishTime", "");
+                        docData.put("Price", price);
+                        docData.put("PickUpPoint", pickupGeo);
+                        docData.put("Destination", destinaitonGeo);
 
-                    //set the storing data
-                    docData.put("Type", "inactive");
-                    docData.put("RiderID", username);
-                    docData.put("DriverID", "");
-                    docData.put("StartTime", startTime2);
-                    docData.put("FinishTime", "");
-                    docData.put("Price", price);
-                    docData.put("PickUpPoint", pickupGeo);
-                    docData.put("Destination", destinaitonGeo);
+                        //connect to firestore and store the data
+                        db.collection("Requests").document(uniqueID)
+                                .set(docData)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.d(TAG, "DocumentSnapshot successfully written!");
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.w(TAG, "Error writing document", e);
+                                    }
+                                });
 
-                    //connect to firestore and store the data
-                    db.collection("Requests").document(uniqueID)
-                            .set(docData)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Log.d(TAG, "DocumentSnapshot successfully written!");
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.w(TAG, "Error writing document", e);
-                                }
-                            });
-
-                    //pass the unique ID into the fragment
-                    Bundle bundle = new Bundle();
-                    bundle.putString("IDkey", uniqueID);
-                    request_fragment request_frag = new request_fragment();
-                    request_frag.setArguments(bundle);
-                    request_frag.show(getSupportFragmentManager(), "SHOW_REQUEST");
+                        //pass the unique ID into the fragment
+                        Bundle bundle = new Bundle();
+                        bundle.putString("IDkey", uniqueID);
+                        request_fragment request_frag = new request_fragment();
+                        request_frag.setArguments(bundle);
+                        request_frag.show(getSupportFragmentManager(), "SHOW_REQUEST");
+                    }else{
+                        AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
+                        builder.setTitle("Request Declined")
+                                .setMessage("Your request cannot been built since the direction between two locations is less than 500 meters.")
+                                .setPositiveButton("OK", null)
+                                .create()
+                                .show();
+                    }
                 }
                 else{
                     Toast errorToast = Toast.makeText(getApplicationContext(),"Please enter the pickup location or destination.", Toast.LENGTH_SHORT);
@@ -718,12 +733,34 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 }
 
                 if (snapshot != null && snapshot.exists()) {
-                    String DriverID = snapshot.get("DriverID").toString();
+                    final String DriverID = snapshot.get("DriverID").toString();
                     if(!DriverID.equals("")) {
+                        //TODO: Dialog pop up several times.
                         AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
                         builder.setTitle("Request Notification")
                                 .setMessage("Your request has been accept.")
-                                .setPositiveButton("OK", null);
+                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        TextView drivertext = findViewById(R.id.scroll_driver);
+                                        String mydriver;
+                                        int len_driver = DriverID.length();
+                                        mydriver = "Driver: " + DriverID + "\n";
+                                        SpannableString ss = new SpannableString(mydriver);
+                                        ForegroundColorSpan fcsBlue = new ForegroundColorSpan(Color.BLUE);
+                                        ss.setSpan(fcsBlue,7, 8+len_driver,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                        drivertext.setText(ss);
+                                        drivertext.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                Intent profile = new Intent(RiderMapActivity.this,ViewProfile.class);
+                                                profile.putExtra("profile_name", DriverID);
+                                                startActivity(profile);
+                                            }
+                                        });
+                                    }
+                                }).create();
+                        builder.show();
                     }
                 } else {
                     Log.d(TAG, "Current data: null");
