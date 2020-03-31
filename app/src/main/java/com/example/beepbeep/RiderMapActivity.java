@@ -746,8 +746,8 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                         mydriver = "Driver: " + DriverID + "\n";
                                         SpannableString ss = new SpannableString(mydriver);
                                         ForegroundColorSpan fcsBlue = new ForegroundColorSpan(Color.BLUE);
-                                        ss.setSpan(fcsBlue,7, 7+len_driver,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                        drivertext.setText(mydriver);
+                                        ss.setSpan(fcsBlue,7, 8+len_driver,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                        drivertext.setText(ss);
                                         drivertext.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
