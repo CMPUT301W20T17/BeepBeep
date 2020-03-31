@@ -27,28 +27,17 @@
     <LinearLayout
         android:id="@+id/but_conf"
         android:layout_width="match_parent"
-        android:layout_height="38dp"
-        android:weightSum="1"
+        android:layout_height="32dp"
+        android:orientation="horizontal"
+        android:layout_margin="7dp"
         android:layout_below="@+id/temp">
-
-        <androidx.legacy.widget.Space
-            android:layout_width="242dp"
-            android:layout_height="match_parent">
-        </androidx.legacy.widget.Space>
 
         <Button
             android:id="@+id/confirm_"
-            android:layout_width="160dp"
-            android:layout_height="35dp"
-            android:layout_weight="0.5"
-            android:layout_marginTop="0dp"
-            android:background="@drawable/custom_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:background="@drawable/custom_button"
             android:text="CONFIRM" />
-
-        <androidx.legacy.widget.Space
-            android:layout_width="7dp"
-            android:layout_height="match_parent">
-        </androidx.legacy.widget.Space>
 
     </LinearLayout>
 

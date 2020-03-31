@@ -183,8 +183,6 @@ public class request_fragment extends DialogFragment {
                         //add request ID into order history
                         final DocumentReference Accountref = db.collection("Accounts").document(username);
                         Accountref.update("order", FieldValue.arrayUnion(uniqueID));
-
-
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
