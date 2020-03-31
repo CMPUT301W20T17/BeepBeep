@@ -720,7 +720,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 }
 
                 if (snapshot != null && snapshot.exists()) {
-                    String DriverID = snapshot.get("DriverID").toString();
+                    final String DriverID = snapshot.get("DriverID").toString();
                     if(!DriverID.equals("")) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
                         builder.setTitle("Request Notification")
