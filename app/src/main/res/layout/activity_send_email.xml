@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Send Email"
+        android:layout_marginTop = "20dp"
+        android:layout_marginBottom="30dp"
+        android:textColor="#000000"
+        android:textAlignment="center"
+        android:textSize="25dp"
+        android:textStyle="bold"
+        android:id="@+id/head"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="To"
+        android:textSize="18dp"
+        android:textColor="#000000"
+        android:layout_below="@+id/head"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:id="@+id/to"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_below="@+id/to"
+        android:textSize="18dp"
+        android:gravity="center_horizontal"
+        android:textColor="#000000"
+        android:id="@+id/editto" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Subject"
+        android:textSize="18dp"
+        android:textColor="#000000"
+        android:layout_below="@+id/editto"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:id="@+id/subject"/>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_below="@+id/subject"
+        android:textSize="18dp"
+        android:textColor="#000000"
+        android:id="@+id/editsubject" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Message"
+        android:textSize="18dp"
+        android:textColor="#000000"
+        android:layout_below="@+id/editsubject"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:id="@+id/message"/>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/message"
+        android:textSize="18dp"
+        android:padding="10dp"
+        android:textColor="#000000"
+        android:id="@+id/editmessage"
+        android:lines="4"
+        android:inputType="textMultiLine"/>
+
+    <Button
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="150dp"
+        android:background="@drawable/custom_button"
+        android:id="@+id/sendEmailButton"
+        android:text="Send" />
+
+</RelativeLayout>
