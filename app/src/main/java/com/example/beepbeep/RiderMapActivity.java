@@ -670,39 +670,47 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                     Location.distanceBetween(pickupLat,pickupLng,destinLat,destinLng,result);
                     int price = (int)(5+(result[0]/1000)*2);
 
+                    if (result[0] >= 500) {
+                        //set the storing data
+                        docData.put("Type", "inactive");
+                        docData.put("RiderID", username);
+                        docData.put("DriverID", "");
+                        docData.put("StartTime", startTime2);
+                        docData.put("FinishTime", "");
+                        docData.put("Price", price);
+                        docData.put("PickUpPoint", pickupGeo);
+                        docData.put("Destination", destinaitonGeo);
 
-                    //set the storing data
-                    docData.put("Type", "inactive");
-                    docData.put("RiderID", username);
-                    docData.put("DriverIDDriverID", "");
-                    docData.put("StartTime", startTime2);
-                    docData.put("FinishTime", "");
-                    docData.put("Price", price);
-                    docData.put("PickUpPoint", pickupGeo);
-                    docData.put("Destination", destinaitonGeo);
+                        //connect to firestore and store the data
+                        db.collection("Requests").document(uniqueID)
+                                .set(docData)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.d(TAG, "DocumentSnapshot successfully written!");
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.w(TAG, "Error writing document", e);
+                                    }
+                                });
 
-                    //connect to firestore and store the data
-                    db.collection("Requests").document(uniqueID)
-                            .set(docData)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Log.d(TAG, "DocumentSnapshot successfully written!");
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.w(TAG, "Error writing document", e);
-                                }
-                            });
-
-                    //pass the unique ID into the fragment
-                    Bundle bundle = new Bundle();
-                    bundle.putString("IDkey", uniqueID);
-                    request_fragment request_frag = new request_fragment();
-                    request_frag.setArguments(bundle);
-                    request_frag.show(getSupportFragmentManager(), "SHOW_REQUEST");
+                        //pass the unique ID into the fragment
+                        Bundle bundle = new Bundle();
+                        bundle.putString("IDkey", uniqueID);
+                        request_fragment request_frag = new request_fragment();
+                        request_frag.setArguments(bundle);
+                        request_frag.show(getSupportFragmentManager(), "SHOW_REQUEST");
+                    }else{
+                        AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
+                        builder.setTitle("Request Declined")
+                                .setMessage("Your request cannot been built since the direction between two locations is less than 500 meters.")
+                                .setPositiveButton("OK", null)
+                                .create()
+                                .show();
+                    }
                 }
                 else{
                     Toast errorToast = Toast.makeText(getApplicationContext(),"Please enter the pickup location or destination.", Toast.LENGTH_SHORT);
