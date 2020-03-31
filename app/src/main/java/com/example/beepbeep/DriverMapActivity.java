@@ -588,6 +588,8 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                                     }
                                 });
                         builder.create().show();
+                        LinearLayout changeLayout = DriverMapActivity.this.findViewById(R.id.invis_linear);
+                        changeLayout.setVisibility(View.INVISIBLE);
                     }
                 }
             }
