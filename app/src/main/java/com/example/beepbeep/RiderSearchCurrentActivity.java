@@ -1,7 +1,9 @@
 package com.example.beepbeep;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -11,13 +13,17 @@ public class RiderSearchCurrentActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_rider_search_current);
-        Button okayButton = findViewById(R.id.button);
-        okayButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                finish();
-            }
-        });
+        setContentView(R.layout.activity_rider_map);
+        AlertDialog.Builder builder = new AlertDialog.Builder(RiderSearchCurrentActivity.this);
+        builder.setTitle("Request Search")
+                .setMessage("Searching if there is any current request ")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .create()
+                .show();
     }
 }
