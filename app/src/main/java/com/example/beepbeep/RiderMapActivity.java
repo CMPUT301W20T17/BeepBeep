@@ -176,6 +176,8 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     private AutocompleteSupportFragment autocompletePickup;
     private AutocompleteSupportFragment autocompleteDestination;
 
+    boolean darkmode;
+
     private Dialog mDialog = null;
 
     @Override
@@ -230,9 +232,8 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         //active the autocomplete place selection for pickup location
         getAutocompletePickup();
 
-        SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", Context.MODE_PRIVATE);
-        Boolean darkmode = sharedPref.getBoolean("darkmode", false);
-
+        SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
+        darkmode = sharedPref.getBoolean("darkmode", false);
 
         //set the Button confirm, and send the request information to firestore
         uniqueID = UUID.randomUUID().toString();
@@ -538,12 +539,19 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        boolean success = googleMap.setMapStyle(new MapStyleOptions(getResources()
-                .getString(R.string.standard)));
-        if (!success) {
-            Log.e(TAG, "Style parsing failed.");
+        if (darkmode) {
+            boolean success = googleMap.setMapStyle(new MapStyleOptions(getResources()
+                    .getString(R.string.style_json)));
+            if (!success) {
+                Log.e(TAG, "Style parsing failed.");
+            }
+        }else{
+            boolean success = googleMap.setMapStyle(new MapStyleOptions(getResources()
+                    .getString(R.string.standard)));
+            if (!success) {
+                Log.e(TAG, "Style parsing failed.");
+            }
         }
-
 
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
