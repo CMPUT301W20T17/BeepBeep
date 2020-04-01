@@ -2,25 +2,18 @@ package com.example.beepbeep;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
-import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
@@ -104,14 +97,10 @@ public class MainActivity extends AppCompatActivity {
         final SharedPreferences sharedPref = MainActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
         final String role = sharedPref.getString("role", "");
         if(role.equals("Driver")){
-            OrderRecordManager orm = new OrderRecordManager(MainActivity.this);
-            orm.saveRecord();
             Intent intent = new Intent(MainActivity.this, DriverMapActivity.class);
             startActivity(intent);
             finishAffinity();
         }else{
-            OrderRecordManager orm = new OrderRecordManager(MainActivity.this);
-            orm.saveRecord();
             Intent intent = new Intent(MainActivity.this, RiderMapActivity.class);
             startActivity(intent);
             finishAffinity();

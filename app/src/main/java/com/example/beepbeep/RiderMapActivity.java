@@ -1,15 +1,11 @@
 package com.example.beepbeep;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.res.ResourcesCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -22,7 +18,6 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -30,7 +25,6 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -59,7 +53,6 @@ import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -67,8 +60,6 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
-
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -240,7 +231,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         final String loginName = sharedPref.getString("username","");
 
         //check and display current activity
-        OrderRecordManager orm = new OrderRecordManager(this);
+        OrderRecordManager orm = new OrderRecordManager(RiderMapActivity.this);
         orderDataList= orm.getRecord();
 
         //set the Button confirm, and send the request information to firestore
@@ -443,15 +434,9 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                     scrollUser.setText("User: " + order.getRiderID());
                     TextView scrollDriver = findViewById(R.id.scroll_driver);
                     scrollDriver.setText("Driver: Finding.."  + "\n");
-
                 }}
-
         }
-
-
     }
-
-
 
     @Override
     public void onTaskDone(Object... values) {
@@ -750,8 +735,6 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         if (!success) {
             Log.e(TAG, "Style parsing failed.");
         }
-
-
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
@@ -804,7 +787,6 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
             }
         }
     }
-
 
     private void updateLocationUI() {
         if (mMap == null) {
@@ -958,7 +940,4 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
-
-
-
 }
