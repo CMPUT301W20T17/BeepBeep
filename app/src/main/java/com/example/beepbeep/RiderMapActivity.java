@@ -261,7 +261,6 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
             if (orderDataList.size() >= 1){
                 final Order order = orderDataList.get(0);
                 if (!order.getType().equals("complete")) {
-                    confirm_button.setVisibility(View.INVISIBLE);
                     db = FirebaseFirestore.getInstance();
                     DocumentReference userInfo = db.collection("Accounts").document(loginName);
                     userInfo.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -834,76 +833,102 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 
     void newRequest(){
         if (opickup != null && odestination != null) {
-                    //get shared preference and user now
-                    final SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
-                    final String username = sharedPref.getString("username", "");
-                    //connect to firestore and get unique ID
-                    db = FirebaseFirestore.getInstance();
+            //get shared preference and user now
+            final SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
+            final String username = sharedPref.getString("username", "");
+            //connect to firestore and get unique ID
+            db = FirebaseFirestore.getInstance();
 
-                    Map<String, Object> docData = new HashMap<>();
+            Map<String, Object> docData = new HashMap<>();
 
-                    //prepare the data in specific type
-                    Date startTime = Calendar.getInstance().getTime(); //start time
-                    String startTime2 = startTime.toString();
-                    //set lat and long
-                    double pickupLat = pickup.latitude; //pickup geolocation
-                    double pickupLng = pickup.longitude;
-                    GeoPoint pickupGeo = new GeoPoint(pickupLat, pickupLng);
-                    double destinLat = destination.latitude; //destination geolocation
-                    double destinLng = destination.longitude;
-                    GeoPoint destinaitonGeo = new GeoPoint(destinLat, destinLng);
-                    //set price
-                    float[] result = new float[1];
-                    Location.distanceBetween(pickupLat,pickupLng,destinLat,destinLng,result);
-                    int price = (int)(5+(result[0]/1000)*2);
+            //prepare the data in specific type
+            Date startTime = Calendar.getInstance().getTime(); //start time
+            String startTime2 = startTime.toString();
+            //set lat and long
+            double pickupLat = pickup.latitude; //pickup geolocation
+            double pickupLng = pickup.longitude;
+            GeoPoint pickupGeo = new GeoPoint(pickupLat, pickupLng);
+            double destinLat = destination.latitude; //destination geolocation
+            double destinLng = destination.longitude;
+            GeoPoint destinaitonGeo = new GeoPoint(destinLat, destinLng);
+            //set price
+            float[] result = new float[1];
+            Location.distanceBetween(pickupLat,pickupLng,destinLat,destinLng,result);
+            int price = (int)(5+(result[0]/1000)*2);
 
-                    if (result[0] >= 500) {
-                        //set the storing data
-                        docData.put("Type", "");
-                        docData.put("RiderID", username);
-                        docData.put("DriverID", "");
-                        docData.put("StartTime", startTime2);
-                        docData.put("FinishTime", "");
-                        docData.put("Price", price);
-                        docData.put("PickUpPoint", pickupGeo);
-                        docData.put("Destination", destinaitonGeo);
+            if (result[0] >= 500) {
+                //set the storing data
+                docData.put("Type", "");
+                docData.put("RiderID", username);
+                docData.put("DriverID", "");
+                docData.put("StartTime", startTime2);
+                docData.put("FinishTime", "");
+                docData.put("Price", price);
+                docData.put("PickUpPoint", pickupGeo);
+                docData.put("Destination", destinaitonGeo);
 
-                        //connect to firestore and store the data
-                        db.collection("Requests").document(uniqueID)
-                                .set(docData)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Log.d(TAG, "DocumentSnapshot successfully written!");
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w(TAG, "Error writing document", e);
-                                    }
-                                });
+                //connect to firestore and store the data
+                db.collection("Requests").document(uniqueID)
+                        .set(docData)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "DocumentSnapshot successfully written!");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error writing document", e);
+                            }
+                        });
 
-                        //pass the unique ID into the fragment
-                        Bundle bundle = new Bundle();
-                        bundle.putString("IDkey", uniqueID);
-                        request_fragment request_frag = new request_fragment();
-                        request_frag.setArguments(bundle);
-                        request_frag.show(getSupportFragmentManager(), "SHOW_REQUEST");
-                    }else{
+                //pass the unique ID into the fragment
+                Bundle bundle = new Bundle();
+                bundle.putString("IDkey", uniqueID);
+                request_fragment request_frag = new request_fragment();
+                request_frag.setArguments(bundle);
+                request_frag.show(getSupportFragmentManager(), "SHOW_REQUEST");
+                sendNotification();
+            }else{
+                AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
+                builder.setTitle("Request Declined")
+                        .setMessage("Your request cannot been built since the direction between two locations is less than 500 meters.")
+                        .setPositiveButton("OK", null)
+                        .create()
+                        .show();
+            }
+        }
+        else{
+            Toast errorToast = Toast.makeText(getApplicationContext(),"Please enter the pickup location or destination.", Toast.LENGTH_SHORT);
+            errorToast.show();
+        }
+
+        final DocumentReference docRef = db.collection("Requests").document(uniqueID);
+        final Button cancelBtn = findViewById(R.id.btn_cancel_request);
+        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+                if(documentSnapshot != null && documentSnapshot.exists()){
+                    final String type = documentSnapshot.get("Type").toString();
+                    if(type.equals("inprocess")){
                         AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
-                        builder.setTitle("Request Declined")
-                                .setMessage("Your request cannot been built since the direction between two locations is less than 500 meters.")
-                                .setPositiveButton("OK", null)
-                                .create()
-                                .show();
+                        builder.setTitle("Request Start")
+                                .setMessage("The request starts to run.")
+                                .setPositiveButton("OK",null)
+                                .create().show();
+                        cancelBtn.setVisibility(View.INVISIBLE);
                     }
                 }
-                else{
-                    Toast errorToast = Toast.makeText(getApplicationContext(),"Please enter the pickup location or destination.", Toast.LENGTH_SHORT);
-                    errorToast.show();
-                }
+            }
+        });
+    }
 
+    private void sendNotification(){
         final DocumentReference docRef = db.collection("Requests").document(uniqueID);
         docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
@@ -915,8 +940,8 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 }
 
                 if (snapshot != null && snapshot.exists()) {
-                        final String DriverID = snapshot.get("DriverID").toString();
-                        final String nowType = snapshot.get("Type").toString();
+                    final String DriverID = snapshot.get("DriverID").toString();
+                    final String nowType = snapshot.get("Type").toString();
                     //TODO: check whether
                     if(nowType.equals("active")) {
                         //TODO: Dialog pop up several times.
@@ -948,29 +973,6 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                     }
                 } else {
                     Log.d(TAG, "Current data: null");
-                }
-            }
-        });
-
-        //set
-        final Button cancelBtn = findViewById(R.id.btn_cancel_request);
-        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e);
-                    return;
-                }
-                if(documentSnapshot != null && documentSnapshot.exists()){
-                    final String type = documentSnapshot.get("Type").toString();
-                    if(type.equals("inprocess")){
-                        AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
-                        builder.setTitle("zai? ")
-                                .setMessage("NMSL")
-                                .setPositiveButton("OK",null)
-                                .create().show();
-                        cancelBtn.setVisibility(View.INVISIBLE);
-                    }
                 }
             }
         });
