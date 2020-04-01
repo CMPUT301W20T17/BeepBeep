@@ -155,7 +155,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     private MarkerOptions odestination;
 
 
-    private String uniqueID;
+    private String uniqueID = UUID.randomUUID().toString();
 
     FloatingActionButton bentoMenu;
 
@@ -233,7 +233,6 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         orderDataList= orm.getRecord();
 
         //set the Button confirm, and send the request information to firestore
-        uniqueID = UUID.randomUUID().toString();
         Button confirm_button;
         confirm_button = findViewById(R.id.confirm);
 
