@@ -94,6 +94,8 @@ public class MainActivity extends AppCompatActivity {
 
     // launch main page
     private void launchMain(){
+        OrderRecordManager orm = new OrderRecordManager(MainActivity.this);
+        orm.saveRecord();
         final SharedPreferences sharedPref = MainActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
         final String role = sharedPref.getString("role", "");
         if(role.equals("Driver")){

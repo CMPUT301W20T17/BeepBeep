@@ -100,8 +100,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.google.common.collect.Iterables.size;
-
 
 public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCallback, TaskLoadedCallback{
     //march 19th, 2020 changed from extends fragmentactivity to appcompatactivity due to incompatibility with png files.
