@@ -215,12 +215,23 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         getAutocompletePickup();
         SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", Context.MODE_PRIVATE);
         Boolean darkmode = sharedPref.getBoolean("darkmode", false);
+        showCorrectView();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        showCorrectView();
+    }
 
+    @Override
+    public void onTaskDone(Object... values) {
+        if (currentPolyline != null)
+            currentPolyline.remove();
+        currentPolyline = mMap.addPolyline((PolylineOptions) values[0]);
+    }
+
+    public void showCorrectView(){
         SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", Context.MODE_PRIVATE);
         final String loginName = sharedPref.getString("username","");
 
@@ -319,16 +330,13 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                             docData.put("Type","Deleted");
                                             db.collection("Requests").document(latestOrderNum).update(docData);
                                         }
-
                                     }
                                 });
-
                             }
                         }
                     });
                 }
             }
-
 
             confirm_button.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -431,13 +439,6 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                     scrollDriver.setText("Driver: Finding.."  + "\n");
                 }}
         }
-    }
-
-    @Override
-    public void onTaskDone(Object... values) {
-        if (currentPolyline != null)
-            currentPolyline.remove();
-        currentPolyline = mMap.addPolyline((PolylineOptions) values[0]);
     }
 
     public String getAddress(GeoPoint location){
