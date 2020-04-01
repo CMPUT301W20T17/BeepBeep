@@ -254,9 +254,11 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         final RelativeLayout theFirstLayout = findViewById(R.id.thefirstshow);
         final RelativeLayout theSecondLayout = findViewById(R.id.thesecondshow);
 
+        //Display current order if exists
         if (orderDataList.size() >= 1){
             final Order order = orderDataList.get(0);
             if (!order.getType().equals("complete")) {
+                confirm_button.setVisibility(View.INVISIBLE);
                 db = FirebaseFirestore.getInstance();
                 DocumentReference userInfo = db.collection("Accounts").document(loginName);
                 userInfo.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
