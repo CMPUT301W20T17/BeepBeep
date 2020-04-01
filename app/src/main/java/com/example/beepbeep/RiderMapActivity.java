@@ -666,7 +666,6 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                     final String username = sharedPref.getString("username", "");
                     //connect to firestore and get unique ID
                     db = FirebaseFirestore.getInstance();
-
                     Map<String, Object> docData = new HashMap<>();
 
                     //prepare the data in specific type

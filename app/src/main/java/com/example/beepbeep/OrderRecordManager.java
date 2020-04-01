@@ -156,7 +156,7 @@ class OrderRecordManager {
         return ret;
     }
 
-    private static GeoPoint toGeoPoint(String s){
+    static GeoPoint toGeoPoint(String s){
         String pattern = "([-]?\\d*\\.\\d*)";
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(s);

@@ -144,6 +144,7 @@
         android:id="@+id/logout_button"
         android:layout_width="112dp"
         android:layout_height="41dp"
+        android:visibility="invisible"
         android:background="@drawable/custom_signout_button"
         android:text="Logout"
         android:textColor="@color/quantum_white_100"

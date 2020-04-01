@@ -50,9 +50,9 @@ public class Order implements Serializable {
         this.Destination = Destination;
         this.Type = Type;
     }
-    
+
     public Order(){}
- 
+
     public String getUser(){return user;}
 
     public String getDriverID(){return DriverID;}
@@ -66,16 +66,12 @@ public class Order implements Serializable {
     public Double getPrice(){return Price;}
 
     public GeoPoint getPickupPoint(){
-        /*
-        double LAT  = PickupPoint.getLatitude();
-        double LONG = PickupPoint.getLongitude();
-         */
+
         return PickUpPoint;
     }
 
     public GeoPoint getDestination(){
-        //double LAT  = Destination.getLatitude();
-        //double LONG = Destination.getLongitude();
+
         return Destination;}
 
     public String getType(){return Type;}
