@@ -4,22 +4,18 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
@@ -28,9 +24,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -70,6 +63,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
@@ -115,6 +109,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.google.common.collect.Iterables.size;
 
 
 public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCallback, TaskLoadedCallback{
@@ -137,6 +132,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     // not granted.
     private final LatLng mDefaultLocation = new LatLng(-33.8523341, 151.2106085);
     private static final int DEFAULT_ZOOM = 15;
+    private Context context;
 
     // define the permission request
     static public final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
@@ -179,8 +175,8 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     private AutocompleteSupportFragment autocompletePickup;
     private AutocompleteSupportFragment autocompleteDestination;
 
-    private Dialog mDialog = null;
     private ArrayList<Order> orderDataList;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -235,13 +231,12 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         getAutocompletePickup();
 
         SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", Context.MODE_PRIVATE);
-        Boolean darkmode = sharedPref.getBoolean("darkmode", false);
         final String loginName = sharedPref.getString("username","");
+        Boolean darkmode = sharedPref.getBoolean("darkmode", false);
 
-        //Update current record ******************************might not be useful when no internet access
+        //check and display current activity
         OrderRecordManager orm = new OrderRecordManager(this);
         orderDataList= orm.getRecord();
-
 
         //set the Button confirm, and send the request information to firestore
         uniqueID = UUID.randomUUID().toString();
@@ -251,15 +246,10 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         Button completeButton;
         completeButton = findViewById(R.id.btn_complete);
 
-
-        //Set the complete button, switch to the make payment activity since it's the rider want to complete
-
-
-
         if (hasNetworkAccess()){
             //has current activity
             if (orderDataList.size() >= 1){
-                Order order = orderDataList.get(0);
+                final Order order = orderDataList.get(0);
                 if (!order.getType().equals("complete")) {
                     db = FirebaseFirestore.getInstance();
                     DocumentReference userInfo = db.collection("Accounts").document(loginName);
@@ -270,19 +260,85 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                 DocumentSnapshot document = task.getResult();
                                 List<String> orders = (List<String>) document.get("order");
                                 int index = orders.size() - 1;
-                                String latestOrderNum = orders.get(index);
+                                final String latestOrderNum = orders.get(index);
                                 //shows in the rider map
-                                //pass the unique ID into the fragment
-                                Bundle bundle = new Bundle();
-                                bundle.putString("IDkey", latestOrderNum);
-                                request_fragment request_frag = new request_fragment();
-                                request_frag.setArguments(bundle);
-                                request_frag.show(getSupportFragmentManager(), "SHOW_REQUEST");
+                                //change layout from the first show to the second show
+                                final RelativeLayout theFirstLayout = findViewById(R.id.thefirstshow);
+                                theFirstLayout.setVisibility(View.INVISIBLE);
+                                final RelativeLayout theSecondLayout = findViewById(R.id.thesecondshow);
+                                theSecondLayout.setVisibility(View.VISIBLE);
+                                //set scroll view
+                                TextView scrollStart = findViewById(R.id.scroll_start);
+                                GeoPoint pickup_geopoint = order.getPickupPoint();
+                                String pickup_address = getAddress(pickup_geopoint);
+                                GeoPoint destination_geopoint = order.getDestination();
+                                String destination_address = getAddress(destination_geopoint);
+                                scrollStart.setText("Start: " + pickup_address);
+                                TextView scrollEnd = findViewById(R.id.scroll_end);
+                                scrollEnd.setText("End: " + destination_address);
+                                TextView scrollPrice = findViewById(R.id.scroll_price);
+                                scrollPrice.setText("Price: " + order.getPrice());
+                                TextView scrollUser = findViewById(R.id.scroll_user);
+                                scrollUser.setText("User: " + order.getRiderID());
+                                TextView scrollDriver = findViewById(R.id.scroll_driver);
+                                scrollDriver.setText("Driver: Finding.."  + "\n");
+                                //set button
+                                Button btnCancelRequest = findViewById(R.id.btn_cancel_request);
+                                btnCancelRequest.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        theFirstLayout.setVisibility(View.VISIBLE);
+                                        theSecondLayout.setVisibility(View.INVISIBLE);
+
+                                        final String[] typenow = new String[1];
+                                        final DocumentReference doc = db.collection("Requests").document(latestOrderNum);
+                                        doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                if (task.isSuccessful()){
+                                                    DocumentSnapshot doc = task.getResult();
+                                                    typenow[0] = (doc.get("Type")).toString();
+                                                }
+                                            }
+                                        });
+
+                                        if(typenow[0] == "inactive"){
+                                            //delete the order history
+                                            final DocumentReference Accountref = db.collection("Accounts").document(loginName);
+                                            Accountref.update("order", FieldValue.arrayRemove(latestOrderNum));
+                                            //delete the requestID
+                                            db.collection("Requests").document(latestOrderNum)
+                                                    .delete()
+                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void aVoid) {
+                                                            Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                                                        }
+                                                    })
+                                                    .addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            Log.w(TAG, "Error deleting document", e);
+                                                        }
+                                                    });
+                                        }else{
+                                            final DocumentReference Accountref = db.collection("Accounts").document(loginName);
+                                            Accountref.update("order", FieldValue.arrayRemove(latestOrderNum));
+                                            Map<String, Object> docData = new HashMap<>();
+                                            docData.put("DriverID","");
+                                            docData.put("Type","Deleted");
+                                            db.collection("Requests").document(latestOrderNum).update(docData);
+                                        }
+
+                                    }
+                                });
+
                             }
                         }
                     });
                 }
             }
+
 
             confirm_button.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -295,31 +351,72 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
             completeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    DocumentReference order = db.collection("Requests").document(uniqueID);
-                    order.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if(task.isSuccessful()){
-                                DocumentSnapshot doc = task.getResult();
-                                String price = (doc.get("Price")).toString();
-                                Intent a = new Intent(RiderMapActivity.this, MakePayment.class);
-                                a.putExtra("Price", price);
-                                startActivity(a);
-                                Intent b = new Intent(RiderMapActivity.this,RiderRatingActivity.class);
-                                String driver_name = (doc.get("DriverID")).toString();
-                                b.putExtra("driver_name", driver_name);
-                                startActivity(b);
-                            }
+                    if (orderDataList.size() >= 1) {
+                        final Order order = orderDataList.get(0);
+                        if (order.getType().equals("complete")) {
+                            DocumentReference order2 = db.collection("Requests").document(uniqueID);
+                            order2.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        DocumentSnapshot doc = task.getResult();
+                                        String price = (doc.get("Price")).toString();
+                                        Intent a = new Intent(RiderMapActivity.this, MakePayment.class);
+                                        a.putExtra("Price", price);
+                                        startActivity(a);
+                                        Intent b = new Intent(RiderMapActivity.this, RiderRatingActivity.class);
+                                        String driver_name = (doc.get("DriverID")).toString();
+                                        b.putExtra("driver_name", driver_name);
+                                        startActivity(b);
+                                    }
+                                }
+                            });
                         }
-                    });
+                        else{
+                            DocumentReference userInfo = db.collection("Accounts").document(loginName);
+                            userInfo.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        DocumentSnapshot document = task.getResult();
+                                        List<String> orders = (List<String>) document.get("order");
+                                        int index = orders.size() - 1;
+                                        final String latestOrderNum = orders.get(index);
+
+                                        DocumentReference order2 = db.collection("Requests").document(latestOrderNum);
+                                        order2.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                if (task.isSuccessful()) {
+                                                    DocumentSnapshot doc = task.getResult();
+                                                    String price = (doc.get("Price")).toString();
+                                                    Intent a = new Intent(RiderMapActivity.this, MakePayment.class);
+                                                    a.putExtra("Price", price);
+                                                    startActivity(a);
+                                                    Intent b = new Intent(RiderMapActivity.this, RiderRatingActivity.class);
+                                                    String driver_name = (doc.get("DriverID")).toString();
+                                                    b.putExtra("driver_name", driver_name);
+                                                    startActivity(b);
+                                                }
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    }
                 }
             });
+
+
         }
         else{
             //check if we have current avitivity
             //if has, show the current activity, else show prompt
         }
+
     }
+
 
 
     @Override
@@ -329,6 +426,33 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         currentPolyline = mMap.addPolyline((PolylineOptions) values[0]);
     }
 
+    public String getAddress(GeoPoint location){
+        double LAT  = location.getLatitude();
+        double LONG = location.getLongitude();
+        String address = "";
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        try{
+            //get address in list
+            List<Address> addresses = geocoder.getFromLocation(LAT, LONG, 1);
+            //if there is address
+            if (addresses != null) {
+                //get the returned addresses
+                Address returnedAddress = addresses.get(0);
+                StringBuilder strReturnedAddress = new StringBuilder("");
+                //set the returned address in string
+                for (int i = 0; i <= returnedAddress.getMaxAddressLineIndex(); i++) {
+                    strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n");
+                }
+                address = strReturnedAddress.toString();
+            }
+            else{
+                Log.w("My Current location address", "No Address returned!");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return address;
+    }
 
 
     /**
@@ -594,9 +718,9 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         }
 
 
-        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
-            public void onMapLongClick(LatLng latLng) {
+            public void onMapClick(LatLng latLng) {
                 destination = latLng;
                 destinationName = getAddress(latLng.latitude,latLng.longitude);
                 odestination = new MarkerOptions()
@@ -702,74 +826,67 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 
     void newRequest(){
         if (opickup != null && odestination != null) {
-                    //get shared preference and user now
-                    final SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
-                    final String username = sharedPref.getString("username", "");
-                    //connect to firestore and get unique ID
-                    db = FirebaseFirestore.getInstance();
-                    Map<String, Object> docData = new HashMap<>();
+            //get shared preference and user now
+            final SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
+            final String username = sharedPref.getString("username", "");
+            //connect to firestore and get unique ID
+            db = FirebaseFirestore.getInstance();
 
-                    //prepare the data in specific type
-                    Date startTime = Calendar.getInstance().getTime(); //start time
-                    String startTime2 = startTime.toString();
-                    //set lat and long
-                    double pickupLat = pickup.latitude; //pickup geolocation
-                    double pickupLng = pickup.longitude;
-                    GeoPoint pickupGeo = new GeoPoint(pickupLat, pickupLng);
-                    double destinLat = destination.latitude; //destination geolocation
-                    double destinLng = destination.longitude;
-                    GeoPoint destinaitonGeo = new GeoPoint(destinLat, destinLng);
-                    //set price
-                    float[] result = new float[1];
-                    Location.distanceBetween(pickupLat,pickupLng,destinLat,destinLng,result);
-                    int price = (int)(5+(result[0]/1000)*2);
+            Map<String, Object> docData = new HashMap<>();
 
-                    if (result[0] >= 500) {
-                        //set the storing data
-                        docData.put("Type", "inactive");
-                        docData.put("RiderID", username);
-                        docData.put("DriverID", "");
-                        docData.put("StartTime", startTime2);
-                        docData.put("FinishTime", "");
-                        docData.put("Price", price);
-                        docData.put("PickUpPoint", pickupGeo);
-                        docData.put("Destination", destinaitonGeo);
+            //prepare the data in specific type
+            Date startTime = Calendar.getInstance().getTime(); //start time
+            String startTime2 = startTime.toString();
+            //set lat and long
+            double pickupLat = pickup.latitude; //pickup geolocation
+            double pickupLng = pickup.longitude;
+            GeoPoint pickupGeo = new GeoPoint(pickupLat, pickupLng);
+            double destinLat = destination.latitude; //destination geolocation
+            double destinLng = destination.longitude;
+            GeoPoint destinaitonGeo = new GeoPoint(destinLat, destinLng);
+            //set price
+            float[] result = new float[1];
+            Location.distanceBetween(pickupLat,pickupLng,destinLat,destinLng,result);
+            int price = (int)(5+(result[0]/1000)*2);
 
-                        //connect to firestore and store the data
-                        db.collection("Requests").document(uniqueID)
-                                .set(docData)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Log.d(TAG, "DocumentSnapshot successfully written!");
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w(TAG, "Error writing document", e);
-                                    }
-                                });
 
-                        //pass the unique ID into the fragment
-                        Bundle bundle = new Bundle();
-                        bundle.putString("IDkey", uniqueID);
-                        request_fragment request_frag = new request_fragment();
-                        request_frag.setArguments(bundle);
-                        request_frag.show(getSupportFragmentManager(), "SHOW_REQUEST");
-                    }else{
-                        AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
-                        builder.setTitle("Request Declined")
-                                .setMessage("Your request cannot been built since the direction between two locations is less than 500 meters.")
-                                .setPositiveButton("OK", null)
-                                .create()
-                                .show();
-                    }
-                }
-                else{
-                    Toast errorToast = Toast.makeText(getApplicationContext(),"Please enter the pickup location or destination.", Toast.LENGTH_SHORT);
-                    errorToast.show();
-                }
+            //set the storing data
+            docData.put("Type", "inactive");
+            docData.put("RiderID", username);
+            docData.put("DriverID", "");
+            docData.put("StartTime", startTime2);
+            docData.put("FinishTime", "");
+            docData.put("Price", price);
+            docData.put("PickUpPoint", pickupGeo);
+            docData.put("Destination", destinaitonGeo);
+
+            //connect to firestore and store the data
+            db.collection("Requests").document(uniqueID)
+                    .set(docData)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "DocumentSnapshot successfully written!");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error writing document", e);
+                        }
+                    });
+
+            //pass the unique ID into the fragment
+            Bundle bundle = new Bundle();
+            bundle.putString("IDkey", uniqueID);
+            request_fragment request_frag = new request_fragment();
+            request_frag.setArguments(bundle);
+            request_frag.show(getSupportFragmentManager(), "SHOW_REQUEST");
+        }
+        else{
+            Toast errorToast = Toast.makeText(getApplicationContext(),"Please enter the pickup location or destination.", Toast.LENGTH_SHORT);
+            errorToast.show();
+        }
 
         final DocumentReference docRef = db.collection("Requests").document(uniqueID);
         docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -782,40 +899,18 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 }
 
                 if (snapshot != null && snapshot.exists()) {
-                    final String DriverID = snapshot.get("DriverID").toString();
-                    if(!DriverID.equals("")) {
-                        //TODO: Dialog pop up several times.
-                        AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
-                        builder.setTitle("Request Notification")
-                                .setMessage("Your request has been accept.")
-                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        TextView drivertext = findViewById(R.id.scroll_driver);
-                                        String mydriver;
-                                        int len_driver = DriverID.length();
-                                        mydriver = "Driver: " + DriverID + "\n";
-                                        SpannableString ss = new SpannableString(mydriver);
-                                        ForegroundColorSpan fcsBlue = new ForegroundColorSpan(Color.BLUE);
-                                        ss.setSpan(fcsBlue,7, 8+len_driver,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                        drivertext.setText(ss);
-                                        drivertext.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                Intent profile = new Intent(RiderMapActivity.this,ViewProfile.class);
-                                                profile.putExtra("profile_name", DriverID);
-                                                startActivity(profile);
-                                            }
-                                        });
-                                    }
-                                }).create();
-                        builder.show();
+                    OrderRecordManager orm = new OrderRecordManager(RiderMapActivity.this);
+                    orm.saveRecord();
+                    String DriverID = snapshot.get("DriverID").toString();
+                    if(!DriverID.equals("")){
+                        // TODO display driver ID
                     }
                 } else {
                     Log.d(TAG, "Current data: null");
                 }
             }
         });
+
     }
 
     /**
@@ -829,4 +924,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
+
+
+
 }
