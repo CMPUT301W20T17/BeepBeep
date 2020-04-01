@@ -115,7 +115,7 @@ public class Login extends AppCompatActivity {
      * Display a message as a toast to prompt user
      * @param message String
      */
-    private void showDialog(String message) {
+    void showDialog(String message) {
         Toast.makeText(Login.this, message, Toast.LENGTH_SHORT).show();
     }
 
@@ -123,7 +123,7 @@ public class Login extends AppCompatActivity {
      * check if device have network access
      * @return true if device have network access
      */
-    private boolean hasNetworkAccess(){
+    boolean hasNetworkAccess(){
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getSystemService(this.CONNECTIVITY_SERVICE);
         assert connectivityManager != null;
@@ -131,7 +131,7 @@ public class Login extends AppCompatActivity {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    private void saveIdentity(final String username, final String passwordHash, final String salt, DocumentSnapshot document){
+    void saveIdentity(final String username, final String passwordHash, final String salt, DocumentSnapshot document){
         Context context = Login.this;
         SharedPreferences sharedPref = context.getSharedPreferences("identity", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
@@ -156,7 +156,7 @@ public class Login extends AppCompatActivity {
      * @param username String
      * @param password String
      */
-    private void login(final String username, final String password){
+    void login(final String username, final String password){
         if(hasNetworkAccess()){
             // check if username exist in database
             DocumentReference docIdRef = db.collection("Accounts").document(usernameInput.getText().toString());
