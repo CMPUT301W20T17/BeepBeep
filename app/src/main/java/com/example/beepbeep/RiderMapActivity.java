@@ -259,9 +259,9 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         if (hasNetworkAccess()){
             //has current activity
             if (orderDataList.size() >= 1){
-                confirm_button.setVisibility(View.INVISIBLE);
                 final Order order = orderDataList.get(0);
                 if (!order.getType().equals("complete")) {
+                    confirm_button.setVisibility(View.INVISIBLE);
                     db = FirebaseFirestore.getInstance();
                     DocumentReference userInfo = db.collection("Accounts").document(loginName);
                     userInfo.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -292,6 +292,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                 TextView scrollUser = findViewById(R.id.scroll_user);
                                 scrollUser.setText("User: " + order.getRiderID());
                                 TextView scrollDriver = findViewById(R.id.scroll_driver);
+                                //TODO 
                                 scrollDriver.setText("Driver: Finding.."  + "\n");
                                 //set button
                                 Button btnCancelRequest = findViewById(R.id.btn_cancel_request);
@@ -880,45 +881,52 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
             Location.distanceBetween(pickupLat,pickupLng,destinLat,destinLng,result);
             int price = (int)(5+(result[0]/1000)*2);
 
+            if (result[0] >= 500) {
+                //set the storing data
+                docData.put("Type", "inactive");
+                docData.put("RiderID", username);
+                docData.put("DriverID", "");
+                docData.put("StartTime", startTime2);
+                docData.put("FinishTime", "");
+                docData.put("Price", price);
+                docData.put("PickUpPoint", pickupGeo);
+                docData.put("Destination", destinaitonGeo);
 
-            //set the storing data
-            docData.put("Type", "inactive");
-            docData.put("RiderID", username);
-            docData.put("DriverID", "");
-            docData.put("StartTime", startTime2);
-            docData.put("FinishTime", "");
-            docData.put("Price", price);
-            docData.put("PickUpPoint", pickupGeo);
-            docData.put("Destination", destinaitonGeo);
+                //connect to firestore and store the data
+                db.collection("Requests").document(uniqueID)
+                        .set(docData)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "DocumentSnapshot successfully written!");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error writing document", e);
+                            }
+                        });
 
-            //connect to firestore and store the data
-            db.collection("Requests").document(uniqueID)
-                    .set(docData)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "DocumentSnapshot successfully written!");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(TAG, "Error writing document", e);
-                        }
-                    });
-
-            //pass the unique ID into the fragment
-            Bundle bundle = new Bundle();
-            bundle.putString("IDkey", uniqueID);
-            request_fragment request_frag = new request_fragment();
-            request_frag.setArguments(bundle);
-            request_frag.show(getSupportFragmentManager(), "SHOW_REQUEST");
+                //pass the unique ID into the fragment
+                Bundle bundle = new Bundle();
+                bundle.putString("IDkey", uniqueID);
+                request_fragment request_frag = new request_fragment();
+                request_frag.setArguments(bundle);
+                request_frag.show(getSupportFragmentManager(), "SHOW_REQUEST");
+            }else{
+                AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
+                builder.setTitle("Request Declined")
+                        .setMessage("Your request cannot been built since the direction between two locations is less than 500 meters.")
+                        .setPositiveButton("OK", null)
+                        .create()
+                        .show();
+            }
         }
         else{
             Toast errorToast = Toast.makeText(getApplicationContext(),"Please enter the pickup location or destination.", Toast.LENGTH_SHORT);
             errorToast.show();
         }
-
         final DocumentReference docRef = db.collection("Requests").document(uniqueID);
         docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
@@ -946,55 +954,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                         mydriver = "Driver: " + DriverID + "\n";
                                         SpannableString ss = new SpannableString(mydriver);
                                         ForegroundColorSpan fcsBlue = new ForegroundColorSpan(Color.BLUE);
-                                        ss.setSpan(fcsBlue,7, 8+len_driver, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                        drivertext.setText(ss);
-                                        drivertext.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                Intent profile = new Intent(RiderMapActivity.this,ViewProfile.class);
-                                                profile.putExtra("profile_name", DriverID);
-                                                startActivity(profile);
-                                            }
-                                        });
-                                    }
-                                }).create();
-                        builder.show();
-                    }
-                } else {
-                    Log.d(TAG, "Current data: null");
-                }
-            }
-        });
-    }
-    private void showNotification(){
-        final DocumentReference docRef = db.collection("Requests").document(uniqueID);
-        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot snapshot,
-                                @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e);
-                    return;
-                }
-
-                if (snapshot != null && snapshot.exists()) {
-                    final String DriverID = snapshot.get("DriverID").toString();
-                    //TODO: check whether
-                    if(DriverID.equals("active")) {
-                        //TODO: Dialog pop up several times.
-                        AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
-                        builder.setTitle("Request Notification")
-                                .setMessage("Your request has been accept.")
-                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        TextView drivertext = findViewById(R.id.scroll_driver);
-                                        String mydriver;
-                                        int len_driver = DriverID.length();
-                                        mydriver = "Driver: " + DriverID + "\n";
-                                        SpannableString ss = new SpannableString(mydriver);
-                                        ForegroundColorSpan fcsBlue = new ForegroundColorSpan(Color.BLUE);
-                                        ss.setSpan(fcsBlue,7, 8+len_driver, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                        ss.setSpan(fcsBlue,7, 8+len_driver,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                                         drivertext.setText(ss);
                                         drivertext.setOnClickListener(new View.OnClickListener() {
                                             @Override
