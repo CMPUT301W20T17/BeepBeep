@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 
 import android.widget.ImageView;
@@ -205,7 +206,6 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         mapView = mapFragment.getView();
         autocompletePickup = (AutocompleteSupportFragment)
                 getSupportFragmentManager().findFragmentById(R.id.location);
-
         // Construct a PlacesClient
         if (!Places.isInitialized()) {
             Places.initialize(getApplicationContext(), getString(R.string.google_maps_key));
@@ -229,6 +229,8 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         //set the Buttom confirm, and send the request information to firestore
         Button confirm_button;
         confirm_button = findViewById(R.id.confirm_);
+        //the confirm_button is inivisble to begin with but for now i make it visible here so that its easier to see whats going on
+        confirm_button.setVisibility(View.VISIBLE);
         confirm_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -310,8 +312,8 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                             opendialog(theRequestID, username);
                         }
                     });
-                }else{
-                    Toast errorToast = Toast.makeText(getApplicationContext(),"Please enter the location to search requests.", Toast.LENGTH_SHORT);
+                } else {
+                    Toast errorToast = Toast.makeText(getApplicationContext(), "Please enter the location to search requests.", Toast.LENGTH_SHORT);
                     errorToast.show();
                 }
             }
@@ -484,7 +486,7 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         AlertDialog.Builder builder = new AlertDialog.Builder(DriverMapActivity.this);
         builder.setTitle("Request Confirm")
                 .setMessage("Accept this request?")
-                .setPositiveButton("Sure", new DialogInterface.OnClickListener() {
+                .setNegativeButton("YES", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         changeLayout.setVisibility(View.INVISIBLE);
@@ -559,7 +561,7 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                                 });
                     }
                 })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                .setPositiveButton("NO", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 

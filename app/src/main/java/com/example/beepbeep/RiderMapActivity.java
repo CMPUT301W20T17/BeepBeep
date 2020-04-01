@@ -255,6 +255,14 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         //set the Button confirm, and send the request information to firestore
         Button confirm_button;
         confirm_button = findViewById(R.id.confirm);
+        //the button is invisible to begin with, but im making it visible here for easier editing and changing.
+        confirm_button.setVisibility(View.VISIBLE);
+        confirm_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                newRequest();
+            }
+        });
 
         Button completeButton;
         completeButton = findViewById(R.id.btn_complete);

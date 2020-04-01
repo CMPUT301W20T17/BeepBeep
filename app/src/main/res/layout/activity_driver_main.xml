@@ -41,6 +41,7 @@
             android:id="@+id/confirm_"
             android:layout_width="220dp"
             android:layout_height="40dp"
+            android:visibility="invisible"
             android:background="@drawable/custom_yes_button"
             android:text="CONFIRM" />
 
