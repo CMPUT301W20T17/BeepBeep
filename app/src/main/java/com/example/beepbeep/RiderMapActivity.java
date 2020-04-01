@@ -916,7 +916,6 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 }
             }
         });
-
     }
 
     /**
