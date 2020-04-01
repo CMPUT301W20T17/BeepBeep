@@ -270,25 +270,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 });
             }
         });
-        //set
-        final DocumentReference docRef = db.collection("Requests").document(uniqueID);
-        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e);
-                    return;
-                }
-                if(documentSnapshot != null && documentSnapshot.exists()){
-                    final String type = documentSnapshot.get("Type").toString();
-                    if(type.equals("inprocess")){
-                        Toast.makeText(RiderMapActivity.this,"Route start",Toast. LENGTH_SHORT).show();
-                        Button cancelBtn = findViewById(R.id.btn_cancel_request);
-                        cancelBtn.setVisibility(View.INVISIBLE);
-                    }
-                }
-            }
-        });
+
     }
 
 
@@ -697,7 +679,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 
                     if (result[0] >= 500) {
                         //set the storing data
-                        docData.put("Type", "inactive");
+                        docData.put("Type", "");
                         docData.put("RiderID", username);
                         docData.put("DriverID", "");
                         docData.put("StartTime", startTime2);
@@ -753,9 +735,10 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 }
 
                 if (snapshot != null && snapshot.exists()) {
-                    final String DriverID = snapshot.get("DriverID").toString();
+                        final String DriverID = snapshot.get("DriverID").toString();
+                        final String nowType = snapshot.get("Type").toString();
                     //TODO: check whether
-                    if(DriverID.equals("active")) {
+                    if(nowType.equals("active")) {
                         //TODO: Dialog pop up several times.
                         AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
                         builder.setTitle("Request Notification")
@@ -785,6 +768,29 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                     }
                 } else {
                     Log.d(TAG, "Current data: null");
+                }
+            }
+        });
+
+        //set
+        final Button cancelBtn = findViewById(R.id.btn_cancel_request);
+        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+                if(documentSnapshot != null && documentSnapshot.exists()){
+                    final String type = documentSnapshot.get("Type").toString();
+                    if(type.equals("inprocess")){
+                        AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
+                        builder.setTitle("zai? ")
+                                .setMessage("NMSL")
+                                .setPositiveButton("OK",null)
+                                .create().show();
+                        cancelBtn.setVisibility(View.INVISIBLE);
+                    }
                 }
             }
         });
