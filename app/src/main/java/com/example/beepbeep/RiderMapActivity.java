@@ -294,8 +294,24 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                 TextView scrollUser = findViewById(R.id.scroll_user);
                                 scrollUser.setText("User: " + order.getRiderID());
                                 TextView scrollDriver = findViewById(R.id.scroll_driver);
-                                //TODO 
-                                scrollDriver.setText("Driver: Finding.."  + "\n");
+                                if (order.getType().equals("inactive")) {
+                                    scrollDriver.setText("Driver: Finding.." + "\n");
+                                }else{
+                                    String mydriver = "Driver: " + order.getDriverID();
+                                    int len_driver = order.getDriverID().length();
+                                    SpannableString ss = new SpannableString(mydriver);
+                                    ForegroundColorSpan fcsBlue = new ForegroundColorSpan(Color.BLUE);
+                                    ss.setSpan(fcsBlue,7, 8+len_driver,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                    scrollDriver.setText(ss);
+                                    scrollDriver.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            Intent profile = new Intent(RiderMapActivity.this,ViewProfile.class);
+                                            profile.putExtra("profile_name", order.getDriverID());
+                                            startActivity(profile);
+                                        }
+                                    });
+                                }
                                 //set button
                                 Button btnCancelRequest = findViewById(R.id.btn_cancel_request);
                                 btnCancelRequest.setOnClickListener(new View.OnClickListener() {
@@ -425,7 +441,16 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                     TextView scrollUser = findViewById(R.id.scroll_user);
                     scrollUser.setText("User: " + order.getRiderID());
                     TextView scrollDriver = findViewById(R.id.scroll_driver);
-                    scrollDriver.setText("Driver: Finding.."  + "\n");
+                    if (order.getType().equals("inactive")) {
+                        scrollDriver.setText("Driver: Finding.." + "\n");
+                    }else{
+                        String mydriver = "Driver: " + order.getDriverID();
+                        int len_driver = order.getDriverID().length();
+                        SpannableString ss = new SpannableString(mydriver);
+                        ForegroundColorSpan fcsBlue = new ForegroundColorSpan(Color.BLUE);
+                        ss.setSpan(fcsBlue,7, 8+len_driver,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        scrollDriver.setText(ss);
+                    }
                 }}
         }
     }
@@ -941,7 +966,6 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                     Log.w(TAG, "Listen failed.", e);
                     return;
                 }
-
                 if (snapshot != null && snapshot.exists()) {
                     final String DriverID = snapshot.get("DriverID").toString();
                     final String nowType = snapshot.get("Type").toString();
