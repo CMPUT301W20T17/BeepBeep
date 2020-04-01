@@ -181,7 +181,6 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         // Retrieve location and camera position from saved instance state.
         if (savedInstanceState != null) {
             mLastKnownLocation = savedInstanceState.getParcelable(KEY_LOCATION);
@@ -229,10 +228,16 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 
         //active the autocomplete place selection for pickup location
         getAutocompletePickup();
+        SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", Context.MODE_PRIVATE);
+        Boolean darkmode = sharedPref.getBoolean("darkmode", false);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
 
         SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", Context.MODE_PRIVATE);
         final String loginName = sharedPref.getString("username","");
-        Boolean darkmode = sharedPref.getBoolean("darkmode", false);
 
         //check and display current activity
         OrderRecordManager orm = new OrderRecordManager(this);
@@ -414,6 +419,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
             //check if we have current avitivity
             //if has, show the current activity, else show prompt
         }
+
 
     }
 

@@ -104,10 +104,14 @@ public class MainActivity extends AppCompatActivity {
         final SharedPreferences sharedPref = MainActivity.this.getSharedPreferences("identity", MODE_PRIVATE);
         final String role = sharedPref.getString("role", "");
         if(role.equals("Driver")){
+            OrderRecordManager orm = new OrderRecordManager(MainActivity.this);
+            orm.saveRecord();
             Intent intent = new Intent(MainActivity.this, DriverMapActivity.class);
             startActivity(intent);
             finishAffinity();
         }else{
+            OrderRecordManager orm = new OrderRecordManager(MainActivity.this);
+            orm.saveRecord();
             Intent intent = new Intent(MainActivity.this, RiderMapActivity.class);
             startActivity(intent);
             finishAffinity();
