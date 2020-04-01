@@ -28,4 +28,7 @@
     <string name="price_x">Price: $x</string>
     <string name="light">Light</string>
     <string name="dark">Dark</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

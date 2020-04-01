@@ -27,7 +27,8 @@
         android:roundIcon="@mipmap/appicon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Setting"></activity>
+        <activity android:name=".RiderSearchCurrentActivity"></activity>
+        <activity android:name=".Setting" />
         <activity android:name=".RiderRatingActivity" />
         <activity android:name=".Wallet" />
         <activity android:name=".OrderHistoryActivity" />

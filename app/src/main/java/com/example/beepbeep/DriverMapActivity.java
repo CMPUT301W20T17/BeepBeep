@@ -320,7 +320,18 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         });
 
         //TODO: TO START BUTTON
-
+        final Button toStartButton = findViewById(R.id.ToStartBtn);
+        toStartButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Map<String, Object> docData = new HashMap<>();
+                docData.put("Type","inprocess");
+                DocumentReference order = db.collection("Requests").document(uniqueID);
+                order.update(docData);
+                Toast.makeText(DriverMapActivity.this,"Route start",Toast. LENGTH_SHORT).show();
+                toStartButton.setVisibility(view.INVISIBLE);
+            }
+        });
 
         //Set the complete button, switch to the make payment activity since it's the rider want to complete
         Button completeButton;
@@ -360,27 +371,27 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(destinationLat, 11));
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(destinationLat, 12.0f));
                 mdestination = mMap.addMarker(odestination);
+                if (odestination != null && opickup != null) {
+                    new FetchURL(DriverMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
+                }
+                else if (opickup == null && odestination != null && pickup != null){
+                    opickup = new MarkerOptions();
+                    opickup.position(pickup);
+                    opickup.title(pickupName);
+                    opickup.zIndex(1.0f);
+                    opickup.icon(getBitmapFromVector(getApplicationContext(), R.drawable.ic_custom_map_marker));
+                    mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                        @Override
+                        public void onMapLoaded() {
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pickup, 11));
+                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(pickup, 15.0f));
+                            mpickup = mMap.addMarker(opickup);
+                        }
+                    });
+                    new FetchURL(DriverMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
+                }
             }
         });
-        if (odestination != null && opickup != null) {
-            new FetchURL(DriverMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
-        }
-        else if (opickup == null && odestination != null && pickup != null){
-            opickup = new MarkerOptions();
-            opickup.position(pickup);
-            opickup.title(pickupName);
-            opickup.zIndex(1.0f);
-            opickup.icon(getBitmapFromVector(getApplicationContext(), R.drawable.ic_custom_map_marker));
-            mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-                @Override
-                public void onMapLoaded() {
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pickup, 11));
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(pickup, 15.0f));
-                    mpickup = mMap.addMarker(opickup);
-                }
-            });
-            new FetchURL(DriverMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
-        }
     }
 
     public void setQulifiedData(final String requestName, final MyAdapter adapter) {
@@ -467,7 +478,6 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         final LinearLayout butconf = DriverMapActivity.this.findViewById(R.id.but_conf);
         final LinearLayout changeLayout = DriverMapActivity.this.findViewById(R.id.invis_linear);
         final RelativeLayout afterconfirm = DriverMapActivity.this.findViewById(R.id.after_confirm);
-        //TODO:
         final TextView user = DriverMapActivity.this.findViewById(R.id.driver_scroll_user);
         final TextView driver = DriverMapActivity.this.findViewById(R.id.driver_scroll_driver);
         final TextView start = DriverMapActivity.this.findViewById(R.id.driver_scroll_start);
@@ -888,9 +898,11 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
             if (mLocationPermissionGranted) {
                 mMap.setMyLocationEnabled(true);
                 mMap.getUiSettings().setMyLocationButtonEnabled(true);
+                mMap.getUiSettings().setZoomControlsEnabled(true);
             } else {
                 mMap.setMyLocationEnabled(false);
                 mMap.getUiSettings().setMyLocationButtonEnabled(false);
+                mMap.getUiSettings().setZoomControlsEnabled(false);
                 mLastKnownLocation = null;
                 getLocationPermission();
             }
