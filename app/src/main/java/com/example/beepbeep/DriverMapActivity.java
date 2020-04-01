@@ -318,8 +318,7 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         });
 
         //TODO: TO START BUTTON
-        final Button toStartButton;
-        toStartButton = findViewById(R.id.ToStartBtn);
+        final Button toStartButton = findViewById(R.id.ToStartBtn);
         toStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -477,7 +476,6 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         final LinearLayout butconf = DriverMapActivity.this.findViewById(R.id.but_conf);
         final LinearLayout changeLayout = DriverMapActivity.this.findViewById(R.id.invis_linear);
         final RelativeLayout afterconfirm = DriverMapActivity.this.findViewById(R.id.after_confirm);
-        //TODO:
         final TextView user = DriverMapActivity.this.findViewById(R.id.driver_scroll_user);
         final TextView driver = DriverMapActivity.this.findViewById(R.id.driver_scroll_driver);
         final TextView start = DriverMapActivity.this.findViewById(R.id.driver_scroll_start);
