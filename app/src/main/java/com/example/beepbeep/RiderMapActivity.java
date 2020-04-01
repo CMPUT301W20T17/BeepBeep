@@ -3,15 +3,18 @@ package com.example.beepbeep;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
@@ -19,6 +22,9 @@ import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -341,27 +347,6 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                     });
                 }
             }
-        });
-        //set
-        final DocumentReference docRef = db.collection("Requests").document(uniqueID);
-        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e);
-                    return;
-                }
-                if(documentSnapshot != null && documentSnapshot.exists()){
-                    final String type = documentSnapshot.get("Type").toString();
-                    if(type.equals("inprocess")){
-                        Toast.makeText(RiderMapActivity.this,"Route start",Toast. LENGTH_SHORT).show();
-                        Button cancelBtn = findViewById(R.id.btn_cancel_request);
-                        cancelBtn.setVisibility(View.INVISIBLE);
-                    }
-                }
-            }
-        });
-    }
 
             confirm_button.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -961,7 +946,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                         mydriver = "Driver: " + DriverID + "\n";
                                         SpannableString ss = new SpannableString(mydriver);
                                         ForegroundColorSpan fcsBlue = new ForegroundColorSpan(Color.BLUE);
-                                        ss.setSpan(fcsBlue,7, 8+len_driver,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                        ss.setSpan(fcsBlue,7, 8+len_driver, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                                         drivertext.setText(ss);
                                         drivertext.setOnClickListener(new View.OnClickListener() {
                                             @Override
@@ -980,7 +965,54 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 }
             }
         });
+    }
+    private void showNotification(){
+        final DocumentReference docRef = db.collection("Requests").document(uniqueID);
+        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot snapshot,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
 
+                if (snapshot != null && snapshot.exists()) {
+                    final String DriverID = snapshot.get("DriverID").toString();
+                    //TODO: check whether
+                    if(DriverID.equals("active")) {
+                        //TODO: Dialog pop up several times.
+                        AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
+                        builder.setTitle("Request Notification")
+                                .setMessage("Your request has been accept.")
+                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        TextView drivertext = findViewById(R.id.scroll_driver);
+                                        String mydriver;
+                                        int len_driver = DriverID.length();
+                                        mydriver = "Driver: " + DriverID + "\n";
+                                        SpannableString ss = new SpannableString(mydriver);
+                                        ForegroundColorSpan fcsBlue = new ForegroundColorSpan(Color.BLUE);
+                                        ss.setSpan(fcsBlue,7, 8+len_driver, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                        drivertext.setText(ss);
+                                        drivertext.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                Intent profile = new Intent(RiderMapActivity.this,ViewProfile.class);
+                                                profile.putExtra("profile_name", DriverID);
+                                                startActivity(profile);
+                                            }
+                                        });
+                                    }
+                                }).create();
+                        builder.show();
+                    }
+                } else {
+                    Log.d(TAG, "Current data: null");
+                }
+            }
+        });
     }
 
     /**
