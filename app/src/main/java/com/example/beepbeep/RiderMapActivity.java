@@ -181,6 +181,9 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
             CameraPosition mCameraPosition = savedInstanceState.getParcelable(KEY_CAMERA_POSITION);
         }
 
+        Intent a = new Intent(RiderMapActivity.this, RiderSearchCurrentActivity.class);
+        startActivity(a);
+
         // Retrieve the content view that renders the map.
         setContentView(R.layout.activity_rider_map);
 
