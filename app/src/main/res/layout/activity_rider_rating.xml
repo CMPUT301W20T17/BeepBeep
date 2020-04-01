@@ -16,11 +16,12 @@
         android:src="@mipmap/profilemenu" />
 
     <Button
-        android:id="@+id/skip_button"
-        android:layout_width="wrap_content"
+        android:id="@+id/custom_bu"
+        android:layout_width="@dimen/_180sdp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="550dp"
         android:layout_centerHorizontal="true"
+        android:layout_marginTop="550dp"
+        android:background="@drawable/custom_button"
         android:text="Skip" />
 
     <ImageButton
@@ -29,7 +30,7 @@
         android:layout_height="100dp"
         android:layout_marginTop="400dp"
         android:layout_marginStart="70dp"
-        app:srcCompat="@android:drawable/stat_sys_upload" />
+        app:srcCompat="@mipmap/positive" />
 
     <ImageButton
         android:id="@+id/thumbs_down_pic"
@@ -38,7 +39,7 @@
         android:layout_marginTop="400dp"
         android:layout_marginEnd="70dp"
         android:layout_alignParentEnd="true"
-        app:srcCompat="@android:drawable/stat_sys_download" />
+        app:srcCompat="@mipmap/negative" />
 
     <TextView
         android:id="@+id/name_driver_text"

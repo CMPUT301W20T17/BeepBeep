@@ -10,12 +10,12 @@
         android:id="@+id/email_button"
         android:layout_width="112dp"
         android:layout_height="41dp"
+        android:layout_marginStart="60dp"
         android:background="@drawable/custom_button"
         android:text="Email"
         android:textColor="@color/quantum_white_100"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/call_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profile_view_rating"
         app:layout_constraintVertical_bias="0.8" />

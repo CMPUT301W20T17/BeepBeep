@@ -215,23 +215,33 @@ public class ViewProfile extends AppCompatActivity {
                         ActivityCompat.requestPermissions(ViewProfile.this, new String[]{Manifest.permission.CALL_PHONE}, REQUEST_CODE);
                     }
                 } else {
-                    //When permission are already granted
-                    Intent intent = new Intent(Intent.ACTION_CALL);
-                    String[] phoneNumber = phone.split("-");
-                    String phoneNumber1 = String.join("",phoneNumber);
-                    intent.setData(Uri.parse("tel:" + phoneNumber1));
-                    if (ActivityCompat.checkSelfPermission(ViewProfile.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-                        // TODO: Consider calling
-                        //    ActivityCompat#requestPermissions
-                        // here to request the missing permissions, and then overriding
-                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                        //                                          int[] grantResults)
-                        // to handle the case where the user grants the permission. See the documentation
-                        // for ActivityCompat#requestPermissions for more details.
-                        return;
-                    }
-                    startActivity(intent);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(ViewProfile.this);
+                    builder.setTitle("Are you sure you want to call " + phone + "?");
+                    builder.setNegativeButton("YES", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent intent = new Intent(Intent.ACTION_CALL);
+                            String[] phoneNumber = phone.split("-");
+                            String phoneNumber1 = String.join("", phoneNumber);
+                            intent.setData(Uri.parse("tel:" + phoneNumber1));
+                            if (ActivityCompat.checkSelfPermission(ViewProfile.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                                // TODO: Consider calling
+                                //    ActivityCompat#requestPermissions
+                                // here to request the missing permissions, and then overriding
+                                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                //                                          int[] grantResults)
+                                // to handle the case where the user grants the permission. See the documentation
+                                // for ActivityCompat#requestPermissions for more details.
+                                return;
+                            }
+                            startActivity(intent);
+                        }
+                    });
+                    builder.setPositiveButton("NO", null);
+                    AlertDialog alertDialog = builder.create();
+                    alertDialog.show();
                 }
+                //When permission are already granted
             }
         });
     }
