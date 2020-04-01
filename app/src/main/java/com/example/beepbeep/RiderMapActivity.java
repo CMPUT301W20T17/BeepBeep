@@ -413,6 +413,34 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         else{
             //check if we have current avitivity
             //if has, show the current activity, else show prompt
+
+            if (orderDataList.size() >= 1){
+                final Order order = orderDataList.get(0);
+                if (!order.getType().equals("complete")) {
+                    //if has current activity
+                    //change layout from the first show to the second show
+                    final RelativeLayout theFirstLayout = findViewById(R.id.thefirstshow);
+                    theFirstLayout.setVisibility(View.INVISIBLE);
+                    final RelativeLayout theSecondLayout = findViewById(R.id.thesecondshow);
+                    theSecondLayout.setVisibility(View.VISIBLE);
+                    //set scroll view
+                    TextView scrollStart = findViewById(R.id.scroll_start);
+                    GeoPoint pickup_geopoint = order.getPickupPoint();
+                    String pickup_address = getAddress(pickup_geopoint);
+                    GeoPoint destination_geopoint = order.getDestination();
+                    String destination_address = getAddress(destination_geopoint);
+                    scrollStart.setText("Start: " + pickup_address);
+                    TextView scrollEnd = findViewById(R.id.scroll_end);
+                    scrollEnd.setText("End: " + destination_address);
+                    TextView scrollPrice = findViewById(R.id.scroll_price);
+                    scrollPrice.setText("Price: " + order.getPrice());
+                    TextView scrollUser = findViewById(R.id.scroll_user);
+                    scrollUser.setText("User: " + order.getRiderID());
+                    TextView scrollDriver = findViewById(R.id.scroll_driver);
+                    scrollDriver.setText("Driver: Finding.."  + "\n");
+
+                }}
+
         }
 
     }
