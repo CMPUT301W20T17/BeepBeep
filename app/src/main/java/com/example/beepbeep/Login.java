@@ -184,6 +184,8 @@ public class Login extends AppCompatActivity {
                                             != PackageManager.PERMISSION_GRANTED) {
                                     } else {
                                         String role = Objects.requireNonNull(document.get("role")).toString();
+                                        OrderRecordManager orm = new OrderRecordManager(Login.this);
+                                        orm.saveRecord();
                                         if(role.equals("Driver")){
                                             Intent intent = new Intent(Login.this, DriverMapActivity.class);
                                             startActivity(intent);
