@@ -107,6 +107,7 @@ import java.util.HashMap;
  Availability: https://www.youtube.com/watch?v=jg1urt3FGCY
 */
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -257,14 +258,21 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if(task.isSuccessful()){
                             DocumentSnapshot doc = task.getResult();
-                            String price = (doc.get("Price")).toString();
-                            Intent a = new Intent(RiderMapActivity.this, MakePayment.class);
-                            a.putExtra("Price", price);
-                            startActivity(a);
-                            Intent b = new Intent(RiderMapActivity.this,RiderRatingActivity.class);
-                            String driver_name = (doc.get("DriverID")).toString();
-                            b.putExtra("driver_name", driver_name);
-                            startActivity(b);
+                            String typenow = doc.getString("Type");
+                            if (typenow.equals("inprocess")){
+                                Map<String, Object> docData = new HashMap<>();
+                                docData.put("Type","completed");
+                                Date finishTime = Calendar.getInstance().getTime();
+                                String finishTime2 = finishTime.toString();
+                                docData.put("FinishTime",finishTime2);
+                                db.collection("Requests")
+                                        .document(uniqueID)
+                                        .update(docData);
+                            }
+                            else{
+                                Toast.makeText(getApplicationContext(),"Cannot complete route now", Toast.LENGTH_SHORT).show();
+                            }
+
                         }
                     }
                 });
@@ -785,11 +793,55 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                     final String type = documentSnapshot.get("Type").toString();
                     if(type.equals("inprocess")){
                         AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
-                        builder.setTitle("zai? ")
-                                .setMessage("NMSL")
-                                .setPositiveButton("OK",null)
+                        builder.setTitle("Hello? ")
+                                .setMessage("A driver has picked you up")
+                                .setPositiveButton("YES",null)
                                 .create().show();
                         cancelBtn.setVisibility(View.INVISIBLE);
+                    }
+                }
+            }
+        });
+
+        //set
+        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+                if(documentSnapshot != null && documentSnapshot.exists()){
+                    final String type = documentSnapshot.get("Type").toString();
+                    if(type.equals("completed")){
+                        AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
+                        builder.setTitle("Request Notification")
+                                .setMessage("Your request is completed !")
+                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        DocumentReference order = db.collection("Requests").document(uniqueID);
+                                        order.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                if(task.isSuccessful()){
+                                                    DocumentSnapshot doc = task.getResult();
+                                                    String price = (doc.get("Price")).toString();
+                                                    Intent a = new Intent(RiderMapActivity.this, MakePayment.class);
+                                                    a.putExtra("Price", price);
+                                                    startActivity(a);
+                                                    Intent b = new Intent(RiderMapActivity.this,RiderRatingActivity.class);
+                                                    String driver_name = (doc.get("DriverID")).toString();
+                                                    b.putExtra("driver_name", driver_name);
+                                                    startActivity(b);
+                                                }
+                                            }
+                                        });
+                                    }
+                                })
+                                .create()
+                                .show();
+
                     }
                 }
             }
