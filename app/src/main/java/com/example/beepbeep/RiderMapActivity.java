@@ -219,12 +219,25 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         getAutocompletePickup();
         SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", Context.MODE_PRIVATE);
         Boolean darkmode = sharedPref.getBoolean("darkmode", false);
+
+        showCorrectView();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        showCorrectView();
+    }
 
+    @Override
+    public void onTaskDone(Object... values) {
+        if (currentPolyline != null)
+            currentPolyline.remove();
+        currentPolyline = mMap.addPolyline((PolylineOptions) values[0]);
+    }
+
+
+    public void showCorrectView(){
         SharedPreferences sharedPref = RiderMapActivity.this.getSharedPreferences("identity", Context.MODE_PRIVATE);
         final String loginName = sharedPref.getString("username","");
 
@@ -238,6 +251,46 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 
         Button completeButton;
         completeButton = findViewById(R.id.btn_complete);
+        final RelativeLayout theFirstLayout = findViewById(R.id.thefirstshow);
+        final RelativeLayout theSecondLayout = findViewById(R.id.thesecondshow);
+
+        if (orderDataList.size() >= 1){
+            final Order order = orderDataList.get(0);
+            if (!order.getType().equals("complete")) {
+                db = FirebaseFirestore.getInstance();
+                DocumentReference userInfo = db.collection("Accounts").document(loginName);
+                userInfo.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            List<String> orders = (List<String>) document.get("order");
+                            int index = orders.size() - 1;
+                            final String latestOrderNum = orders.get(index);
+                            //shows in the rider map
+                            //change layout from the first show to the second show
+                            theFirstLayout.setVisibility(View.INVISIBLE);
+                            theSecondLayout.setVisibility(View.VISIBLE);
+                            //set scroll view
+                            TextView scrollStart = findViewById(R.id.scroll_start);
+                            GeoPoint pickup_geopoint = order.getPickupPoint();
+                            String pickup_address = getAddress(pickup_geopoint);
+                            GeoPoint destination_geopoint = order.getDestination();
+                            String destination_address = getAddress(destination_geopoint);
+                            scrollStart.setText("Start: " + pickup_address);
+                            TextView scrollEnd = findViewById(R.id.scroll_end);
+                            scrollEnd.setText("End: " + destination_address);
+                            TextView scrollPrice = findViewById(R.id.scroll_price);
+                            scrollPrice.setText("Price: " + order.getPrice());
+                            TextView scrollUser = findViewById(R.id.scroll_user);
+                            scrollUser.setText("User: " + order.getRiderID());
+                            TextView scrollDriver = findViewById(R.id.scroll_driver);
+                            scrollDriver.setText("Driver: Finding.." + "\n");
+                        }
+                    }
+                });
+            }
+        }
 
         if (hasNetworkAccess()){
             //has current activity
@@ -254,27 +307,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                 List<String> orders = (List<String>) document.get("order");
                                 int index = orders.size() - 1;
                                 final String latestOrderNum = orders.get(index);
-                                //shows in the rider map
-                                //change layout from the first show to the second show
-                                final RelativeLayout theFirstLayout = findViewById(R.id.thefirstshow);
-                                theFirstLayout.setVisibility(View.INVISIBLE);
-                                final RelativeLayout theSecondLayout = findViewById(R.id.thesecondshow);
-                                theSecondLayout.setVisibility(View.VISIBLE);
-                                //set scroll view
-                                TextView scrollStart = findViewById(R.id.scroll_start);
-                                GeoPoint pickup_geopoint = order.getPickupPoint();
-                                String pickup_address = getAddress(pickup_geopoint);
-                                GeoPoint destination_geopoint = order.getDestination();
-                                String destination_address = getAddress(destination_geopoint);
-                                scrollStart.setText("Start: " + pickup_address);
-                                TextView scrollEnd = findViewById(R.id.scroll_end);
-                                scrollEnd.setText("End: " + destination_address);
-                                TextView scrollPrice = findViewById(R.id.scroll_price);
-                                scrollPrice.setText("Price: " + order.getPrice());
-                                TextView scrollUser = findViewById(R.id.scroll_user);
-                                scrollUser.setText("User: " + order.getRiderID());
-                                TextView scrollDriver = findViewById(R.id.scroll_driver);
-                                scrollDriver.setText("Driver: Finding.."  + "\n");
+
                                 //set button
                                 Button btnCancelRequest = findViewById(R.id.btn_cancel_request);
                                 btnCancelRequest.setOnClickListener(new View.OnClickListener() {
@@ -322,16 +355,74 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                             docData.put("Type","Deleted");
                                             db.collection("Requests").document(latestOrderNum).update(docData);
                                         }
-
                                     }
                                 });
+                            }
+                        }
+                    });
 
+                    //Set the complete button, switch to the make payment activity since it's the rider want to complete
+                    completeButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (orderDataList.size() >= 1) {
+                                final Order order = orderDataList.get(0);
+                                if (order.getType().equals("complete")) {
+                                    DocumentReference order2 = db.collection("Requests").document(uniqueID);
+                                    order2.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                            if (task.isSuccessful()) {
+                                                DocumentSnapshot doc = task.getResult();
+                                                String price = (doc.get("Price")).toString();
+                                                Intent a = new Intent(RiderMapActivity.this, MakePayment.class);
+                                                a.putExtra("Price", price);
+                                                startActivity(a);
+                                                Intent b = new Intent(RiderMapActivity.this, RiderRatingActivity.class);
+                                                String driver_name = (doc.get("DriverID")).toString();
+                                                b.putExtra("driver_name", driver_name);
+                                                startActivity(b);
+                                            }
+                                        }
+                                    });
+                                }
+                                else{
+                                    DocumentReference userInfo = db.collection("Accounts").document(loginName);
+                                    userInfo.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                            if (task.isSuccessful()) {
+                                                DocumentSnapshot document = task.getResult();
+                                                List<String> orders = (List<String>) document.get("order");
+                                                int index = orders.size() - 1;
+                                                final String latestOrderNum = orders.get(index);
+
+                                                DocumentReference order2 = db.collection("Requests").document(latestOrderNum);
+                                                order2.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                        if (task.isSuccessful()) {
+                                                            DocumentSnapshot doc = task.getResult();
+                                                            String price = (doc.get("Price")).toString();
+                                                            Intent a = new Intent(RiderMapActivity.this, MakePayment.class);
+                                                            a.putExtra("Price", price);
+                                                            startActivity(a);
+                                                            Intent b = new Intent(RiderMapActivity.this, RiderRatingActivity.class);
+                                                            String driver_name = (doc.get("DriverID")).toString();
+                                                            b.putExtra("driver_name", driver_name);
+                                                            startActivity(b);
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    });
+                                }
                             }
                         }
                     });
                 }
             }
-
 
             confirm_button.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -339,107 +430,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                     newRequest();
                 }
             });
-
-            //Set the complete button, switch to the make payment activity since it's the rider want to complete
-            completeButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (orderDataList.size() >= 1) {
-                        final Order order = orderDataList.get(0);
-                        if (order.getType().equals("complete")) {
-                            DocumentReference order2 = db.collection("Requests").document(uniqueID);
-                            order2.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        DocumentSnapshot doc = task.getResult();
-                                        String price = (doc.get("Price")).toString();
-                                        Intent a = new Intent(RiderMapActivity.this, MakePayment.class);
-                                        a.putExtra("Price", price);
-                                        startActivity(a);
-                                        Intent b = new Intent(RiderMapActivity.this, RiderRatingActivity.class);
-                                        String driver_name = (doc.get("DriverID")).toString();
-                                        b.putExtra("driver_name", driver_name);
-                                        startActivity(b);
-                                    }
-                                }
-                            });
-                        }
-                        else{
-                            DocumentReference userInfo = db.collection("Accounts").document(loginName);
-                            userInfo.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        DocumentSnapshot document = task.getResult();
-                                        List<String> orders = (List<String>) document.get("order");
-                                        int index = orders.size() - 1;
-                                        final String latestOrderNum = orders.get(index);
-
-                                        DocumentReference order2 = db.collection("Requests").document(latestOrderNum);
-                                        order2.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                if (task.isSuccessful()) {
-                                                    DocumentSnapshot doc = task.getResult();
-                                                    String price = (doc.get("Price")).toString();
-                                                    Intent a = new Intent(RiderMapActivity.this, MakePayment.class);
-                                                    a.putExtra("Price", price);
-                                                    startActivity(a);
-                                                    Intent b = new Intent(RiderMapActivity.this, RiderRatingActivity.class);
-                                                    String driver_name = (doc.get("DriverID")).toString();
-                                                    b.putExtra("driver_name", driver_name);
-                                                    startActivity(b);
-                                                }
-                                            }
-                                        });
-                                    }
-                                }
-                            });
-                        }
-                    }
-                }
-            });
-
-
         }
-        else{
-            //check if we have current avitivity
-            //if has, show the current activity, else show prompt
-
-            if (orderDataList.size() >= 1){
-                final Order order = orderDataList.get(0);
-                if (!order.getType().equals("complete")) {
-                    //if has current activity
-                    //change layout from the first show to the second show
-                    final RelativeLayout theFirstLayout = findViewById(R.id.thefirstshow);
-                    theFirstLayout.setVisibility(View.INVISIBLE);
-                    final RelativeLayout theSecondLayout = findViewById(R.id.thesecondshow);
-                    theSecondLayout.setVisibility(View.VISIBLE);
-                    //set scroll view
-                    TextView scrollStart = findViewById(R.id.scroll_start);
-                    GeoPoint pickup_geopoint = order.getPickupPoint();
-                    String pickup_address = getAddress(pickup_geopoint);
-                    GeoPoint destination_geopoint = order.getDestination();
-                    String destination_address = getAddress(destination_geopoint);
-                    scrollStart.setText("Start: " + pickup_address);
-                    TextView scrollEnd = findViewById(R.id.scroll_end);
-                    scrollEnd.setText("End: " + destination_address);
-                    TextView scrollPrice = findViewById(R.id.scroll_price);
-                    scrollPrice.setText("Price: " + order.getPrice());
-                    TextView scrollUser = findViewById(R.id.scroll_user);
-                    scrollUser.setText("User: " + order.getRiderID());
-                    TextView scrollDriver = findViewById(R.id.scroll_driver);
-                    scrollDriver.setText("Driver: Finding.."  + "\n");
-                }}
-        }
-    }
-
-    @Override
-    public void onTaskDone(Object... values) {
-        if (currentPolyline != null)
-            currentPolyline.remove();
-        currentPolyline = mMap.addPolyline((PolylineOptions) values[0]);
     }
 
     public String getAddress(GeoPoint location){
