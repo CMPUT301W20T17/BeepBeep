@@ -927,6 +927,10 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
             Toast errorToast = Toast.makeText(getApplicationContext(),"Please enter the pickup location or destination.", Toast.LENGTH_SHORT);
             errorToast.show();
         }
+        //TODO: cancel button
+        //TODO: complete button
+        //TODO: to START button
+        //TODO: fragment not pop up
         final DocumentReference docRef = db.collection("Requests").document(uniqueID);
         docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
@@ -939,7 +943,6 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 
                 if (snapshot != null && snapshot.exists()) {
                     final String DriverID = snapshot.get("DriverID").toString();
-                    //TODO: check whether
                     if(DriverID.equals("active")) {
                         //TODO: Dialog pop up several times.
                         AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);

@@ -370,27 +370,27 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(destinationLat, 11));
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(destinationLat, 12.0f));
                 mdestination = mMap.addMarker(odestination);
+                if (odestination != null && opickup != null) {
+                    new FetchURL(DriverMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
+                }
+                else if (opickup == null && odestination != null && pickup != null){
+                    opickup = new MarkerOptions();
+                    opickup.position(pickup);
+                    opickup.title(pickupName);
+                    opickup.zIndex(1.0f);
+                    opickup.icon(getBitmapFromVector(getApplicationContext(), R.drawable.ic_custom_map_marker));
+                    mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                        @Override
+                        public void onMapLoaded() {
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pickup, 11));
+                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(pickup, 15.0f));
+                            mpickup = mMap.addMarker(opickup);
+                        }
+                    });
+                    new FetchURL(DriverMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
+                }
             }
         });
-        if (odestination != null && opickup != null) {
-            new FetchURL(DriverMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
-        }
-        else if (opickup == null && odestination != null && pickup != null){
-            opickup = new MarkerOptions();
-            opickup.position(pickup);
-            opickup.title(pickupName);
-            opickup.zIndex(1.0f);
-            opickup.icon(getBitmapFromVector(getApplicationContext(), R.drawable.ic_custom_map_marker));
-            mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-                @Override
-                public void onMapLoaded() {
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pickup, 11));
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(pickup, 15.0f));
-                    mpickup = mMap.addMarker(opickup);
-                }
-            });
-            new FetchURL(DriverMapActivity.this).execute(getUrl(opickup.getPosition(), odestination.getPosition(), "driving"), "driving");
-        }
     }
 
     public void setQulifiedData(final String requestName, final MyAdapter adapter) {
