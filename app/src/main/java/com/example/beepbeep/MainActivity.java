@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
                 final String salt = sharedPref.getString("salt", "");
                 final String role = sharedPref.getString("role", "");
                 final String username = sharedPref.getString("username", "");
+                final boolean darkmode = sharedPref.getBoolean("darkmode", false);
                 //get cloud user profile
                 DocumentReference docIdRef = db.collection("Accounts").document(username);
                 docIdRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -68,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
                                 // update identity
                                 sharedPref.edit().clear().apply();
                                 sharedPref.edit().putBoolean("initialized", true).apply();
+                                sharedPref.edit().putBoolean("darkmode", darkmode).apply();
                                 sharedPref.edit().putString("password", password).apply();
                                 sharedPref.edit().putString("username", username).apply();
                                 sharedPref.edit().putString("salt", salt).apply();

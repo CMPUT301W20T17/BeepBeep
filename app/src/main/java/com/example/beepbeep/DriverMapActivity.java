@@ -806,11 +806,22 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        boolean success = googleMap.setMapStyle(new MapStyleOptions(getResources()
-                .getString(R.string.style_json)));
-        if (!success) {
-            Log.e(TAG, "Style parsing failed.");
+        SharedPreferences sharedPref = DriverMapActivity.this.getSharedPreferences("identity", Context.MODE_PRIVATE);
+        Boolean darkmode = sharedPref.getBoolean("darkmode", false);
+        if (darkmode) {
+            boolean success = googleMap.setMapStyle(new MapStyleOptions(getResources()
+                    .getString(R.string.style_json)));
+            if (!success) {
+                Log.e(TAG, "Style parsing failed.");
+            }
+        }else{
+            boolean success = googleMap.setMapStyle(new MapStyleOptions(getResources()
+                    .getString(R.string.standard)));
+            if (!success) {
+                Log.e(TAG, "Style parsing failed.");
+            }
         }
+
 
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
