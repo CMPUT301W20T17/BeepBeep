@@ -360,60 +360,36 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
             completeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (orderDataList.size() >= 1) {
-                        final Order order = orderDataList.get(0);
-                        if (order.getType().equals("complete")) {
-                            DocumentReference order2 = db.collection("Requests").document(uniqueID);
-                            order2.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        DocumentSnapshot doc = task.getResult();
-                                        String price = (doc.get("Price")).toString();
-                                        Intent a = new Intent(RiderMapActivity.this, MakePayment.class);
-                                        a.putExtra("Price", price);
-                                        startActivity(a);
-                                        Intent b = new Intent(RiderMapActivity.this, RiderRatingActivity.class);
-                                        String driver_name = (doc.get("DriverID")).toString();
-                                        b.putExtra("driver_name", driver_name);
-                                        startActivity(b);
-                                    }
-                                }
-                            });
-                        }
-                        else{
-                            DocumentReference userInfo = db.collection("Accounts").document(loginName);
-                            userInfo.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        DocumentSnapshot document = task.getResult();
-                                        List<String> orders = (List<String>) document.get("order");
-                                        int index = orders.size() - 1;
-                                        final String latestOrderNum = orders.get(index);
+                    DocumentReference userInfo = db.collection("Accounts").document(loginName);
+                    userInfo.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot document = task.getResult();
+                                List<String> orders = (List<String>) document.get("order");
+                                int index = orders.size() - 1;
+                                final String latestOrderNum = orders.get(index);
 
-                                        DocumentReference order2 = db.collection("Requests").document(latestOrderNum);
-                                        order2.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                if (task.isSuccessful()) {
-                                                    DocumentSnapshot doc = task.getResult();
-                                                    String price = (doc.get("Price")).toString();
-                                                    Intent a = new Intent(RiderMapActivity.this, MakePayment.class);
-                                                    a.putExtra("Price", price);
-                                                    startActivity(a);
-                                                    Intent b = new Intent(RiderMapActivity.this, RiderRatingActivity.class);
-                                                    String driver_name = (doc.get("DriverID")).toString();
-                                                    b.putExtra("driver_name", driver_name);
-                                                    startActivity(b);
-                                                }
-                                            }
-                                        });
+                                DocumentReference order2 = db.collection("Requests").document(latestOrderNum);
+                                order2.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            DocumentSnapshot doc = task.getResult();
+                                            String price = (doc.get("Price")).toString();
+                                            Intent a = new Intent(RiderMapActivity.this, MakePayment.class);
+                                            a.putExtra("Price", price);
+                                            startActivity(a);
+                                            Intent b = new Intent(RiderMapActivity.this, RiderRatingActivity.class);
+                                            String driver_name = (doc.get("DriverID")).toString();
+                                            b.putExtra("driver_name", driver_name);
+                                            startActivity(b);
+                                        }
                                     }
-                                }
-                            });
+                                });
+                            }
                         }
-                    }
+                    });
                 }
             });
 
