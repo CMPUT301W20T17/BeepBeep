@@ -54,7 +54,7 @@
         android:layout_height="400dp"
         android:layout_margin="5dp"
         android:visibility="invisible"
-        android:layout_below="@+id/but_conf"
+        android:layout_below="@+id/temp"
         >
 
         <ListView
