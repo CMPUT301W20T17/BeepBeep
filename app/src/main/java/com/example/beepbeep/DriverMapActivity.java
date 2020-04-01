@@ -318,7 +318,19 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         });
 
         //TODO: TO START BUTTON
-
+        final Button toStartButton;
+        toStartButton = findViewById(R.id.ToStartBtn);
+        toStartButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Map<String, Object> docData = new HashMap<>();
+                docData.put("Type","inprocess");
+                DocumentReference order = db.collection("Requests").document(uniqueID);
+                order.update(docData);
+                Toast.makeText(DriverMapActivity.this,"Route start",Toast. LENGTH_SHORT).show();
+                toStartButton.setVisibility(view.INVISIBLE);
+            }
+        });
 
         //Set the complete button, switch to the make payment activity since it's the rider want to complete
         Button completeButton;
