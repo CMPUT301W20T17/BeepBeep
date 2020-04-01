@@ -896,9 +896,11 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
             if (mLocationPermissionGranted) {
                 mMap.setMyLocationEnabled(true);
                 mMap.getUiSettings().setMyLocationButtonEnabled(true);
+                mMap.getUiSettings().setZoomControlsEnabled(true);
             } else {
                 mMap.setMyLocationEnabled(false);
                 mMap.getUiSettings().setMyLocationButtonEnabled(false);
+                mMap.getUiSettings().setZoomControlsEnabled(false);
                 mLastKnownLocation = null;
                 getLocationPermission();
             }

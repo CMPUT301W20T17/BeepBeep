@@ -181,8 +181,8 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
             CameraPosition mCameraPosition = savedInstanceState.getParcelable(KEY_CAMERA_POSITION);
         }
 
-        Intent a = new Intent(RiderMapActivity.this, RiderSearchCurrentActivity.class);
-        startActivity(a);
+//        Intent a = new Intent(RiderMapActivity.this, RiderSearchCurrentActivity.class);
+//        startActivity(a);
 
         // Retrieve the content view that renders the map.
         setContentView(R.layout.activity_rider_map);
@@ -815,9 +815,11 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
             if (mLocationPermissionGranted) {
                 mMap.setMyLocationEnabled(true);
                 mMap.getUiSettings().setMyLocationButtonEnabled(true);
+                mMap.getUiSettings().setZoomControlsEnabled(true);
             } else {
                 mMap.setMyLocationEnabled(false);
                 mMap.getUiSettings().setMyLocationButtonEnabled(false);
+                mMap.getUiSettings().setZoomControlsEnabled(false);
                 mLastKnownLocation = null;
                 getLocationPermission();
             }

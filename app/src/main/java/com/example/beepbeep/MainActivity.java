@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             finishAffinity();
         }else{
-            Intent intent = new Intent(MainActivity.this, RiderMapActivity.class);
+            Intent intent = new Intent(MainActivity.this, RiderSearchCurrentActivity.class);
             startActivity(intent);
             finishAffinity();
         }
