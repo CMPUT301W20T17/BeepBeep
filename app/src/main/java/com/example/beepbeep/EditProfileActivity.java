@@ -166,8 +166,8 @@ public class EditProfileActivity extends AppCompatActivity {
                 final String emailEdit = emailEditText.getText().toString();
 
                 //check if the input is valid
-                boolean phoneValid = Signup.validPhone(phoneEdit);
-                final boolean emailValid = Signup.validEmail(emailEdit);
+                boolean phoneValid = InputValidation.validPhone(phoneEdit);
+                final boolean emailValid = InputValidation.validEmail(emailEdit);
 
                 //update phone and email to fireStore
                 if (phoneValid && emailValid){
