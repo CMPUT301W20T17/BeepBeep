@@ -364,7 +364,6 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                 });
             }
         });
-
     }
 
     public void setGetDirection(){
@@ -661,6 +660,10 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
                                         DocumentReference order = db.collection("Requests").document(uniqueID);
+                                        final LinearLayout theFirstLayout = findViewById(R.id.temp);
+                                        theFirstLayout.setVisibility(View.VISIBLE);
+                                        final RelativeLayout theSecondLayout = findViewById(R.id.after_confirm);
+                                        theSecondLayout.setVisibility(View.INVISIBLE);
                                         order.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                             @Override
                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {

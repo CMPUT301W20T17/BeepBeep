@@ -896,6 +896,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 request_frag.setArguments(bundle);
                 request_frag.show(getSupportFragmentManager(), "SHOW_REQUEST");
                 sendNotification();
+                checkinprocess();
                 checkComplete();
             }else{
                 AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
@@ -910,7 +911,9 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
             Toast errorToast = Toast.makeText(getApplicationContext(),"Please enter the pickup location or destination.", Toast.LENGTH_SHORT);
             errorToast.show();
         }
+    }
 
+    private void checkinprocess(){
         final DocumentReference docRef = db.collection("Requests").document(uniqueID);
         final Button cancelBtn = findViewById(R.id.btn_cancel_request);
         docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -1003,6 +1006,10 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
                                         DocumentReference order = db.collection("Requests").document(uniqueID);
+                                        final RelativeLayout theFirstLayout = findViewById(R.id.thefirstshow);
+                                        theFirstLayout.setVisibility(View.VISIBLE);
+                                        final RelativeLayout theSecondLayout = findViewById(R.id.thesecondshow);
+                                        theSecondLayout.setVisibility(View.INVISIBLE);
                                         order.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                             @Override
                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
