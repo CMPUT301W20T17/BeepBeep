@@ -435,7 +435,7 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
 
                                 //get price
                                 String price = Objects.requireNonNull(document.get("Price")).toString();
-                                qulifiedPrice.add("Price: " + price);
+                                qulifiedPrice.add("Price: " + "$" + price);
 
                                 //get rider
                                 String rider = Objects.requireNonNull(document.get("RiderID")).toString();
@@ -550,7 +550,7 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                                                 String riderString = "User: " + rider;
                                                 String pickupString = "PickUpPoint: "+pickup_address;
                                                 String destinationString = "Destination: "+destination_address;
-                                                String priceString = "Price: "+price;
+                                                String priceString = "Price: "+ "$" + price;
                                                 String driverString = "Driver: " + username + "\n";
 
                                                 //set String type
