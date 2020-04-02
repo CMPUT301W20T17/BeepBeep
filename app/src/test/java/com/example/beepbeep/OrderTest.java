@@ -34,9 +34,14 @@ public class OrderTest {
         assertEquals(PickUpPoint, o.getPickupPoint());
         assertEquals(Destination, o.getDestination());
         assertEquals(Type, o.getType());
+        if(Price != o.getPrice()){
+            throw new AssertionError();
+        }
 
         o.setUser("a");
         assertEquals("a", o.getUser());
+
+        o.toString();
     }
 
     private static GeoPoint toGeoPoint(String s){
