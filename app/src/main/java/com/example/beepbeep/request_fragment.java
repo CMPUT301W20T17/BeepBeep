@@ -99,7 +99,7 @@ public class request_fragment extends DialogFragment {
                         //set view of the fragment
                         String pickupString = "PickUpPoint: "+pickup_address;
                         String destinationString = "Destination: "+destination_address;
-                        String priceString = "Estimate Price: "+price;
+                        String priceString = "Estimate Price: "+"$" + price;
 
                         //set String type
                         SpannableString ss1 = new SpannableString(pickupString);
@@ -151,7 +151,7 @@ public class request_fragment extends DialogFragment {
                         TextView scrollEnd = getActivity().findViewById(R.id.scroll_end);
                         scrollEnd.setText("End: " + destination_address);
                         TextView scrollPrice = getActivity().findViewById(R.id.scroll_price);
-                        scrollPrice.setText("Price: " + price);
+                        scrollPrice.setText("Price: " + "$" + price);
                         TextView scrollUser = getActivity().findViewById(R.id.scroll_user);
                         scrollUser.setText("User: " + riderID);
                         TextView scrollDriver = getActivity().findViewById(R.id.scroll_driver);

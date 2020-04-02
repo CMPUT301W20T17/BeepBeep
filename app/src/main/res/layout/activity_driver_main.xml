@@ -64,9 +64,8 @@
             android:id="@+id/qulifiedRequest"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="asdasdasdasd"
-            android:textColor="#000000"
-            android:background="@drawable/custom_display_information"/>
+            android:background="@drawable/custom_display_information"
+            android:text="asdasdasdasd" />
 
     </LinearLayout>
 
