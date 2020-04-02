@@ -172,7 +172,6 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
 
     private View mapView;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -345,10 +344,21 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if(task.isSuccessful()){
                             DocumentSnapshot doc = task.getResult();
-                            String price = (doc.get("Price")).toString();
-                            Intent a = new Intent(DriverMapActivity.this, ReceivePayment.class);
-                            a.putExtra("Price", price);
-                            startActivity(a);
+                            String typenow =   doc.getString("Type");
+                            if (typenow.equals("inprocess")){
+                                Map<String, Object> docData = new HashMap<>();
+                                Date finishTime = Calendar.getInstance().getTime();
+                                String finishTime2 = finishTime.toString();
+                                docData.put("Type","completed");
+                                docData.put("FinishTime",finishTime2);
+                                db.collection("Requests")
+                                        .document(uniqueID)
+                                        .update(docData);
+                            }
+                            else{
+                                Toast.makeText(getApplicationContext(),"Cannot complete route now", Toast.LENGTH_SHORT).show();
+                            }
+
                         }
                     }
                 });
@@ -626,6 +636,47 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                             mdestination.remove();
                             mMap.clear();
                         }
+                    }
+                }
+            }
+        });
+        checkComplete();
+    }
+    private void checkComplete(){
+        final DocumentReference docRef = db.collection("Requests").document(uniqueID);
+        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+                if(documentSnapshot != null && documentSnapshot.exists()){
+                    final String type = documentSnapshot.get("Type").toString();
+                    if(type.equals("completed")){
+                        AlertDialog.Builder builder = new AlertDialog.Builder(DriverMapActivity.this);
+                        builder.setTitle("Request Notification")
+                                .setMessage("Your request is completed !")
+                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        DocumentReference order = db.collection("Requests").document(uniqueID);
+                                        order.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                if(task.isSuccessful()){
+                                                    DocumentSnapshot doc = task.getResult();
+                                                    String price = (doc.get("Price")).toString();
+                                                    Intent a = new Intent(DriverMapActivity.this, ReceivePayment.class);
+                                                    a.putExtra("Price", price);
+                                                    startActivity(a);
+                                                }
+                                            }
+                                        });
+                                    }
+                                })
+                                .create()
+                                .show();
                     }
                 }
             }
