@@ -12,15 +12,19 @@
     <LinearLayout
         android:id="@+id/temp"
         android:layout_width="match_parent"
-        android:layout_height="32dp"
-        android:orientation="horizontal"
-        android:layout_margin="7dp"
-        android:background="@drawable/custom_edit_text">
-            <fragment
-                android:id="@+id/location"
-                android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
-                android:layout_width="match_parent"
-                android:layout_height="32dp" />
+        android:layout_height="44dp"
+        android:layout_marginStart="7dp"
+        android:layout_marginTop="7dp"
+        android:layout_marginEnd="7dp"
+        android:layout_marginBottom="7dp"
+        android:background="@drawable/custom_edit_text"
+        android:orientation="horizontal">
+
+        <fragment
+            android:id="@+id/location"
+            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+            android:layout_width="match_parent"
+            android:layout_height="44dp" />
 
     </LinearLayout>
 
