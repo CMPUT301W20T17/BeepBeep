@@ -170,10 +170,10 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 
     private ArrayList<Order> orderDataList;
 
-    private AlertDialog acceptNotice = null;
+    private AlertDialog acceptNotice;
     private AlertDialog completeNotice = null;
     private AlertDialog inprocessNotice = null;
-    private AlertDialog declinedNotice = null;
+    private AlertDialog declinedNotice;
 
 
     @Override
@@ -334,16 +334,17 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                         theSecondLayout.setVisibility(View.INVISIBLE);
 
                                         final String[] typenow = new String[1];
-                                        final DocumentReference doc = db.collection("Requests").document(latestOrderNum);
-                                        doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                if (task.isSuccessful()){
-                                                    DocumentSnapshot doc = task.getResult();
-                                                    typenow[0] = (doc.get("Type")).toString();
-                                                }
-                                            }
-                                        });
+//                                        final DocumentReference doc = db.collection("Requests").document(latestOrderNum);
+//                                        doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//                                            @Override
+//                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                                                if (task.isSuccessful()){
+//                                                    DocumentSnapshot doc = task.getResult();
+//                                                    typenow[0] = (doc.get("Type")).toString();
+//                                                }
+//                                            }
+//                                        });
+                                        typenow[0] = order.getType();
 
                                         if(typenow[0].equals("inactive")){
                                             //delete the order history
@@ -378,45 +379,66 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                         }
                     });
                 }
-            }
-
-            confirm_button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    newRequest();
-                }
-            });
-
-            //Set the complete button, switch to the make payment activity since it's the rider want to complete
-            completeButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    DocumentReference order = db.collection("Requests").document(uniqueID);
-                    order.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if(task.isSuccessful()){
-                                DocumentSnapshot doc = task.getResult();
-                                String typenow = doc.getString("Type");
-                                if (typenow.equals("inprocess")){
-                                    Map<String, Object> docData = new HashMap<>();
-                                    docData.put("Type","completed");
-                                    Date finishTime = Calendar.getInstance().getTime();
-                                    String finishTime2 = finishTime.toString();
-                                    docData.put("FinishTime",finishTime2);
-                                    db.collection("Requests")
-                                            .document(uniqueID)
-                                            .update(docData);
-                                }
-                                else{
-                                    Toast.makeText(getApplicationContext(),"Cannot complete route now", Toast.LENGTH_SHORT).show();
-                                }
-
-                            }
+                completeButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+//                    DocumentReference order = db.collection("Requests").document(uniqueID);
+//                    order.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//                        @Override
+//                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                            if(task.isSuccessful()){
+//                                DocumentSnapshot doc = task.getResult();
+                        String typenow = order.getType();
+                        if (typenow.equals("inprocess")){
+                            Map<String, Object> docData = new HashMap<>();
+                            docData.put("Type","completed");
+                            Date finishTime = Calendar.getInstance().getTime();
+                            String finishTime2 = finishTime.toString();
+                            docData.put("FinishTime",finishTime2);
+                            db.collection("Requests")
+                                    .document(uniqueID)
+                                    .update(docData);
                         }
-                    });
-                }
-            });
+                        else{
+                            Toast.makeText(getApplicationContext(),"Cannot complete route now", Toast.LENGTH_SHORT).show();
+                        }
+
+//                            }
+                    }
+                });
+//                }
+//            });
+            }
+            //Set the complete button, switch to the make payment activity since it's the rider want to complete
+//            completeButton.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+////                    DocumentReference order = db.collection("Requests").document(uniqueID);
+////                    order.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+////                        @Override
+////                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+////                            if(task.isSuccessful()){
+////                                DocumentSnapshot doc = task.getResult();
+//                                String typenow = order.getType();
+//                                if (typenow.equals("inprocess")){
+//                                    Map<String, Object> docData = new HashMap<>();
+//                                    docData.put("Type","completed");
+//                                    Date finishTime = Calendar.getInstance().getTime();
+//                                    String finishTime2 = finishTime.toString();
+//                                    docData.put("FinishTime",finishTime2);
+//                                    db.collection("Requests")
+//                                            .document(uniqueID)
+//                                            .update(docData);
+//                                }
+//                                else{
+//                                    Toast.makeText(getApplicationContext(),"Cannot complete route now", Toast.LENGTH_SHORT).show();
+//                                }
+//
+////                            }
+//                        }
+//                    });
+////                }
+////            });
         }
         else{
             //check if we have current avitivity
@@ -903,16 +925,14 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 checkinprocess();
                 checkComplete();
             }else{
+                if (declinedNotice != null && declinedNotice.isShowing()) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
                     builder.setTitle("Request Declined")
                             .setMessage(username + ": Your request cannot been built since the direction between two locations is less than 500 meters.")
-                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
-                                }
-                            });
-                    builder.create().show();
+                            .setPositiveButton("OK", null);
+                    declinedNotice = builder.create();
+                    declinedNotice.show();
+                }
             }
         }
         else{
