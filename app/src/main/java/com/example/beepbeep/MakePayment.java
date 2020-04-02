@@ -83,7 +83,13 @@ public class MakePayment extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(hasNetworkAccess()){
-                    double amount = Double.parseDouble(amountInput.getText().toString());
+                    double amount;
+                    try{
+                        amount = Double.parseDouble(amountInput.getText().toString());
+
+                    }catch (Exception ignored){
+                        amount = 0;
+                    }
                     processTransaction(amount+fair);
                 }else{
                     showDialog("Unable to make payment\nYou must have a network connection");
@@ -101,7 +107,7 @@ public class MakePayment extends AppCompatActivity {
      */
     private void processTransaction(final double amount){
         if(hasNetworkAccess()){
-            if(amount > 0){
+            if(amount >= 0){
                 // get user account balance from firestore
                 DocumentReference docIdRef = db.collection("Accounts").document(username);
                 docIdRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -115,25 +121,14 @@ public class MakePayment extends AppCompatActivity {
                                     // update new balance to cloud
                                     double newBalance = balance - amount;
                                     db.collection("Accounts").document(username).update("balance", Double.toString(newBalance));
-                                    // display qr code
-                                    WindowManager manager = (WindowManager) getSystemService(WINDOW_SERVICE);
-                                    Display display = manager.getDefaultDisplay();
-                                    Point point = new Point();
-                                    display.getSize(point);
-                                    int width = point.x;
-                                    int height = point.y;
-                                    int smallerDimension = Math.min(width, height);
-                                    smallerDimension = smallerDimension * 3 / 4;
 
-                                    qrgEncoder = new QRGEncoder(Double.toString(amount), null, QRGContents.Type.TEXT, smallerDimension);
-                                    try {
-                                        bitmap = qrgEncoder.encodeAsBitmap();
-                                        QRCodeDisplay.setImageBitmap(bitmap);
-                                        confirmButton.setVisibility(View.INVISIBLE);
-                                        basePrice.setVisibility(View.INVISIBLE);
-                                    } catch (WriterException e) {
-                                        Log.v(TAG, e.toString());
-                                    }
+                                    // display qr code
+                                    displayCode(amount);
+
+                                    // hide buttons
+                                    confirmButton.setVisibility(View.INVISIBLE);
+                                    basePrice.setVisibility(View.INVISIBLE);
+
                                 }else{
                                     showDialog("Insufficient Balance");
                                 }
@@ -168,5 +163,24 @@ public class MakePayment extends AppCompatActivity {
         assert connectivityManager != null;
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    private void displayCode(double amount){
+        WindowManager manager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        Display display = manager.getDefaultDisplay();
+        Point point = new Point();
+        display.getSize(point);
+        int width = point.x;
+        int height = point.y;
+        int smallerDimension = Math.min(width, height);
+        smallerDimension = smallerDimension * 3 / 4;
+
+        qrgEncoder = new QRGEncoder(Double.toString(amount), null, QRGContents.Type.TEXT, smallerDimension);
+        try {
+            bitmap = qrgEncoder.encodeAsBitmap();
+        } catch (WriterException e) {
+            e.printStackTrace();
+        }
+        QRCodeDisplay.setImageBitmap(bitmap);
     }
 }
