@@ -292,11 +292,11 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                 //set scroll view
                                 TextView scrollStart = findViewById(R.id.scroll_start);
                                 GeoPoint pickup_geopoint = order.getPickupPoint();
-                                double LAT  = pickup_geopoint.getLatitude();
+                                double LAT = pickup_geopoint.getLatitude();
                                 double LONG = pickup_geopoint.getLongitude();
                                 String pickup_address = getAddress(LAT, LONG);
                                 GeoPoint destination_geopoint = order.getDestination();
-                                double LAt  = destination_geopoint.getLatitude();
+                                double LAt = destination_geopoint.getLatitude();
                                 double LONg = destination_geopoint.getLongitude();
                                 String destination_address = getAddress(LAt, LONg);
                                 scrollStart.setText("Start: " + pickup_address);
@@ -309,17 +309,17 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                 TextView scrollDriver = findViewById(R.id.scroll_driver);
                                 if (order.getType().equals("inactive")) {
                                     scrollDriver.setText("Driver: Finding.." + "\n");
-                                }else{
+                                } else {
                                     String mydriver = "Driver: " + order.getDriverID();
                                     int len_driver = order.getDriverID().length();
                                     SpannableString ss = new SpannableString(mydriver);
                                     ForegroundColorSpan fcsBlue = new ForegroundColorSpan(Color.BLUE);
-                                    ss.setSpan(fcsBlue,7, 8+len_driver,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                    ss.setSpan(fcsBlue, 7, 8 + len_driver, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                                     scrollDriver.setText(ss);
                                     scrollDriver.setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
-                                            Intent profile = new Intent(RiderMapActivity.this,ViewProfile.class);
+                                            Intent profile = new Intent(RiderMapActivity.this, ViewProfile.class);
                                             profile.putExtra("profile_name", order.getDriverID());
                                             startActivity(profile);
                                         }
@@ -336,34 +336,47 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 
                                         final String[] typenow = new String[1];
                                         typenow[0] = order.getType();
-                                        
+                                        //set button
+                                        Button btnCancelRequest = findViewById(R.id.btn_cancel_request);
+                                        if (typenow[0].equals("inprocess")) {
+                                            btnCancelRequest.setVisibility(View.INVISIBLE);
+                                        } else {
+                                            btnCancelRequest.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View view) {
+                                                    theFirstLayout.setVisibility(View.VISIBLE);
+                                                    confirm_button.setVisibility(View.VISIBLE);
+                                                    theSecondLayout.setVisibility(View.INVISIBLE);
 
-                                        if(typenow[0].equals("inactive")){
-                                            //delete the order history
-                                            final DocumentReference Accountref = db.collection("Accounts").document(loginName);
-                                            Accountref.update("order", FieldValue.arrayRemove(latestOrderNum));
-                                            //delete the requestID
-                                            db.collection("Requests").document(latestOrderNum)
-                                                    .delete()
-                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                        @Override
-                                                        public void onSuccess(Void aVoid) {
-                                                            Log.d(TAG, "DocumentSnapshot successfully deleted!");
-                                                        }
-                                                    })
-                                                    .addOnFailureListener(new OnFailureListener() {
-                                                        @Override
-                                                        public void onFailure(@NonNull Exception e) {
-                                                            Log.w(TAG, "Error deleting document", e);
-                                                        }
-                                                    });
-                                        }else{
-                                            final DocumentReference Accountref = db.collection("Accounts").document(loginName);
-                                            Accountref.update("order", FieldValue.arrayRemove(latestOrderNum));
-                                            Map<String, Object> docData = new HashMap<>();
-                                            docData.put("DriverID","");
-                                            docData.put("Type","Deleted");
-                                            db.collection("Requests").document(latestOrderNum).update(docData);
+                                                    if (typenow[0].equals("inactive")) {
+                                                        //delete the order history
+                                                        final DocumentReference Accountref = db.collection("Accounts").document(loginName);
+                                                        Accountref.update("order", FieldValue.arrayRemove(latestOrderNum));
+                                                        //delete the requestID
+                                                        db.collection("Requests").document(latestOrderNum)
+                                                                .delete()
+                                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                    @Override
+                                                                    public void onSuccess(Void aVoid) {
+                                                                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                                                                    }
+                                                                })
+                                                                .addOnFailureListener(new OnFailureListener() {
+                                                                    @Override
+                                                                    public void onFailure(@NonNull Exception e) {
+                                                                        Log.w(TAG, "Error deleting document", e);
+                                                                    }
+                                                                });
+                                                    } else {
+                                                        final DocumentReference Accountref = db.collection("Accounts").document(loginName);
+                                                        Accountref.update("order", FieldValue.arrayRemove(latestOrderNum));
+                                                        Map<String, Object> docData = new HashMap<>();
+                                                        docData.put("DriverID", "");
+                                                        docData.put("Type", "Deleted");
+                                                        db.collection("Requests").document(latestOrderNum).update(docData);
+                                                    }
+                                                }
+                                            });
                                         }
                                     }
                                 });
@@ -892,15 +905,15 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 checkComplete();
             }else{
                 if (declinedNotice != null && declinedNotice.isShowing()) return;
-                    AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
-                    builder.setTitle("Request Declined")
-                            .setMessage("Your request cannot been built since the direction between two locations is less than 500 meters.")
-                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
-                                }
-                            });
+                AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
+                builder.setTitle("Request Declined")
+                        .setMessage("Your request cannot been built since the direction between two locations is less than 500 meters.")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
                     declinedNotice = builder.create();
                     declinedNotice.show();
             }
@@ -953,7 +966,6 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                     final String nowType = snapshot.get("Type").toString();
                     if(nowType.equals("active")) {
                         //TODO: Dialog pop up several times.
-                        if (acceptNotice != null && acceptNotice.isShowing()) return;
                         TextView drivertext = findViewById(R.id.scroll_driver);
                         String mydriver;
                         int len_driver = DriverID.length();
@@ -970,6 +982,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                 startActivity(profile);
                             }
                         });
+                        if (acceptNotice != null && acceptNotice.isShowing()) return;
                         final AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
                         builder.setTitle("Request Notification")
                                 .setMessage("Your request has been accept by driver.")
@@ -997,9 +1010,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                     final String type = documentSnapshot.get("Type").toString();
                     final String Driver = documentSnapshot.get("DriverID").toString();
                     if (type.equals("completed")) {
-                        if (completeNotice != null && completeNotice.isShowing()) {
-                            completeNotice.show();
-                        }
+
                         DocumentReference order = db.collection("Requests").document(uniqueID);
                         final Button but_can = findViewById(R.id.btn_cancel_request);
                         but_can.setVisibility(View.VISIBLE);
@@ -1025,6 +1036,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                 }
                             }
                         });
+                        if (completeNotice != null && completeNotice.isShowing()) return;
                         final AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
                         builder.setTitle("Request Notification")
                                 .setMessage("Your request is completed !")
