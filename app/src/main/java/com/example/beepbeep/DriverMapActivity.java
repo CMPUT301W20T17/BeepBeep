@@ -82,6 +82,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
@@ -309,6 +310,8 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                             String theRequestID = qulifiedListData.get(i);
                             uniqueID = theRequestID;
                             opendialog(theRequestID, username);
+                            final DocumentReference Accountref = db.collection("Accounts").document(username);
+                            Accountref.update("order", FieldValue.arrayUnion(uniqueID));
                         }
                     });
                 } else {
