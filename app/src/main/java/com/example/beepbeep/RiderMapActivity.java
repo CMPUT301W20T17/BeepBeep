@@ -171,10 +171,10 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 
     private ArrayList<Order> orderDataList;
 
-    private AlertDialog acceptNotice = null;
-    private AlertDialog completeNotice = null;
-    private AlertDialog inprocessNotice = null;
-    private AlertDialog declinedNotice = null;
+    private AlertDialog acceptNotice;
+    private AlertDialog completeNotice;
+    private AlertDialog inprocessNotice;
+    private AlertDialog declinedNotice;
 
 
     @Override
@@ -335,17 +335,8 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                         theSecondLayout.setVisibility(View.INVISIBLE);
 
                                         final String[] typenow = new String[1];
-
-                                        final DocumentReference doc = db.collection("Requests").document(latestOrderNum);
-                                        doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                if (task.isSuccessful()){
-                                                    DocumentSnapshot doc = task.getResult();
-                                                    typenow[0] = (doc.get("Type")).toString();
-                                                }
-                                            }
-                                        });
+                                        typenow[0] = order.getType();
+                                        
 
                                         if(typenow[0].equals("inactive")){
                                             //delete the order history
@@ -381,13 +372,6 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                     });
                 }
             }
-
-            confirm_button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    newRequest();
-                }
-            });
 
             //Set the complete button, switch to the make payment activity since it's the rider want to complete
             completeButton.setOnClickListener(new View.OnClickListener() {
@@ -907,16 +891,18 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 checkinprocess();
                 checkComplete();
             }else{
+                if (declinedNotice != null && declinedNotice.isShowing()) return;
                     AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
                     builder.setTitle("Request Declined")
-                            .setMessage(username + ": Your request cannot been built since the direction between two locations is less than 500 meters.")
+                            .setMessage("Your request cannot been built since the direction between two locations is less than 500 meters.")
                             .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.cancel();
                                 }
                             });
-                    builder.create().show();
+                    declinedNotice = builder.create();
+                    declinedNotice.show();
             }
         }
         else{
@@ -938,17 +924,14 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 if(documentSnapshot != null && documentSnapshot.exists()){
                     final String type = documentSnapshot.get("Type").toString();
                     if(type.equals("inprocess")){
+                        cancelBtn.setVisibility(View.INVISIBLE);
+                        if (inprocessNotice != null && inprocessNotice.isShowing()) return;
                         AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
                         builder.setTitle("Request Start")
                                 .setMessage("The request starts to run.")
-                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.cancel();
-                                    }
-                                });
-                        builder.create().show();
-                    cancelBtn.setVisibility(View.INVISIBLE);
+                                .setPositiveButton("OK", null);
+                        inprocessNotice = builder.create();
+                        inprocessNotice.show();
                     }
                 }
             }
@@ -968,36 +951,31 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 if (snapshot != null && snapshot.exists()) {
                     final String DriverID = snapshot.get("DriverID").toString();
                     final String nowType = snapshot.get("Type").toString();
-                    //TODO: check whether
                     if(nowType.equals("active")) {
                         //TODO: Dialog pop up several times.
-                            final AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
-                            builder.setTitle("Request Notification")
-                                    .setMessage("Your request has been accept by driver: " + DriverID + ".")
-                                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                            dialogInterface.cancel();
-                                            TextView drivertext = findViewById(R.id.scroll_driver);
-                                            String mydriver;
-                                            int len_driver = DriverID.length();
-                                            mydriver = "Driver: " + DriverID + "\n";
-                                            SpannableString ss = new SpannableString(mydriver);
-                                            ForegroundColorSpan fcsBlue = new ForegroundColorSpan(Color.BLUE);
-                                            ss.setSpan(fcsBlue, 7, 8 + len_driver, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                            drivertext.setText(ss);
-                                            drivertext.setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    Intent profile = new Intent(RiderMapActivity.this, ViewProfile.class);
-                                                    profile.putExtra("profile_name", DriverID);
-                                                    startActivity(profile);
-                                                }
-                                            });
-                                        }
-                                    })
-                                    .create()
-                                    .show();
+                        if (acceptNotice != null && acceptNotice.isShowing()) return;
+                        TextView drivertext = findViewById(R.id.scroll_driver);
+                        String mydriver;
+                        int len_driver = DriverID.length();
+                        mydriver = "Driver: " + DriverID + "\n";
+                        SpannableString ss = new SpannableString(mydriver);
+                        ForegroundColorSpan fcsBlue = new ForegroundColorSpan(Color.BLUE);
+                        ss.setSpan(fcsBlue, 7, 8 + len_driver, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        drivertext.setText(ss);
+                        drivertext.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent profile = new Intent(RiderMapActivity.this, ViewProfile.class);
+                                profile.putExtra("profile_name", DriverID);
+                                startActivity(profile);
+                            }
+                        });
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
+                        builder.setTitle("Request Notification")
+                                .setMessage("Your request has been accept by driver.")
+                                .setPositiveButton("OK", null);
+                                acceptNotice = builder.create();
+                                acceptNotice.show();
                     }
                 } else {
                     Log.d(TAG, "Current data: null");
@@ -1019,42 +997,40 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                     final String type = documentSnapshot.get("Type").toString();
                     final String Driver = documentSnapshot.get("DriverID").toString();
                     if (type.equals("completed")) {
+                        if (completeNotice != null && completeNotice.isShowing()) {
+                            completeNotice.show();
+                        }
+                        DocumentReference order = db.collection("Requests").document(uniqueID);
+                        final Button but_can = findViewById(R.id.btn_cancel_request);
+                        but_can.setVisibility(View.VISIBLE);
+                        final RelativeLayout theFirstLayout = findViewById(R.id.thefirstshow);
+                        theFirstLayout.setVisibility(View.VISIBLE);
+                        final Button but_con = findViewById(R.id.confirm);
+                        but_con.setVisibility(View.VISIBLE);
+                        final RelativeLayout theSecondLayout = findViewById(R.id.thesecondshow);
+                        theSecondLayout.setVisibility(View.INVISIBLE);
+                        order.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot doc = task.getResult();
+                                    String price = (doc.get("Price")).toString();
+                                    Intent a = new Intent(RiderMapActivity.this, MakePayment.class);
+                                    a.putExtra("Price", price);
+                                    startActivity(a);
+                                    Intent b = new Intent(RiderMapActivity.this, RiderRatingActivity.class);
+                                    String driver_name = (doc.get("DriverID")).toString();
+                                    b.putExtra("driver_name", driver_name);
+                                    startActivity(b);
+                                }
+                            }
+                        });
                         final AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
                         builder.setTitle("Request Notification")
-                                .setMessage("Your request which is taken by " + Driver + " completed!")
-                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        dialogInterface.cancel();
-                                        DocumentReference order = db.collection("Requests").document(uniqueID);
-                                        final Button but_can = findViewById(R.id.btn_cancel_request);
-                                        but_can.setVisibility(View.VISIBLE);
-                                        final RelativeLayout theFirstLayout = findViewById(R.id.thefirstshow);
-                                        theFirstLayout.setVisibility(View.VISIBLE);
-                                        final Button but_con = findViewById(R.id.confirm);
-                                        but_con.setVisibility(View.VISIBLE);
-                                        final RelativeLayout theSecondLayout = findViewById(R.id.thesecondshow);
-                                        theSecondLayout.setVisibility(View.INVISIBLE);
-                                        order.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                if (task.isSuccessful()) {
-                                                    DocumentSnapshot doc = task.getResult();
-                                                    String price = (doc.get("Price")).toString();
-                                                    Intent a = new Intent(RiderMapActivity.this, MakePayment.class);
-                                                    a.putExtra("Price", price);
-                                                    startActivity(a);
-                                                    Intent b = new Intent(RiderMapActivity.this, RiderRatingActivity.class);
-                                                    String driver_name = (doc.get("DriverID")).toString();
-                                                    b.putExtra("driver_name", driver_name);
-                                                    startActivity(b);
-                                                }
-                                            }
-                                        });
-                                    }
-                                })
-                                .create()
-                                .show();
+                                .setMessage("Your request is completed !")
+                                .setPositiveButton("OK", null);
+                                completeNotice = builder.create();
+                                completeNotice.show();
                     }
                 }
             }
