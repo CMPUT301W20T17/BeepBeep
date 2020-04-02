@@ -16,15 +16,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
         <TextView
             android:id="@+id/listview_id"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold"
-            android:textSize="20dp"
             android:layout_margin="5dp"
-            android:text="User: "/>
+            android:text="User: "
+            android:textColor="#000000"
+            android:textSize="20dp"
+            android:textStyle="bold" />
         <TextView
             android:id="@+id/listview_start"
             android:layout_width="match_parent"

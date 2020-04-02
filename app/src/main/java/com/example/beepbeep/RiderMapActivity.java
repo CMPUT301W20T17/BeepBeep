@@ -303,7 +303,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                 TextView scrollEnd = findViewById(R.id.scroll_end);
                                 scrollEnd.setText("End: " + destination_address);
                                 TextView scrollPrice = findViewById(R.id.scroll_price);
-                                scrollPrice.setText("Price: " + order.getPrice());
+                                scrollPrice.setText("Price: " + "$" + order.getPrice());
                                 TextView scrollUser = findViewById(R.id.scroll_user);
                                 scrollUser.setText("User: " + order.getRiderID());
                                 TextView scrollDriver = findViewById(R.id.scroll_driver);
@@ -445,7 +445,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                     TextView scrollEnd = findViewById(R.id.scroll_end);
                     scrollEnd.setText("End: " + destination_address);
                     TextView scrollPrice = findViewById(R.id.scroll_price);
-                    scrollPrice.setText("Price: " + order.getPrice());
+                    scrollPrice.setText("Price: " + "$" + order.getPrice());
                     TextView scrollUser = findViewById(R.id.scroll_user);
                     scrollUser.setText("User: " + order.getRiderID());
                     TextView scrollDriver = findViewById(R.id.scroll_driver);
