@@ -141,6 +141,8 @@ public class request_fragment extends DialogFragment {
                         //change layout from the first show to the second show
                         final RelativeLayout theFirstLayout = getActivity().findViewById(R.id.thefirstshow);
                         theFirstLayout.setVisibility(View.INVISIBLE);
+                        final Button con_but = getActivity().findViewById(R.id.confirm);
+                        con_but.setVisibility(View.INVISIBLE);
                         final RelativeLayout theSecondLayout = getActivity().findViewById(R.id.thesecondshow);
                         theSecondLayout.setVisibility(View.VISIBLE);
                         //set scroll view
@@ -160,6 +162,7 @@ public class request_fragment extends DialogFragment {
                             @Override
                             public void onClick(View view) {
                                 theFirstLayout.setVisibility(View.VISIBLE);
+                                con_but.setVisibility(View.VISIBLE);
                                 theSecondLayout.setVisibility(View.INVISIBLE);
 
                                 final String[] typenow = new String[1];
