@@ -21,12 +21,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Signup extends AppCompatActivity {
 
@@ -143,7 +140,7 @@ public class Signup extends AppCompatActivity {
         if(username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() || email.isEmpty()){ // check if any input in empty
             showDialog("You must fill in all the fields");
             return false;
-        }else if(!validUsername(username)){
+        }else if(!InputValidation.validUsername(username)){
             showDialog("Your username must be 5 to 15 characters long and contains only Alphabets and Numbers");
             return false;
         }else if(!password.equals(confirmPassword)){ // check if the 2 password match
@@ -152,50 +149,14 @@ public class Signup extends AppCompatActivity {
         }else if(password.length() < 8){
             showDialog("You password must be 8 characters or longer");
             return false;
-        }else if(!validEmail(email)){ // validate email with regex
+        }else if(!InputValidation.validEmail(email)){ // validate email with regex
             showDialog("Invalid Email Address");
             return false;
-        } else if (!validPhone(phone)) {
+        } else if (!InputValidation.validPhone(phone)) {
             showDialog("Invalid Phone Number");
             return false;
         }
         return true;
-    }
-
-    /**
-     * Check if a given string of email address are valid
-     * @param email String
-     * @return true if email is the right format
-     */
-    static public boolean validEmail(String email){
-        String pattern = "^[a-zA-Z0-9\\-!#$%&'*+/=?^_`{|}~.]+@\\w+\\.\\w+$";
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(email);
-        return m.find();
-    }
-
-    /**
-     * Check if a given string of phone number are valid
-     * @param phone String
-     * @return true if phone is the right format
-     */
-    static public boolean validPhone(String phone){
-        String pattern = "^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]?\\d{3}[\\s.-]?\\d{4}$";
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(phone);
-        return m.find();
-    }
-
-    /**
-     * Check if a given string of username are valid
-     * @param username String
-     * @return true if username is the right format
-     */
-    static public boolean validUsername(String username){
-        String pattern = "^[A-Za-z0-9_-]{5,15}$";
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(username);
-        return m.find();
     }
 
     /**
