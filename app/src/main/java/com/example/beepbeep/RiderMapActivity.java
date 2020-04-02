@@ -268,7 +268,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
             //has current activity
             if (orderDataList.size() >= 1){
                 final Order order = orderDataList.get(0);
-                if (!order.getType().equals("complete")) {
+                if (!order.getType().equals("completed")) {
                     db = FirebaseFirestore.getInstance();
                     DocumentReference userInfo = db.collection("Accounts").document(loginName);
                     userInfo.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -341,7 +341,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                             }
                                         });
 
-                                        if(typenow[0] == "inactive"){
+                                        if(typenow[0].equals("inactive")){
                                             //delete the order history
                                             final DocumentReference Accountref = db.collection("Accounts").document(loginName);
                                             Accountref.update("order", FieldValue.arrayRemove(latestOrderNum));
@@ -420,7 +420,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 
             if (orderDataList.size() >= 1){
                 final Order order = orderDataList.get(0);
-                if (!order.getType().equals("complete")) {
+                if (!order.getType().equals("completed")) {
                     confirm_button.setVisibility(View.INVISIBLE);
                     //if has current activity
                     //change layout from the first show to the second show
