@@ -173,8 +173,10 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
     ArrayList<String> qulifiedDestination = new ArrayList<String>();
     ArrayList<String> qulifiedPrice = new ArrayList<String>();
 
-
     private View mapView;
+
+    private AlertDialog deleteNotice;
+    private AlertDialog compeleNotice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -604,6 +606,7 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                 if(documentSnapshot != null && documentSnapshot.exists()){
                     final String type = documentSnapshot.get("Type").toString();
                     if(type.equals("Deleted")){
+                        if (deleteNotice != null && deleteNotice.isShowing()) return;
                         AlertDialog.Builder builder = new AlertDialog.Builder(DriverMapActivity.this);
                         builder.setTitle("Important Message")
                                 .setMessage("Your request was canceled by rider.")
@@ -626,7 +629,8 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                                                 });
                                     }
                                 });
-                        builder.create().show();
+                        deleteNotice = builder.create();
+                        deleteNotice.show();
                         RelativeLayout changeLayout = DriverMapActivity.this.findViewById(R.id.after_confirm);
                         LinearLayout butconf = DriverMapActivity.this.findViewById(R.id.but_conf);
                         LinearLayout tempview = DriverMapActivity.this.findViewById(R.id.temp);
@@ -669,38 +673,34 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                 if(documentSnapshot != null && documentSnapshot.exists()){
                     final String type = documentSnapshot.get("Type").toString();
                     if(type.equals("completed")){
+                        DocumentReference order = db.collection("Requests").document(uniqueID);
+                        final Button toStart = findViewById(R.id.ToStartBtn);
+                        toStart.setVisibility(View.VISIBLE);
+                        final LinearLayout theFirstLayout = findViewById(R.id.temp);
+                        theFirstLayout.setVisibility(View.VISIBLE);
+                        final LinearLayout butconf = findViewById(R.id.but_conf);
+                        butconf.setVisibility(View.VISIBLE);
+                        final RelativeLayout theSecondLayout = findViewById(R.id.after_confirm);
+                        theSecondLayout.setVisibility(View.INVISIBLE);
+                        order.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if(task.isSuccessful()){
+                                    DocumentSnapshot doc = task.getResult();
+                                    String price = (doc.get("Price")).toString();
+                                    Intent a = new Intent(DriverMapActivity.this, ReceivePayment.class);
+                                    a.putExtra("Price", price);
+                                    startActivity(a);
+                                }
+                            }
+                        });
+                        if (compeleNotice != null && compeleNotice.isShowing()) return;
                         final AlertDialog.Builder builder = new AlertDialog.Builder(DriverMapActivity.this);
                         builder.setTitle("Request Notification")
                                 .setMessage("Your request is completed !")
-                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        DocumentReference order = db.collection("Requests").document(uniqueID);
-                                        final Button toStart = findViewById(R.id.ToStartBtn);
-                                        toStart.setVisibility(View.VISIBLE);
-                                        final LinearLayout theFirstLayout = findViewById(R.id.temp);
-                                        theFirstLayout.setVisibility(View.VISIBLE);
-                                        final LinearLayout butconf = findViewById(R.id.but_conf);
-                                        butconf.setVisibility(View.VISIBLE);
-                                        final RelativeLayout theSecondLayout = findViewById(R.id.after_confirm);
-                                        theSecondLayout.setVisibility(View.INVISIBLE);
-                                        order.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                if(task.isSuccessful()){
-                                                    DocumentSnapshot doc = task.getResult();
-                                                    String price = (doc.get("Price")).toString();
-                                                    Intent a = new Intent(DriverMapActivity.this, ReceivePayment.class);
-                                                    a.putExtra("Price", price);
-                                                    startActivity(a);
-                                                }
-                                            }
-                                        });
-                                        dialogInterface.dismiss();
-                                    }
-                                })
-                                .create()
-                                .show();
+                                .setPositiveButton("OK", null);
+                                compeleNotice = builder.create();
+                                compeleNotice.show();
                     }
                 }
             }
