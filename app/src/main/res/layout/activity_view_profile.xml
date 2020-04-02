@@ -43,7 +43,6 @@
         android:layout_marginEnd="90dp"
         android:text="Loading..."
         android:textAlignment="center"
-        android:textColor="@color/quantum_black_100"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/imageView5"
         app:layout_constraintTop_toBottomOf="@+id/profile_view_photo" />
@@ -69,7 +68,6 @@
         android:layout_marginEnd="90dp"
         android:text="Loading..."
         android:textAlignment="center"
-        android:textColor="@color/quantum_black_100"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/imageView6"
         app:layout_constraintTop_toBottomOf="@+id/profile_view_name" />
@@ -92,7 +90,6 @@
         android:layout_height="wrap_content"
         android:textAlignment="center"
         android:text="Loading..."
-        android:textColor="@color/quantum_black_100"
         android:textSize="30dp"
         android:textStyle="italic"
         app:layout_constraintBottom_toTopOf="@+id/profile_view_photo"
@@ -111,7 +108,6 @@
         android:layout_marginEnd="90dp"
         android:text="Loading..."
         android:textAlignment="center"
-        android:textColor="@color/quantum_black_100"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/imageView7"
         app:layout_constraintTop_toBottomOf="@+id/profile_view_email" />
@@ -135,7 +131,6 @@
         android:layout_marginTop="52dp"
         android:text="Loading..."
         android:textAlignment="center"
-        android:textColor="@color/quantum_black_100"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"

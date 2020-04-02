@@ -41,6 +41,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:text="Profile"
+                android:textColor="@color/TextCardView"
                 android:textAlignment="center"
                 android:textSize="30dp" />
 

@@ -1,6 +1,7 @@
 package com.example.beepbeep;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import android.content.Context;
 import android.content.Intent;
@@ -32,14 +33,17 @@ public class Setting extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
+                    getDelegate().setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                     editor.putBoolean("darkmode", true);
                     editor.commit();
                     displaySwitch.setChecked(true);
-
+                    recreate();
                 } else {
+                    getDelegate().setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
                     editor.putBoolean("darkmode", false);
                     editor.commit();
                     displaySwitch.setChecked(false);
+                    recreate();
                 }
             }
         });
@@ -49,7 +53,6 @@ public class Setting extends AppCompatActivity {
                 setDisplaySwitch();
             }
         });
-
     }
 
     public void setDisplaySwitch(){
