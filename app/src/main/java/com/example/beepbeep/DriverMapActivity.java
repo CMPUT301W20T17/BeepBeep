@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
@@ -17,6 +18,7 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -80,6 +82,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
@@ -172,7 +175,6 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
 
     private View mapView;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -229,8 +231,6 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
         //set the Buttom confirm, and send the request information to firestore
         Button confirm_button;
         confirm_button = findViewById(R.id.confirm_);
-        //the confirm_button is inivisble to begin with but for now i make it visible here so that its easier to see whats going on
-        confirm_button.setVisibility(View.VISIBLE);
         confirm_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -310,6 +310,8 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                             String theRequestID = qulifiedListData.get(i);
                             uniqueID = theRequestID;
                             opendialog(theRequestID, username);
+                            final DocumentReference Accountref = db.collection("Accounts").document(username);
+                            Accountref.update("order", FieldValue.arrayUnion(uniqueID));
                         }
                     });
                 } else {
@@ -345,16 +347,26 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if(task.isSuccessful()){
                             DocumentSnapshot doc = task.getResult();
-                            String price = (doc.get("Price")).toString();
-                            Intent a = new Intent(DriverMapActivity.this, ReceivePayment.class);
-                            a.putExtra("Price", price);
-                            startActivity(a);
+                            String typenow =   doc.getString("Type");
+                            if (typenow.equals("inprocess")){
+                                Map<String, Object> docData = new HashMap<>();
+                                Date finishTime = Calendar.getInstance().getTime();
+                                String finishTime2 = finishTime.toString();
+                                docData.put("Type","completed");
+                                docData.put("FinishTime",finishTime2);
+                                db.collection("Requests")
+                                        .document(uniqueID)
+                                        .update(docData);
+                            }
+                            else{
+                                Toast.makeText(getApplicationContext(),"Cannot complete route now", Toast.LENGTH_SHORT).show();
+                            }
+
                         }
                     }
                 });
             }
         });
-
     }
 
     public void setGetDirection(){
@@ -531,7 +543,7 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                                                 String price = document.get("Price").toString();
 
                                                 //get rider
-                                                String rider = document.get("RiderID").toString();
+                                                final String rider = document.get("RiderID").toString();
 
                                                 //set view of the fragment
                                                 String riderString = "User: " + rider;
@@ -549,7 +561,19 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                                                 SpannableString ss3 = new SpannableString(priceString);
                                                 ss3.setSpan(boldSpan,0,6, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-                                                user.setText(riderString);
+                                                SpannableString ss = new SpannableString(riderString);
+                                                int len_rider = rider.length();
+                                                ForegroundColorSpan fcsBlue = new ForegroundColorSpan(Color.BLUE);
+                                                ss.setSpan(fcsBlue, 5, 6 + len_rider, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                                user.setText(ss);
+                                                user.setOnClickListener(new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View v) {
+                                                        Intent profile = new Intent(DriverMapActivity.this, ViewProfile.class);
+                                                        profile.putExtra("profile_name", rider);
+                                                        startActivity(profile);
+                                                    }
+                                                });
                                                 driver.setText(driverString);
                                                 start.setText(ss1);
                                                 end.setText(ss2);
@@ -626,6 +650,56 @@ public class DriverMapActivity extends AppCompatActivity implements OnMapReadyCa
                             mdestination.remove();
                             mMap.clear();
                         }
+                    }
+                }
+            }
+        });
+        checkComplete();
+    }
+    private void checkComplete(){
+        final DocumentReference docRef = db.collection("Requests").document(uniqueID);
+        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+                if(documentSnapshot != null && documentSnapshot.exists()){
+                    final String type = documentSnapshot.get("Type").toString();
+                    if(type.equals("completed")){
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(DriverMapActivity.this);
+                        builder.setTitle("Request Notification")
+                                .setMessage("Your request is completed !")
+                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        DocumentReference order = db.collection("Requests").document(uniqueID);
+                                        final Button toStart = findViewById(R.id.ToStartBtn);
+                                        toStart.setVisibility(View.VISIBLE);
+                                        final LinearLayout theFirstLayout = findViewById(R.id.temp);
+                                        theFirstLayout.setVisibility(View.VISIBLE);
+                                        final LinearLayout butconf = findViewById(R.id.but_conf);
+                                        butconf.setVisibility(View.VISIBLE);
+                                        final RelativeLayout theSecondLayout = findViewById(R.id.after_confirm);
+                                        theSecondLayout.setVisibility(View.INVISIBLE);
+                                        order.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                if(task.isSuccessful()){
+                                                    DocumentSnapshot doc = task.getResult();
+                                                    String price = (doc.get("Price")).toString();
+                                                    Intent a = new Intent(DriverMapActivity.this, ReceivePayment.class);
+                                                    a.putExtra("Price", price);
+                                                    startActivity(a);
+                                                }
+                                            }
+                                        });
+                                        dialogInterface.dismiss();
+                                    }
+                                })
+                                .create()
+                                .show();
                     }
                 }
             }
