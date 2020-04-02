@@ -157,7 +157,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     private MarkerOptions odestination;
 
 
-    private String uniqueID = UUID.randomUUID().toString();
+    private String uniqueID;
 
     FloatingActionButton bentoMenu;
 
@@ -174,6 +174,8 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     private AlertDialog completeNotice = null;
     private AlertDialog inprocessNotice = null;
     private AlertDialog declinedNotice;
+
+    String latestOrderNum;
 
 
     @Override
@@ -236,6 +238,9 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     protected void onResume() {
         super.onResume();
         showCorrectView();
+        sendNotification();
+        checkComplete();
+        checkinprocess();
     }
 
     @Override
@@ -263,7 +268,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
             }
         });
 
-        Button completeButton;
+        final Button completeButton;
         completeButton = findViewById(R.id.btn_complete);
 
         if (hasNetworkAccess()){
@@ -281,7 +286,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                 DocumentSnapshot document = task.getResult();
                                 List<String> orders = (List<String>) document.get("order");
                                 int index = orders.size() - 1;
-                                final String latestOrderNum = orders.get(index);
+                                latestOrderNum = orders.get(index);
                                 //shows in the rider map
                                 //change layout from the first show to the second show
                                 final RelativeLayout theFirstLayout = findViewById(R.id.thefirstshow);
@@ -324,16 +329,21 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                         }
                                     });
                                 }
+                                final String[] typenow = new String[1];
+                                typenow[0] = order.getType();
                                 //set button
                                 Button btnCancelRequest = findViewById(R.id.btn_cancel_request);
-                                btnCancelRequest.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        theFirstLayout.setVisibility(View.VISIBLE);
-                                        confirm_button.setVisibility(View.VISIBLE);
-                                        theSecondLayout.setVisibility(View.INVISIBLE);
+                                if (typenow[0].equals("inprocess")){
+                                    btnCancelRequest.setVisibility(View.INVISIBLE);
+                                }else {
+                                    btnCancelRequest.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            theFirstLayout.setVisibility(View.VISIBLE);
+                                            confirm_button.setVisibility(View.VISIBLE);
+                                            theSecondLayout.setVisibility(View.INVISIBLE);
 
-                                        final String[] typenow = new String[1];
+//                                        final String[] typenow = new String[1];
 //                                        final DocumentReference doc = db.collection("Requests").document(latestOrderNum);
 //                                        doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
 //                                            @Override
@@ -344,82 +354,85 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 //                                                }
 //                                            }
 //                                        });
-                                        typenow[0] = order.getType();
+//                                        typenow[0] = order.getType();
 
-                                        if(typenow[0].equals("inactive")){
-                                            //delete the order history
-                                            final DocumentReference Accountref = db.collection("Accounts").document(loginName);
-                                            Accountref.update("order", FieldValue.arrayRemove(latestOrderNum));
-                                            //delete the requestID
-                                            db.collection("Requests").document(latestOrderNum)
-                                                    .delete()
-                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                        @Override
-                                                        public void onSuccess(Void aVoid) {
-                                                            Log.d(TAG, "DocumentSnapshot successfully deleted!");
-                                                        }
-                                                    })
-                                                    .addOnFailureListener(new OnFailureListener() {
-                                                        @Override
-                                                        public void onFailure(@NonNull Exception e) {
-                                                            Log.w(TAG, "Error deleting document", e);
-                                                        }
-                                                    });
-                                        }else{
-                                            final DocumentReference Accountref = db.collection("Accounts").document(loginName);
-                                            Accountref.update("order", FieldValue.arrayRemove(latestOrderNum));
-                                            Map<String, Object> docData = new HashMap<>();
-                                            docData.put("DriverID","");
-                                            docData.put("Type","Deleted");
-                                            db.collection("Requests").document(latestOrderNum).update(docData);
+                                            if (typenow[0].equals("inactive")) {
+                                                //delete the order history
+                                                final DocumentReference Accountref = db.collection("Accounts").document(loginName);
+                                                Accountref.update("order", FieldValue.arrayRemove(latestOrderNum));
+                                                //delete the requestID
+                                                db.collection("Requests").document(latestOrderNum)
+                                                        .delete()
+                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid) {
+                                                                Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                                                            }
+                                                        })
+                                                        .addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                Log.w(TAG, "Error deleting document", e);
+                                                            }
+                                                        });
+                                            } else {
+                                                final DocumentReference Accountref = db.collection("Accounts").document(loginName);
+                                                Accountref.update("order", FieldValue.arrayRemove(latestOrderNum));
+                                                Map<String, Object> docData = new HashMap<>();
+                                                docData.put("DriverID", "");
+                                                docData.put("Type", "Deleted");
+                                                db.collection("Requests").document(latestOrderNum).update(docData);
+                                            }
                                         }
-                                    }
-                                });
-                            }
-                        }
-                    });
-                }
-                completeButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
+                                    });
+                                    completeButton.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+//                                            checkComplete();
 //                    DocumentReference order = db.collection("Requests").document(uniqueID);
 //                    order.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
 //                        @Override
 //                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 //                            if(task.isSuccessful()){
 //                                DocumentSnapshot doc = task.getResult();
-                        String typenow = order.getType();
-                        if (typenow.equals("inprocess")){
-                            Map<String, Object> docData = new HashMap<>();
-                            docData.put("Type","completed");
-                            Date finishTime = Calendar.getInstance().getTime();
-                            String finishTime2 = finishTime.toString();
-                            docData.put("FinishTime",finishTime2);
-                            db.collection("Requests")
-                                    .document(uniqueID)
-                                    .update(docData);
-                        }
-                        else{
-                            Toast.makeText(getApplicationContext(),"Cannot complete route now", Toast.LENGTH_SHORT).show();
-                        }
+                                            if (typenow[0].equals("inprocess")){
+                                                Map<String, Object> docData = new HashMap<>();
+                                                docData.put("Type","completed");
+                                                Date finishTime = Calendar.getInstance().getTime();
+                                                String finishTime2 = finishTime.toString();
+                                                docData.put("FinishTime",finishTime2);
+                                                db.collection("Requests")
+                                                        .document(latestOrderNum)
+                                                        .update(docData);
+                                            }
+                                            else{
+                                                Toast.makeText(getApplicationContext(),"Cannot complete route now", Toast.LENGTH_SHORT).show();
+                                            }
 
 //                            }
-                    }
-                });
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    });
+
+                }
 //                }
 //            });
             }
+//            checkComplete();
             //Set the complete button, switch to the make payment activity since it's the rider want to complete
 //            completeButton.setOnClickListener(new View.OnClickListener() {
 //                @Override
 //                public void onClick(View v) {
-////                    DocumentReference order = db.collection("Requests").document(uniqueID);
-////                    order.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-////                        @Override
-////                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-////                            if(task.isSuccessful()){
-////                                DocumentSnapshot doc = task.getResult();
-//                                String typenow = order.getType();
+//                    DocumentReference order = db.collection("Requests").document(uniqueID);
+//                    order.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//                        @Override
+//                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                            if(task.isSuccessful()){
+//                                DocumentSnapshot doc = task.getResult();
+//                                String typenow = doc.getString("Type");
 //                                if (typenow.equals("inprocess")){
 //                                    Map<String, Object> docData = new HashMap<>();
 //                                    docData.put("Type","completed");
@@ -434,11 +447,11 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
 //                                    Toast.makeText(getApplicationContext(),"Cannot complete route now", Toast.LENGTH_SHORT).show();
 //                                }
 //
-////                            }
+//                            }
 //                        }
 //                    });
-////                }
-////            });
+//                }
+//            });
         }
         else{
             //check if we have current avitivity
@@ -900,6 +913,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 docData.put("Destination", destinaitonGeo);
 
                 //connect to firestore and store the data
+                uniqueID = UUID.randomUUID().toString();
                 db.collection("Requests").document(uniqueID)
                         .set(docData)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -921,18 +935,15 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                 request_fragment request_frag = new request_fragment();
                 request_frag.setArguments(bundle);
                 request_frag.show(getSupportFragmentManager(), "SHOW_REQUEST");
-                sendNotification();
-                checkinprocess();
-                checkComplete();
             }else{
-                if (declinedNotice != null && declinedNotice.isShowing()) {
+                if (declinedNotice != null && declinedNotice.isShowing()) return;
                     AlertDialog.Builder builder = new AlertDialog.Builder(RiderMapActivity.this);
                     builder.setTitle("Request Declined")
                             .setMessage(username + ": Your request cannot been built since the direction between two locations is less than 500 meters.")
                             .setPositiveButton("OK", null);
                     declinedNotice = builder.create();
                     declinedNotice.show();
-                }
+
             }
         }
         else{
@@ -942,7 +953,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     }
 
     private void checkinprocess(){
-        final DocumentReference docRef = db.collection("Requests").document(uniqueID);
+        final DocumentReference docRef = db.collection("Requests").document(latestOrderNum);
         final Button cancelBtn = findViewById(R.id.btn_cancel_request);
         docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
@@ -972,7 +983,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     }
 
     private void sendNotification(){
-        final DocumentReference docRef = db.collection("Requests").document(uniqueID);
+        final DocumentReference docRef = db.collection("Requests").document(latestOrderNum);
         docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot snapshot,
@@ -1023,7 +1034,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
     }
 
     private void checkComplete(){
-        final DocumentReference docRef = db.collection("Requests").document(uniqueID);
+        final DocumentReference docRef = db.collection("Requests").document(latestOrderNum);
         docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
