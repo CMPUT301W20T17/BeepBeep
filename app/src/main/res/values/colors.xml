@@ -6,4 +6,8 @@
     <color name="orange">#FFA500</color>
     <color name="MenuCardView">#AFEEEE</color>
     <color name="TextCardView">#6F7C80</color>
+
+    <color name="colorPrimaryNight">#6200EE</color>
+    <color name="colorPrimaryDarkNight">#FF6A6A</color>
+    <color name="colorAccentNight">#03DAC5</color>
 </resources>

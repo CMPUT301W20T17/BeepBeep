@@ -65,77 +65,88 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="asdasdasdasd"
-            android:background="#808080"/>
+            android:textColor="#000000"
+            android:background="@drawable/custom_display_information"/>
 
     </LinearLayout>
 
     <RelativeLayout
         android:id="@+id/after_confirm"
+        android:layout_width="match_parent"
+        android:layout_height="326dp"
+        android:background="@drawable/custom_display_information"
         android:layout_alignParentRight="true"
-        android:layout_width="fill_parent"
-        android:layout_height="305dp"
-        android:visibility="invisible"
-        >
+        android:layout_marginRight="0dp"
+        android:visibility="invisible">
 
         <ScrollView
             android:id="@+id/driver_scroll_table"
             android:layout_width="match_parent"
             android:layout_height="260dp"
-            android:background="@color/quantum_white_text"
-            android:layout_margin="10dp">
+            android:layout_margin="10dp"
+            android:background="@color/quantum_white_text">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
+
                 <TextView
                     android:id="@+id/driver_scroll_user"
                     android:layout_width="match_parent"
-                    android:layout_height= "wrap_content"
+                    android:layout_height="wrap_content"
                     android:text="User: \n"
-                    android:textSize="20sp"
-                    />
+                    android:textSize="20sp" />
+
                 <TextView
                     android:id="@+id/driver_scroll_driver"
                     android:layout_width="match_parent"
-                    android:layout_height= "wrap_content"
+                    android:layout_height="wrap_content"
                     android:text="Driver: \n"
-                    android:textSize="20sp"/>
+                    android:textSize="20sp" />
+
                 <TextView
                     android:id="@+id/driver_scroll_start"
                     android:layout_width="match_parent"
-                    android:layout_height= "wrap_content"
+                    android:layout_height="wrap_content"
                     android:text="PickUpPoint: \n"
-                    android:textSize="20sp"/>
+                    android:textSize="20sp" />
+
                 <TextView
                     android:id="@+id/driver_scroll_end"
                     android:layout_width="match_parent"
-                    android:layout_height= "wrap_content"
+                    android:layout_height="wrap_content"
                     android:text="Destination: \n"
-                    android:textSize="20sp"/>
+                    android:textSize="20sp" />
+
                 <TextView
                     android:id="@+id/driver_scroll_price"
                     android:layout_width="match_parent"
-                    android:layout_height= "wrap_content"
+                    android:layout_height="wrap_content"
                     android:text="Price: "
-                    android:textSize="20sp"/>
+                    android:textSize="20sp" />
             </LinearLayout>
         </ScrollView>
+
         <Button
             android:id="@+id/driver_btn_complete"
-            android:layout_width="160dp"
-            android:layout_height="35dp"
-            android:background="@drawable/custom_button"
+            android:layout_width="@dimen/_100sdp"
+            android:layout_height="@dimen/_30sdp"
             android:layout_below="@+id/driver_scroll_table"
             android:layout_alignParentEnd="true"
-            android:text="COMPLETE"/>
+            android:layout_marginRight="@dimen/_35sdp"
+            android:background="@drawable/custom_map_buttons"
+            android:text="COMPLETE" />
+
         <Button
             android:id="@+id/ToStartBtn"
-            android:layout_width="160dp"
-            android:layout_height="35dp"
-            android:background="@drawable/custom_button"
+            android:layout_width="@dimen/_100sdp"
+            android:layout_height="@dimen/_30sdp"
             android:layout_below="@+id/driver_scroll_table"
             android:layout_alignParentStart="true"
-            android:text="TO START"/>
+            android:layout_marginLeft="@dimen/_35sdp"
+            android:background="@drawable/custom_map_buttons"
+            android:text="TO START" />
 
     </RelativeLayout>
 

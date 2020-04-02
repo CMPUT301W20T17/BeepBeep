@@ -2,6 +2,7 @@ package com.example.beepbeep;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -23,6 +24,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
@@ -86,13 +88,13 @@ public class Login extends AppCompatActivity {
                 String username = usernameInput.getText().toString();
                 String password = passwordInput.getText().toString();
                 // check that username and password field aren't empty
-                if(username.isEmpty()){
+                if (username.isEmpty()) {
                     // prompt for error
                     showDialog("Username cannot be empty");
-                }else if(password.isEmpty()){
+                } else if (password.isEmpty()) {
                     // prompt for error
                     showDialog("Password cannot be empty");
-                }else {
+                } else {
                     // verify user credential
                     login(username, password);
                 }
@@ -113,6 +115,7 @@ public class Login extends AppCompatActivity {
 
     /**
      * Display a message as a toast to prompt user
+     *
      * @param message String
      */
     void showDialog(String message) {
@@ -121,9 +124,10 @@ public class Login extends AppCompatActivity {
 
     /**
      * check if device have network access
+     *
      * @return true if device have network access
      */
-    boolean hasNetworkAccess(){
+    boolean hasNetworkAccess() {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getSystemService(this.CONNECTIVITY_SERVICE);
         assert connectivityManager != null;
@@ -131,7 +135,7 @@ public class Login extends AppCompatActivity {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    void saveIdentity(final String username, final String passwordHash, final String salt, DocumentSnapshot document){
+    void saveIdentity(final String username, final String passwordHash, final String salt, DocumentSnapshot document) {
         Context context = Login.this;
         SharedPreferences sharedPref = context.getSharedPreferences("identity", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
@@ -144,7 +148,7 @@ public class Login extends AppCompatActivity {
         editor.putString("role", Objects.requireNonNull(document.get("role")).toString());
         editor.putString("phone", Objects.requireNonNull(document.get("phone")).toString());
         editor.putString("balance", Objects.requireNonNull(document.get("balance")).toString());
-        if(Objects.requireNonNull(document.get("role")).toString().equals("Driver")){
+        if (Objects.requireNonNull(document.get("role")).toString().equals("Driver")) {
             editor.putString("positive", Objects.requireNonNull(document.get("positive")).toString());
             editor.putString("negative", Objects.requireNonNull(document.get("negative")).toString());
         }
@@ -153,11 +157,12 @@ public class Login extends AppCompatActivity {
 
     /**
      * Connect to database to verify the inputted credentials
+     *
      * @param username String
      * @param password String
      */
-    void login(final String username, final String password){
-        if(hasNetworkAccess()){
+    void login(final String username, final String password) {
+        if (hasNetworkAccess()) {
             // check if username exist in database
             DocumentReference docIdRef = db.collection("Accounts").document(usernameInput.getText().toString());
             docIdRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -172,7 +177,7 @@ public class Login extends AppCompatActivity {
                             String hash = Objects.requireNonNull(document.get("password")).toString();
                             try {
                                 String inputHash = SecurePasswordHashGenerator.rehashPassword(password, salt);
-                                if(inputHash.substring(33).equals(hash)){ // password is a match
+                                if (inputHash.substring(33).equals(hash)) { // password is a match
                                     saveIdentity(username, hash, salt, document);
                                     //finish();
                                     //ask the permission for using geo location and display
@@ -186,17 +191,17 @@ public class Login extends AppCompatActivity {
                                         String role = Objects.requireNonNull(document.get("role")).toString();
                                         OrderRecordManager orm = new OrderRecordManager(Login.this);
                                         orm.saveRecord();
-                                        if(role.equals("Driver")){
+                                        if (role.equals("Driver")) {
                                             Intent intent = new Intent(Login.this, DriverMapActivity.class);
                                             startActivity(intent);
                                             finishAffinity();
-                                        }else{
+                                        } else {
                                             Intent intent = new Intent(Login.this, RiderMapActivity.class);
                                             startActivity(intent);
                                             finishAffinity();
                                         }
                                     }
-                                }else{ // password does not match
+                                } else { // password does not match
                                     // prompt for error
                                     showDialog("Invalid Username or Password");
                                 }
@@ -212,7 +217,7 @@ public class Login extends AppCompatActivity {
                     }
                 }
             });
-        }else{// no internet
+        } else {// no internet
             showDialog("No Internet Connection");
         }
     }

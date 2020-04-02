@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import android.content.Context;
@@ -334,6 +335,7 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
                                         theSecondLayout.setVisibility(View.INVISIBLE);
 
                                         final String[] typenow = new String[1];
+
                                         final DocumentReference doc = db.collection("Requests").document(latestOrderNum);
                                         doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                             @Override
@@ -723,12 +725,14 @@ public class RiderMapActivity extends AppCompatActivity implements OnMapReadyCal
         if (darkmode) {
             boolean success = googleMap.setMapStyle(new MapStyleOptions(getResources()
                     .getString(R.string.style_json)));
+            getDelegate().setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
             if (!success) {
                 Log.e(TAG, "Style parsing failed.");
             }
         }else{
             boolean success = googleMap.setMapStyle(new MapStyleOptions(getResources()
                     .getString(R.string.standard)));
+            getDelegate().setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
             if (!success) {
                 Log.e(TAG, "Style parsing failed.");
             }
