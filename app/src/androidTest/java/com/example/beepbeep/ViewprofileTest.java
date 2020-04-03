@@ -62,8 +62,22 @@ public class ViewprofileTest {
         assertTrue(solo.waitForText("2222222222", 1, 2000));
         assertTrue(solo.waitForText("Rider", 1, 2000));
 
+
         //See if can switch to edit profile
         solo.clickOnView(solo.getView(R.id.edit_profile_button));
         solo.assertCurrentActivity("Wrong Activity", EditProfileActivity.class);
+
+        //Check if logout button is working
+        if(solo.waitForText("DoNotDelete",1,2000)) {
+            solo.clickOnView(solo.getView(R.id.logout_button));
+            solo.assertCurrentActivity("Wrong Activity", SignOut.class);
+        }
+        else{
+            solo.clickOnView(solo.getView(R.id.email_button));
+            solo.assertCurrentActivity("Wrong Activity",EmailUser.class);
+            solo.enterText((EditText) solo.getView(R.id.editsubject), "test");
+            solo.enterText((EditText) solo.getView(R.id.editmessage), "messageTest");
+            solo.clickOnButton("Send");
+        }
     }
 }

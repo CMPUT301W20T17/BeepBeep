@@ -2,7 +2,7 @@ package com.example.beepbeep;
 
 /*
  Title: Edit  profile test
- Author: Lyuyang Wang,Junqi Zou
+ Author: Jonathan Martins, Lyuyang Wang,Junqi Zou
  Date: 2020/03/27
 */
 import android.app.Activity;
@@ -15,6 +15,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import static com.example.beepbeep.R.id.profile_view_photo;
 import static junit.framework.TestCase.assertTrue;
 
 
@@ -147,7 +149,27 @@ public class EditprofileTest {
 
         assertTrue(solo.waitForText("test@test.com", 1, 2000));
         assertTrue(solo.waitForText("2222222222", 1, 2000));
-
     }
 
+    @Test
+    public void testSelectImage() throws Exception {
+        solo.enterText((EditText) solo.getView(R.id.Login_inputUsername), "DoNotDelete");
+        solo.enterText((EditText) solo.getView(R.id.Login_inputPassword), "1234qwer");
+        solo.clickOnButton("Login");
+        solo.clickOnView(solo.getView(R.id.bentoView));
+        solo.assertCurrentActivity("Wrong Activity", Menu.class);
+        solo.clickOnView(solo.getView(R.id.profileMenu));
+        solo.assertCurrentActivity("Wrong Activity", ViewProfile.class);
+        solo.clickOnView(solo.getView(R.id.edit_profile_button));
+        solo.assertCurrentActivity("Wrong Activity", EditProfileActivity.class);
+        solo.clickOnView(solo.getView(R.id.profile_view_photo));
+        if (solo.waitForText("Choose your profile picture", 1, 2000)) {
+            //if click on choose from gallery
+            solo.clickOnText("Choose from Gallery");
+            solo.waitForText("DEVICE", 1, 2000);
+        } else if (solo.waitForText("Grant those permission", 1, 2000)) {
+            solo.clickOnText("OK");
+            solo.waitForText("Allow BeepBeep to access photos and media on your device?", 1, 2000);
+        }
+    }
 }

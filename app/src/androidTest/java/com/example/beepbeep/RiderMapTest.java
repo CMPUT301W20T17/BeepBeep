@@ -206,11 +206,50 @@ public class RiderMapTest {
         //type before driver pick need to change the type need to change the type
         assertTrue("the address was not found", solo.searchText("8770 170 St NW, Edmonton, AB T5T 3J7, Canada", true));
         assertTrue("type error", solo.searchText("active", true));
+    }
+    @Test
+    public void testUserProfileEmail() throws Exception {
+        solo.enterText((EditText) solo.getView(R.id.Login_inputUsername), "DoNotDelete");
+        solo.enterText((EditText) solo.getView(R.id.Login_inputPassword), "1234qwer");
+        solo.clickOnButton("Login");
+        solo.assertCurrentActivity("Wrong Activity", RiderMapActivity.class);
 
+        //Entering a destination
+        solo.clickOnText("Enter the destination");
+        solo.typeText(0, "West Edmonton Mall");
+        solo.clickOnText("170 Street Northwest");
 
+        //testing if viewing others profile works
+        solo.clickOnText("DemoDriver");
+        solo.assertCurrentActivity("Wrong Activity", ViewProfile.class);
 
+        //tesing if email button is clicked
+        solo.clickOnView(solo.getView(R.id.email_button));
+        solo.assertCurrentActivity("Wrong Activity", EmailUser.class);
+        solo.enterText((EditText) solo.getView(R.id.editsubject), "test");
+        solo.enterText((EditText) solo.getView(R.id.editmessage), "messageTest");
+        solo.clickOnButton("Send");
     }
 
+    @Test
+    public void testUserProfileCall() throws Exception{
+        solo.enterText((EditText) solo.getView(R.id.Login_inputUsername), "DoNotDelete");
+        solo.enterText((EditText) solo.getView(R.id.Login_inputPassword), "1234qwer");
+        solo.clickOnButton("Login");
+        solo.assertCurrentActivity("Wrong Activity", RiderMapActivity.class);
 
+        //Entering a destination
+        solo.clickOnText("Enter the destination");
+        solo.typeText(0, "West Edmonton Mall");
+        solo.clickOnText("170 Street Northwest");
 
+        //testing if viewing others profile works
+        solo.clickOnText("DemoDriver");
+        solo.assertCurrentActivity("Wrong Activity", ViewProfile.class);
+
+        //this time testing out the call faeture
+        solo.clickOnView(solo.getView(R.id.call_button));
+        solo.waitForText("Are you sure you want to call");
+        solo.clickOnText("NO");
+    }
 }
